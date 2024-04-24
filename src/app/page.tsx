@@ -1,72 +1,109 @@
-'use client';
+"use client";
 
-import FilterModule from '@/components/filter';
-import LFOModule from '@/components/lfo';
-import OscillatorModule from '@/components/oscillator';
-import React, { useEffect } from 'react';
-import * as Tone from 'tone';
-import { ToneOscillatorType } from 'tone';
-import { Frequency, Time } from 'tone/build/esm/core/type/Units';
+import EnvelopeModule from "@/components/envelope";
+import FilterModule from "@/components/filter";
+import LFOModule from "@/components/lfo";
+import OscillatorModule from "@/components/oscillator";
+import React, { useEffect } from "react";
+import * as Tone from "tone";
+import { ToneOscillatorType } from "tone";
+import { Frequency, Time } from "tone/build/esm/core/type/Units";
 
-type SynthOptions = {
+export type SynthOptions = {
   power: boolean;
   osc1: {
+    isOn: boolean;
+    waveform: ToneOscillatorType;
     frequency: Frequency;
     volume: number;
   };
   osc2: {
+    isOn: boolean;
+    waveform: ToneOscillatorType;
     frequency: Frequency;
     volume: number;
   };
-  filter: {
+  filter1: {
+    isOn: boolean;
     frequency: Frequency;
   };
-  envelope: {
+  ampEnvelope: {
+    isOn: boolean;
     attack: Time;
     decay: Time;
     sustain: number;
     release: Time;
+
+  };
+  filterEnvelope: {
+    isOn: boolean;
+    attack: Time;
+    decay: Time;
+    sustain: number;
+    release: Time;
+
   };
   lfo1: {
+    isOn: boolean;
     waveform: ToneOscillatorType;
     frequency: Frequency;
     amplitude: number;
+    destination: 'osc1' | 'osc2' | 'filter1' | 'amplitude';
   };
   lfo2: {
+    isOn: boolean;
     waveform: ToneOscillatorType;
     frequency: Frequency;
     amplitude: number;
+    destination: 'osc1' | 'osc2' | 'filter1' | 'amplitude';
   };
 };
 
 const DEFAULT_SYNTH_OPTIONS: SynthOptions = {
   power: false,
   osc1: {
+    isOn: true,
+    waveform: "sine",
     frequency: 440,
     volume: 6,
   },
   osc2: {
-    frequency: 440,
+    isOn: true,
+    waveform: "sawtooth",
+    frequency: 880,
     volume: 6,
   },
-  filter: {
-    frequency: 1000,
+  filter1: {
+    isOn: true,
+    frequency: 1200,
   },
-  envelope: {
+  ampEnvelope: {
+    isOn: true,
+    attack: 0.1,
+    decay: 0.2,
+    sustain: 0.5,
+    release: 1,
+  },
+  filterEnvelope: {
+    isOn: true,
     attack: 0.1,
     decay: 0.2,
     sustain: 0.5,
     release: 1,
   },
   lfo1: {
-    waveform: 'sine',
-    frequency: '1000Hz' as Frequency,
+    isOn: true,
+    waveform: "sine",
+    frequency: 440,
     amplitude: 0.5,
+    destination: 'osc1',
   },
   lfo2: {
-    waveform: 'square',
-    frequency: '1000Hz' as Frequency,
+    isOn: true,
+    waveform: "square",
+    frequency: 440,
     amplitude: 1,
+    destination: 'osc2',
   },
 };
 
@@ -74,83 +111,135 @@ const Synthesizer: React.FC = () => {
   const options = DEFAULT_SYNTH_OPTIONS;
   const [synthOptions, setSynthOptions] = React.useState(options);
 
-  console.log(options)
+  const osc1 = React.useMemo(() => new Tone.Oscillator(
+    synthOptions.osc1.frequency,
+    synthOptions.osc1.waveform
+  ), [synthOptions.osc1.frequency, synthOptions.osc1.waveform]);
 
-  const osc1 = new Tone.Oscillator().toDestination();
-  const osc2 = new Tone.Oscillator().toDestination();
-  const filter = new Tone.Filter(
-    synthOptions.filter.frequency,
-    'lowpass',
-    -24 as Tone.FilterRollOff,
-  ).toDestination();
-  const envelope = new Tone.AmplitudeEnvelope().toDestination();
-  const lfo1 = React.useMemo(() => new Tone.LFO(synthOptions.lfo1.frequency, 200, 10000), [synthOptions.lfo1.frequency]);
-  const lfo2 = React.useMemo(() => new Tone.LFO(synthOptions.lfo2.frequency, 200, 10000), [synthOptions.lfo2.frequency]);
+  const osc2 = React.useMemo(() => new Tone.Oscillator(
+    synthOptions.osc2.frequency,
+    synthOptions.osc2.waveform
+  ), [synthOptions.osc2.frequency, synthOptions.osc2.waveform]);
 
-  // Connect the oscillators to the filter and envelope
-  osc1.connect(filter);
-  osc2.connect(filter);
-  filter.connect(envelope);
-          envelope.connect(Tone.Destination);
-          lfo1.connect(osc1.frequency);
-          lfo2.connect(filter.frequency);
+  osc1.volume.value = synthOptions.osc1.volume;
+  osc2.volume.value = synthOptions.osc2.volume;
+
+  const filter1 = React.useMemo(
+    () =>
+      new Tone.Filter(
+        synthOptions.filter1.frequency,
+        "lowpass",
+        -12
+      ),
+    [synthOptions.filter1.frequency]
+  );
+
+  const filterEnvelope = new Tone.FrequencyEnvelope(
+    synthOptions.filterEnvelope.attack,
+    synthOptions.filterEnvelope.decay,
+    synthOptions.filterEnvelope.sustain,
+    synthOptions.filterEnvelope.release
+  );
+
+  const ampEnvelope = new Tone.AmplitudeEnvelope(
+    synthOptions.ampEnvelope.attack,
+    synthOptions.ampEnvelope.decay,
+    synthOptions.ampEnvelope.sustain,
+    synthOptions.ampEnvelope.release
+  );
+
+  const lfo1 = React.useMemo(
+    () => new Tone.LFO(options.lfo1.frequency, 0.1, 10),
+    [options.lfo1.frequency]
+  );
+  const lfo2 = React.useMemo(
+    () => new Tone.LFO(options.lfo2.frequency, 0.1, 10),
+    [options.lfo2.frequency]
+  );
+
+  // connect the filter envelope
+  // filterEnvelope.connect(filter1.frequency);
 
 
+  // connect the amp envelope
+  ampEnvelope.connect(Tone.Destination);
+
+  // connect the oscillators
+  osc1.connect(ampEnvelope);
+  osc2.connect(ampEnvelope);
+
+  // connect the filter
+  filter1.connect(ampEnvelope);
+
+  // connect the lfos
+  // lfo1.connect(osc1.frequency);
+  // lfo2.connect(osc2.frequency);
+
+
+
+
+  // Tone requires a user gesture to start the audio context, so let's have a power button
   useEffect(() => {
-    if (synthOptions.power) {
+    if (options.power) {
       Tone.start();
-      osc1.start();
-      osc2.start();
-      lfo1.start();
-      lfo2.start();
-    } else {
-      osc1.stop();
-      osc2.stop();
-      lfo1.stop();
-      lfo2.stop();
     }
-  }, [synthOptions.power, osc1, osc2 , filter, envelope, lfo1, lfo2]);
 
-  useEffect(() => {
-    osc1.frequency.value = synthOptions.osc1.frequency;
-    osc1.volume.value = synthOptions.osc1.volume;
 
-    osc2.frequency.value = synthOptions.osc2.frequency;
-    osc2.volume.value = synthOptions.osc2.volume;
+  }, [options.power]);
 
-    filter.frequency.value = synthOptions.filter.frequency;
+  const containerStyles={
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  } as React.CSSProperties;
 
-    envelope.attack = synthOptions.envelope.attack;
-    envelope.decay = synthOptions.envelope.decay;
-    envelope.sustain = synthOptions.envelope.sustain;
-    envelope.release = synthOptions.envelope.release;
+  const styles={
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '1rem',
+  } as React.CSSProperties;
 
-    return () => {
-      osc1.dispose();
-      osc2.dispose();
-      filter.dispose();
-      envelope.dispose();
-    };
-  }, [synthOptions, osc1, osc2, filter, envelope]);
 
-  console.log(Tone.getContext())
+  console.log(Tone.getContext(), Tone.getContext().state);
 
   return (
-    <div>
-      <h1>Synthesizer</h1>
-      <OscillatorModule name="Oscillator 1" oscillator={osc1} isOn={true} />
-      <OscillatorModule name="Oscillator 2"  oscillator={osc2} isOn={true} />
-      <FilterModule name="Filter" filter={filter} isOn={true} />
-      <LFOModule name="LFO 1" lfo={lfo1} isOn={true} />
-      <LFOModule name="LFO 2" lfo={lfo2} isOn={true} />
+    <div style={containerStyles}>
+    <div style={styles}>
+      <OscillatorModule name="Oscillator 1" oscillator={osc1} key="osc1" isOn={synthOptions.osc1.isOn} setSynthOptions={setSynthOptions} />
+      <OscillatorModule name="Oscillator 2" oscillator={osc2} key="osc2" isOn={synthOptions.osc2.isOn} setSynthOptions={setSynthOptions} />
+      <FilterModule name="Filter 1" key="filter1" filter={filter1} isOn={
+        options.filter1.isOn
+      } setSynthOptions={setSynthOptions} />
+      <LFOModule name="LFO 1" key="lfo1" lfo={lfo1} isOn={
+        options.lfo1.isOn
+      } setSynthOptions={setSynthOptions}  />
+      <LFOModule name="LFO 2" key="lfo2" lfo={lfo2} isOn={
+        options.lfo2.isOn
+      } setSynthOptions={setSynthOptions}  />
+      <EnvelopeModule key="env-amp" name="Amp Envelope" envelope={ampEnvelope} isOn={
+        options.ampEnvelope.isOn
+      } setSynthOptions={setSynthOptions}  />
+            <EnvelopeModule key="env-filter" name="Filter Envelope" envelope={filterEnvelope} isOn={
+        options.filterEnvelope.isOn
+      } setSynthOptions={setSynthOptions}  />
+    </div>
 
-      <button onClick={() => {
-        setSynthOptions({ ...synthOptions, power: !synthOptions.power });
-        console.log(Tone.getContext())
-      }}>Power Button ({synthOptions.power ? 'On' : 'Off'})</button>
+    <button
+        onClick={() => {
+          setSynthOptions({ ...synthOptions, power: !synthOptions.power });
+          console.log(Tone.getContext());
+        }}
+      >
+        Power Button ({synthOptions.power ? "On" : "Off"})
+      </button>
+
+      <button onClick={() => ampEnvelope.triggerAttackRelease(
+        '1n'
+      )}>
+        Trigger Envelope
+      </button>
     </div>
   );
-}
+};
 
 export default Synthesizer;
-
