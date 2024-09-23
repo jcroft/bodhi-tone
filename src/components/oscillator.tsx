@@ -1,97 +1,103 @@
-import { SynthOptions } from "@/app/page";
+import { SynthOptions, SynthOptionsContext } from "@/app/page";
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import BaseModule from "./baseModule";
 import Slider from "./input/slider";
+import Select from "./input/select";
 
 type OscillatorModuleOptions = {
   name: string;
-  key: string;
+  componentKey: string;
   oscillator: Tone.Oscillator;
   isOn: boolean;
-  setSynthOptions: React.Dispatch<React.SetStateAction<SynthOptions>>;
 };
 
 const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   name = "Oscillator",
-  key,
+  componentKey,
   oscillator,
   isOn,
-  setSynthOptions,
 }) => {
+  const synthOptionsContext = React.useContext(SynthOptionsContext);
   const [isActive, setIsActive] = useState(isOn);
 
   useEffect(() => {
     oscillator.start();
     return () => {
       oscillator.stop();
-    }
+    };
   }, [oscillator]);
 
-  const handleFrequencyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const frequency = parseInt(event.target.value, 10);
-    console.log(frequency, event.target.value)
-    oscillator.frequency.value = frequency;
-  }
+  // const handleFrequencyChange = (
+  //   event: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   const frequency = parseInt(event.target.value, 10);
+  //   oscillator.frequency.value = frequency;
+  // };
 
-  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const volume = parseInt(event.target.value, 10);
-    oscillator.volume.value = volume;
-  }
+  // const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const volume = parseInt(event.target.value, 10);
+  //   oscillator.volume.value = volume;
+  // };
 
-  const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const type = event.target.value as Tone.ToneOscillatorType;
-    oscillator.type = type;
-  }
+  // const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const type = event.target.value as Tone.ToneOscillatorType;
+  //   oscillator.type = type;
+  // };
 
-  const handleToggle = () => {
-    setIsActive(!isActive);
-  };
-
-
-
-  console.log(name, oscillator.frequency.value)
+  console.log("oscillator", oscillator.type);
 
   return (
-    <BaseModule 
+    <BaseModule
       name={name}
-      key={key}
+      componentKey={componentKey}
       isOn={isActive}
-      setSynthOptions={setSynthOptions}
       onActivate={() => setIsActive(true)}
+      onDeactivate={() => setIsActive(false)}
     >
+      <form className="column">
+        <Slider
+          label="Pitch"
+          componentKey="frequency"
+          min={20}
+          max={8000}
+          step={1}
+          value={oscillator.frequency.value}
+          valueType="frequency"
+          onChange={(event, newValue) => {
+            oscillator.frequency.value = newValue;
+          }}
+        />
 
-      <Slider
-        label="Frequency"
-        key="frequency"
-        min={20}
-        max={12000}
-        step={1}
-        value={oscillator.frequency.value}
-        onChange={(event, newValue) => handleFrequencyChange(event)}
-      />
+        <Slider
+          label="Volume"
+          componentKey="volume"
+          min={-80}
+          max={0}
+          step={0.01}
+          value={oscillator.volume.value}
+          valueType="volume"
+          onChange={(event, newValue) => {
+            oscillator.volume.value = newValue;
+          }}
+        />
 
-      <Slider
-        label="Volume"
-        key="volume"
-        min={0}
-        max={100}
-        step={1}
-        value={oscillator.volume.value}
-        onChange={(event, newValue) => handleVolumeChange(event)}
-      />
-      <label htmlFor="type">Type:</label>
-
-      <select
-        id="type"
-        defaultValue={oscillator.type}
-        onChange={(event) => handleTypeChange(event)}
-      >
-        <option value="sine">Sine</option>
-        <option value="square">Square</option>
-        <option value="sawtooth">Sawtooth</option>
-        <option value="triangle">Triangle</option>
-      </select>
+        <Select
+          label="Waveform"
+          value={oscillator.type.toString()}
+          componentKey="type"
+          defaultOption="sine"
+          onChange={(event) => {
+            oscillator.type = event.target.value as Tone.ToneOscillatorType;
+          }}
+          options={[
+            { value: "sine", label: "Sine" },
+            { value: "square", label: "Square" },
+            { value: "sawtooth", label: "Sawtooth" },
+            { value: "triangle", label: "Triangle" },
+          ]}
+        />
+      </form>
     </BaseModule>
   );
 };
