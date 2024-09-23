@@ -14,6 +14,7 @@ import Select from "@/components/input/select";
 export type SynthOptions = {
   power: boolean;
   volume: number;
+  frequency: Frequency;
   oscillator: {
     type: ToneOscillatorType;
     frequency: Frequency;
@@ -26,7 +27,7 @@ export type SynthOptions = {
   };
   filter: {
     type: string;
-    frequency: Frequency;
+    rolloff: number;
     q: number;
   };
   filterEnvelope: {
@@ -34,12 +35,14 @@ export type SynthOptions = {
     decay: Time;
     sustain: number;
     release: Time;
+    baseFrequency: Frequency;
   };
 };
 
 const DEFAULT_SYNTH_OPTIONS: SynthOptions = {
   power: false,
   volume: -6,
+  frequency: "C4" as Frequency,
   oscillator: {
     type: "sawtooth",
     frequency: 523.3,
@@ -52,14 +55,15 @@ const DEFAULT_SYNTH_OPTIONS: SynthOptions = {
   },
   filter: {
     type: "lowpass",
-    frequency: 3000,
     q: 0,
+    rolloff: -24,
   },
   filterEnvelope: {
     attack: 0.25,
     decay: 0.5,
     sustain: 0.5,
     release: 0.25,
+    baseFrequency: 200,
   },
 };
 
@@ -89,6 +93,7 @@ export const SynthOptionsContext = React.createContext<{
 }>({
   synth: new Tone.PolySynth<Tone.MonoSynth>({
     maxPolyphony: 8,
+    voice: Tone.MonoSynth,
   }),
 });
 
@@ -100,6 +105,7 @@ const Synthesizer: React.FC = () => {
   ]);
 
   const synth = new Tone.PolySynth<Tone.MonoSynth>().toDestination();
+  synth.set(DEFAULT_SYNTH_OPTIONS);
 
   // update the synth when the synth options change
   // useEffect(() => {
