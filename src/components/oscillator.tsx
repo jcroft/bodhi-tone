@@ -1,3 +1,5 @@
+"use client";
+
 import { SynthOptions, SynthOptionsContext } from "@/app/page";
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
@@ -20,32 +22,6 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
 }) => {
   const synthOptionsContext = React.useContext(SynthOptionsContext);
   const [isActive, setIsActive] = useState(isOn);
-
-  useEffect(() => {
-    oscillator.start();
-    return () => {
-      oscillator.stop();
-    };
-  }, [oscillator]);
-
-  // const handleFrequencyChange = (
-  //   event: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   const frequency = parseInt(event.target.value, 10);
-  //   oscillator.frequency.value = frequency;
-  // };
-
-  // const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const volume = parseInt(event.target.value, 10);
-  //   oscillator.volume.value = volume;
-  // };
-
-  // const handleTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-  //   const type = event.target.value as Tone.ToneOscillatorType;
-  //   oscillator.type = type;
-  // };
-
-  console.log("oscillator", oscillator.type);
 
   return (
     <BaseModule

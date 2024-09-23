@@ -1,3 +1,5 @@
+"use client";
+
 import App from "next/app";
 import { parse } from "path";
 import React, { useState } from "react";

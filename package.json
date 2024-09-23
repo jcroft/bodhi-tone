@@ -14,7 +14,8 @@
     "react-dom": "^18",
     "reactronica": "^0.8.1-canary.0",
     "styled-components": "^6.1.13",
-    "tone": "^14.7.77"
+    "tone": "^14.7.77",
+    "webmidi": "^3.1.11"
   },
   "devDependencies": {
     "@types/node": "^20",

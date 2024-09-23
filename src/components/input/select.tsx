@@ -1,4 +1,4 @@
-// make a select component similar to the slider component
+"use client";
 
 import React from "react";
 import styled from "styled-components";

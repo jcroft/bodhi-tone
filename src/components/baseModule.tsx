@@ -1,3 +1,5 @@
+"use client";
+
 import { SynthOptions, SynthOptionsContext } from "@/app/page";
 
 import React, { useContext, useEffect, useState } from "react";
