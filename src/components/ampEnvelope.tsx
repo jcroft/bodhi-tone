@@ -11,48 +11,16 @@ import { env } from "process";
 type AmpEnvelopeModuleOptions = {
   name: string;
   componentKey: string;
-  envelope: Tone.Envelope;
-  isOn: boolean;
 };
 
 const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   name = "Envelope",
-  envelope,
-  isOn,
   componentKey,
 }) => {
-  const { synthOptions, setSynthOptions } =
-    React.useContext(SynthOptionsContext);
-  const [isActive, setIsActive] = useState(isOn);
-
-  const handleActivate = () => {
-    setSynthOptions({
-      ...synthOptions,
-      ampEnvelope: {
-        ...synthOptions.ampEnvelope,
-        isOn: true,
-      },
-    });
-  };
-
-  const handleDeactivate = () => {
-    setSynthOptions({
-      ...synthOptions,
-      ampEnvelope: {
-        ...synthOptions.ampEnvelope,
-        isOn: false,
-      },
-    });
-  };
+  const { synth } = React.useContext(SynthOptionsContext);
 
   return (
-    <BaseModule
-      name={name}
-      componentKey={componentKey}
-      isOn={isOn}
-      onActivate={handleActivate}
-      onDeactivate={handleDeactivate}
-    >
+    <BaseModule name={name} componentKey={componentKey}>
       <form>
         <Slider
           componentKey="attack"
@@ -60,10 +28,14 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(envelope.attack.toString())}
+          value={parseFloat(synth.get().envelope.attack.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            envelope.attack = newValue;
+            synth.set({
+              envelope: {
+                attack: newValue,
+              },
+            });
           }}
         />
         <Slider
@@ -72,10 +44,14 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(envelope.decay.toString())}
+          value={parseFloat(synth.get().envelope.decay.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            envelope.decay = newValue;
+            synth.set({
+              envelope: {
+                decay: newValue,
+              },
+            });
           }}
         />
         <Slider
@@ -84,10 +60,14 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={envelope.sustain}
+          value={parseFloat(synth.get().envelope.sustain.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            envelope.sustain = newValue;
+            synth.set({
+              envelope: {
+                sustain: newValue,
+              },
+            });
           }}
         />
         <Slider
@@ -96,10 +76,14 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(envelope.release.toString())}
+          value={parseFloat(synth.get().envelope.release.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            envelope.release = newValue;
+            synth.set({
+              envelope: {
+                release: newValue,
+              },
+            });
           }}
         />
       </form>

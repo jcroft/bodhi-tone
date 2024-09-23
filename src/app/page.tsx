@@ -13,61 +13,53 @@ import Select from "@/components/input/select";
 
 export type SynthOptions = {
   power: boolean;
+  volume: number;
   oscillator: {
-    isOn: boolean;
     type: ToneOscillatorType;
     frequency: Frequency;
-    volume: number;
   };
-  ampEnvelope: {
-    isOn: boolean;
+  envelope: {
     attack: Time;
     decay: Time;
     sustain: number;
     release: Time;
   };
   filter: {
-    isOn: boolean;
+    type: string;
     frequency: Frequency;
     q: number;
   };
   filterEnvelope: {
-    isOn: boolean;
     attack: Time;
     decay: Time;
     sustain: number;
     release: Time;
-    baseFrequency?: Frequency;
   };
 };
 
 const DEFAULT_SYNTH_OPTIONS: SynthOptions = {
   power: false,
+  volume: -6,
   oscillator: {
-    isOn: true,
     type: "sawtooth",
     frequency: 523.3,
-    volume: -6,
   },
-  ampEnvelope: {
-    isOn: true,
+  envelope: {
     attack: 0.25,
     decay: 0.5,
     sustain: 0.5,
     release: 0.25,
   },
   filter: {
-    isOn: true,
+    type: "lowpass",
     frequency: 3000,
     q: 0,
   },
   filterEnvelope: {
-    isOn: true,
     attack: 0.25,
     decay: 0.5,
     sustain: 0.5,
     release: 0.25,
-    baseFrequency: 3000,
   },
 };
 
@@ -93,100 +85,36 @@ const StyledDevUtilityContainer = styled.div`
 `;
 
 export const SynthOptionsContext = React.createContext<{
-  synthOptions: SynthOptions;
-  setSynthOptions: React.Dispatch<React.SetStateAction<SynthOptions>>;
+  synth: Tone.PolySynth<Tone.MonoSynth>;
 }>({
-  synthOptions: DEFAULT_SYNTH_OPTIONS,
-  setSynthOptions: (synthOptions: React.SetStateAction<SynthOptions>) => {},
+  synth: new Tone.PolySynth<Tone.MonoSynth>({
+    maxPolyphony: 8,
+  }),
 });
 
 const Synthesizer: React.FC = () => {
-  const [synthOptions, setSynthOptions] = React.useState(DEFAULT_SYNTH_OPTIONS);
+  const [power, setPower] = React.useState(false);
   const [midiInput, setMidiInput] = React.useState("none");
   const [midiInputOptions, setMidiInputOptions] = React.useState([
     { label: "Loading...", value: "none" },
   ]);
 
-  // Create the synthesizer components
-  // const oscillator = new Tone.Oscillator(
-  //   synthOptions.oscillator.frequency,
-  //   synthOptions.oscillator.type
-  // );
-  // oscillator.volume.value = synthOptions.oscillator.volume;
-
-  // const filter1 = new Tone.Filter(
-  //   synthOptions.filter.frequency,
-  //   "lowpass",
-  //   -24
-  // );
-  // filter1.Q.value = synthOptions.filter.q;
-
-  // const filterEnvelope = new Tone.FrequencyEnvelope(
-  //   synthOptions.filterEnvelope
-  // );
-
-  // const ampEnvelope = new Tone.AmplitudeEnvelope(synthOptions.ampEnvelope);
-
   const synth = new Tone.PolySynth<Tone.MonoSynth>().toDestination();
-  synth.set({
-    oscillator: {
-      type: "sawtooth",
-    },
-    envelope: {
-      attack: 0.25,
-      decay: 0.5,
-      sustain: 0.5,
-      release: 0.25,
-    },
-  });
 
-  // Connect synth components and manage their on/off states and routing
+  // update the synth when the synth options change
+  // useEffect(() => {
+  //   console.log("Updating synth with options: ", synthOptions);
+  //   synth.set(synthOptions);
+  // }, [synthOptions]);
+
+  console.log(synth.get());
+
   useEffect(() => {
-    // if (synthOptions.power) {
-    //   if (synthOptions.oscillator.isOn && osc1.state !== "started") {
-    //     console.log("Starting Osc1");
-    //     osc1.start();
-    //     osc1.mute = false;
-    //   } else if (!synthOptions.oscillator.isOn && osc1.state === "started") {
-    //     console.log("Stopping Osc1");
-    //     osc1.stop();
-    //   }
-
-    //   if (synthOptions.filterEnvelope.isOn) {
-    //     console.log("Connecting Filter Env to Filter 1");
-    //     filterEnvelope.connect(filter1.frequency);
-    //     osc1.chain(filter1, ampEnvelope, Tone.Destination);
-    //   } else {
-    //     console.log("Disconnecting Filter Env from Filter 1");
-    //     filterEnvelope.disconnect(filter1.frequency);
-    //     osc1.chain(ampEnvelope, Tone.Destination);
-    //   }
-
-    //   if (synthOptions.ampEnvelope.isOn) {
-    //     console.log("Connecting Amp Env");
-    //     ampEnvelope.connect(Tone.Destination);
-    //     osc1.chain(filter1, ampEnvelope, Tone.Destination);
-    //   } else {
-    //     console.log("Disconnecting Amp Env");
-    //     ampEnvelope.disconnect(Tone.Destination);
-    //     osc1.chain(filter1, Tone.Destination);
-    //   }
-    // } else {
-    //   console.log("Powering off");
-    //   osc1.mute = true;
-    // }
-
-    if (synthOptions.power && Tone.context.state !== "running") {
+    if (power && Tone.context.state !== "running") {
       console.log("Powering on");
       Tone.start();
     }
-  }, [
-    synthOptions.filterEnvelope.isOn,
-    synthOptions.ampEnvelope.isOn,
-    synthOptions.oscillator.isOn,
-    synthOptions.filter.isOn,
-    synthOptions.power,
-  ]);
+  }, [power]);
 
   const generateNotes = (
     notes: string[] | number[],
@@ -259,36 +187,23 @@ const Synthesizer: React.FC = () => {
   }, [midiInput]);
 
   return (
-    <SynthOptionsContext.Provider value={{ synthOptions, setSynthOptions }}>
-      <StyledSynthesizer $isOn={synthOptions.power}>
+    <SynthOptionsContext.Provider value={{ synth }}>
+      <StyledSynthesizer $isOn={power}>
         <StyledModuleContainer>
-          {/* <OscillatorModule
-            name="OSC 1"
-            oscillator={osc1}
-            componentKey="osc1"
-            isOn={synthOptions.osc1.isOn}
-          /> */}
+          <OscillatorModule name="OSC 1" componentKey="oscillator" />
           {/* <FilterWithEnvelopeModule
             componentKey="filterEnvelope"
             name="Filter"
-            filter={filter1}
-            envelope={filterEnvelope}
-            isOn={synthOptions.filterEnvelope.isOn}
-          />
-          <AmpEnvelopeModule
-            componentKey="ampEnvelope"
-            name="Amp"
-            envelope={ampEnvelope}
-            isOn={synthOptions.ampEnvelope.isOn}
           /> */}
+          <AmpEnvelopeModule componentKey="envelope" name="Amp" />
         </StyledModuleContainer>
         <StyledDevUtilityContainer>
           <button
             onClick={() => {
-              setSynthOptions({ ...synthOptions, power: !synthOptions.power });
+              setPower(!power);
             }}
           >
-            Power Button ({synthOptions.power ? "On" : "Off"})
+            Power Button ({power ? "On" : "Off"})
           </button>
 
           <button onClick={() => generateNotes([60], 0.5, "4n")}>A note</button>

@@ -9,7 +9,7 @@ import styled from "styled-components";
 type BaseModuleOptions = {
   name: string;
   componentKey: string;
-  isOn: boolean;
+  isOn?: boolean;
   onActivate?: () => void;
   onDeactivate?: () => void;
   children?: React.ReactNode;

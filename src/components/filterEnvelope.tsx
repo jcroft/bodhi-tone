@@ -11,50 +11,18 @@ import { Frequency } from "tone/build/esm/core/type/Units";
 type FilterWithEnvelopeModuleOptions = {
   name: string;
   componentKey: string;
-  filter: Tone.Filter;
-  envelope: Tone.FrequencyEnvelope;
-  isOn: boolean;
 };
 
 const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   name = "Envelope",
-  envelope,
-  filter,
-  isOn,
   componentKey,
 }) => {
-  const { synthOptions, setSynthOptions } =
-    React.useContext(SynthOptionsContext);
+  const { synth } = React.useContext(SynthOptionsContext);
 
-  const handleActivate = () => {
-    setSynthOptions({
-      ...synthOptions,
-      filterEnvelope: {
-        ...synthOptions.filterEnvelope,
-        isOn: true,
-      },
-    });
-  };
-
-  const handleDeactivate = () => {
-    console.log("deactivate");
-    setSynthOptions({
-      ...synthOptions,
-      filterEnvelope: {
-        ...synthOptions.filterEnvelope,
-        isOn: false,
-      },
-    });
-  };
+  console.log(synth.get().filter);
 
   return (
-    <BaseModule
-      name={name}
-      componentKey={componentKey}
-      isOn={isOn}
-      onActivate={handleActivate}
-      onDeactivate={handleDeactivate}
-    >
+    <BaseModule name={name} componentKey={componentKey}>
       <form className="column">
         <Slider
           componentKey="filter-base-freq"
@@ -62,12 +30,15 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={8000}
           step={0.01}
-          value={parseFloat(envelope.baseFrequency.toString())}
+          value={synth.get().filter.frequency}
           valueType="frequency"
           orient="horizontal"
           onChange={(event, newValue) => {
-            filter.frequency.value = newValue;
-            envelope.baseFrequency = newValue;
+            synth.set({
+              filter: {
+                frequency: newValue,
+              },
+            });
           }}
         />
 
@@ -77,26 +48,36 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={20}
           step={0.1}
-          value={filter.Q.value}
+          value={synth.get().filter.Q}
           disabled
           orient="horizontal"
           onChange={(event, newValue) => {
-            filter.Q.value = newValue;
+            synth.set({
+              filter: {
+                Q: newValue,
+              },
+            });
           }}
         />
       </form>
 
-      <form>
+      {/* <form>
         <Slider
           componentKey="filter-attack"
           label="Attack"
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(envelope.attack.toString())}
+          value={parseFloat(synthOptions.filterEnvelope.attack.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            envelope.attack = newValue;
+            setSynthOptions({
+              ...synthOptions,
+              filterEnvelope: {
+                ...synthOptions.filterEnvelope,
+                attack: newValue,
+              },
+            });
           }}
         />
         <Slider
@@ -105,17 +86,16 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(envelope.decay.toString())}
+          value={parseFloat(synthOptions.filterEnvelope.decay.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            envelope.decay = newValue;
-            // setSynthOptions({
-            //   ...synthOptions,
-            //   filterEnvelope: {
-            //     ...synthOptions.filterEnvelope,
-            //     decay: newValue,
-            //   },
-            // });
+            setSynthOptions({
+              ...synthOptions,
+              filterEnvelope: {
+                ...synthOptions.filterEnvelope,
+                decay: newValue,
+              },
+            });
           }}
         />
         <Slider
@@ -124,17 +104,16 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(envelope.sustain.toString())}
+          value={parseFloat(synthOptions.filterEnvelope.sustain.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            envelope.sustain = newValue;
-            // setSynthOptions({
-            //   ...synthOptions,
-            //   filterEnvelope: {
-            //     ...synthOptions.filterEnvelope,
-            //     sustain: newValue as number,
-            //   },
-            // });
+            setSynthOptions({
+              ...synthOptions,
+              filterEnvelope: {
+                ...synthOptions.filterEnvelope,
+                sustain: newValue,
+              },
+            });
           }}
         />
         <Slider
@@ -143,10 +122,9 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(envelope.release.toString())}
+          value={parseFloat(synthOptions.filterEnvelope.release.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            envelope.release = newValue;
             setSynthOptions({
               ...synthOptions,
               filterEnvelope: {
@@ -156,7 +134,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
             });
           }}
         />
-      </form>
+      </form> */}
     </BaseModule>
   );
 };
