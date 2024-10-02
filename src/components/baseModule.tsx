@@ -74,28 +74,28 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
 }) => {
   const { synth } =
     React.useContext(SynthContext);
-  const [isActive, setIsActive] = useState(isOn);
+  // const [isActive, setIsActive] = useState(isOn);
 
-  useEffect(() => {
-    if (isActive && onActivate) {
-      onActivate();
-    } else if (!isActive && onDeactivate) {
-      onDeactivate();
-    }
-  }, [isActive]);
+  // useEffect(() => {
+  //   if (isActive && onActivate) {
+  //     onActivate();
+  //   } else if (!isActive && onDeactivate) {
+  //     onDeactivate();
+  //   }
+  // }, [isActive]);
 
   return (
     <StyledBaseModule>
       <StyledModuleHeader>
         <h2>{name}</h2>
-        <input
+        {/* <input
           type="checkbox"
           id="Active"
           defaultChecked={isActive}
           onChange={(event) => {
             setIsActive(event.target.checked);
           }}
-        />
+        /> */}
       </StyledModuleHeader>
       <StyledModuleBody>{children}</StyledModuleBody>
     </StyledBaseModule>

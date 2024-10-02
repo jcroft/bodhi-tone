@@ -11,29 +11,28 @@ import styled from "styled-components";
 import { WebMidi } from "webmidi";
 import Select from "@/components/input/select";
 import { SynthContext } from "@/app/page";
+import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 
 
 const DEFAULT_SYNTH_OPTIONS = {
-    power: false,
-    volume: -6,
-    frequency: "C4" as Frequency,
+    volume: -12,
     oscillator: {
         type: "sawtooth" as OscillatorType,
-    //   frequency: 523.3,
+        frequency: 440 as Frequency,
     },
     envelope: {
-      attack: 0.25,
+      attack: 0,
       decay: 0.5,
       sustain: 0.5,
       release: 0.25,
     },
     filter: {
       type: "lowpass" as BiquadFilterType,
-      Q: 0,
+      Q: 6,
       rolloff: -24 as Tone.FilterRollOff
     },
     filterEnvelope: {
-      attack: 0.25,
+      attack: 0,
       decay: 0.5,
       sustain: 0.5,
       release: 0.25,
@@ -63,26 +62,35 @@ const StyledDevUtilityContainer = styled.div`
 `;
 
 const Synthesizer: React.FC = () => {
+
+    // power: Tone.js requires a user interaction to enable the synth, so we'll have a power button
     const [power, setPower] = React.useState(false);
-    const [midiInput, setMidiInput] = React.useState("none");
+
+    // midiInput: The currently selected MIDI input
+    const [ midiInput, setMidiInput ] = useLocalStorageState(
+        'selectedMidiInput', 'none'
+    )
+
+    // midiInputOptions: The available MIDI ports as dropdown menu options
     const [midiInputOptions, setMidiInputOptions] = React.useState([
       { label: "Loading...", value: "none" },
     ])
+
+    // synth: The Tone.PolySynth instantiated by SynthContext
     const { synth } = useContext(SynthContext)
+
+    // Set the default synth options
     synth.set({
         ...DEFAULT_SYNTH_OPTIONS
     })
+
+    // Send the output of the synth to the primary output
     synth.toDestination();
-  
-    // update the synth when the synth options change
-    // useEffect(() => {
-    //   console.log("Updating synth with options: ", synthOptions);
-    //   synth.set(synthOptions);
-    // }, [synthOptions]);
   
     console.log('CURRENT SYNTH:', synth, synth.get())
     console.log('TONE STATE:', synth.context.state)
   
+    // turn the synth on when the user presses the power button
     useEffect(() => {
       if (power && Tone.context.state !== "running") {
         console.log("Powering on");
@@ -90,6 +98,7 @@ const Synthesizer: React.FC = () => {
       }
     }, [power, synth]);
   
+    // A wrapper to onNoteOn for generated notes via user interaction (NOTE: May be unnecessary?)
     const generateNotes = (
       notes: string[] | number[],
       velocity: number,
@@ -98,27 +107,28 @@ const Synthesizer: React.FC = () => {
       onNoteOn(notes, velocity, duration);
     };
   
+    // Handle incoming MIDI noteOn messages
     const onNoteOn = (
       notes: string[] | number[],
       velocity?: number,
       duration?: Tone.Unit.Time
     ) => {
-        console.log('received notes')
-        synth.triggerAttackRelease(["C4", "E4", "A4"], "4n");
+        console.log('onNoteOn: Received notes:', notes)
       if (duration) {
-        console.log('triggering notes with duration', notes, velocity, duration)
         synth.triggerAttackRelease(notes, duration, Tone.now(), velocity);
         return;
       } else {
-        console.log('triggering notes with no duration')
         synth.triggerAttack(notes, Tone.now(), velocity);
       }
     };
   
+    // Handle incoming MIDI noteOff messages
     const onNoteOff = (notes: string[] | number[]) => {
+      console.log('onNoteOff: Received notes:', notes)
       synth.triggerRelease(notes, Tone.now());
     };
   
+    // Handle enabling of MIDI
     const onMidiEnabled = () => {
       console.log("MIDI enabled", WebMidi.inputs);
       const MIDIInputOptions = WebMidi.inputs.map((input) => ({
@@ -129,15 +139,16 @@ const Synthesizer: React.FC = () => {
       setMidiInputOptions(MIDIInputOptions);
     };
   
-    // endable webmidi
+    // Enable the webMIDI APIs upon load
     useEffect(() => {
       WebMidi.enable()
         .then(onMidiEnabled)
         .catch((err) => alert(err));
     }, []);
   
+    // Add listeners for incoming MIDI messages
     useEffect(() => {
-      if (midiInput === "none") {
+      if (midiInput === "none" || !WebMidi.enabled) {
         return;
       }
   
@@ -145,6 +156,8 @@ const Synthesizer: React.FC = () => {
       if (!selectedInput) {
         return;
       }
+
+      console.log("Adding note on/off listeners...")
   
       selectedInput.addListener("noteon", (e) => {
         const noteString = Tone.Midi(e.data[1]).toNote();
@@ -154,7 +167,7 @@ const Synthesizer: React.FC = () => {
   
       selectedInput.addListener("noteoff", (e) => {
         const noteString = Tone.Midi(e.data[1]).toNote();
-        console.log("Received noteoff", e);
+        console.log(`Received noteOn from ${selectedInput.name}: `, e);
         onNoteOff([noteString]);
       });
   
@@ -162,7 +175,7 @@ const Synthesizer: React.FC = () => {
         selectedInput.removeListener("noteon");
         selectedInput.removeListener("noteoff");
       };
-    }, [midiInput]);
+    }, [midiInput, WebMidi.enabled]);
   
     return (
         <StyledSynthesizer $isOn={power}>
@@ -181,16 +194,6 @@ const Synthesizer: React.FC = () => {
               }}
             >
               Power Button ({power ? "On" : "Off"})
-            </button>
-  
-            <button onClick={() => generateNotes([60], 0.5, "4n")}>A note</button>
-  
-            <button
-              onClick={() => {
-                generateNotes([62], 0.5, "4n");
-              }}
-            >
-              A different note
             </button>
   
             <Select

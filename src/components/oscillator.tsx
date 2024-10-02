@@ -1,6 +1,6 @@
 "use client";
 
-import { SynthContext, SynthOptions, SynthOptionsContext } from "@/app/page";
+import { SynthContext, SynthOptions } from "@/app/page";
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import BaseModule from "./baseModule";
@@ -29,7 +29,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
           onChange={(event) => {
             synth.set({
               oscillator: {
-                type: event.target.value as Tone.OscillatorType,
+                type: event.target.value as OscillatorType | undefined,
               },
             });
           }}

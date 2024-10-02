@@ -22,7 +22,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   return (
     <BaseModule name={name} componentKey={componentKey}>
       <form className="column">
-        {/* <Slider
+        <Slider
           componentKey="filter-base-freq"
           label="Frequency"
           min={0}
@@ -38,7 +38,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
               },
             });
           }}
-        /> */}
+        />
 
         <Slider
           componentKey="filter-resonance"
@@ -47,7 +47,6 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           max={20}
           step={0.1}
           value={synth.get().filter?.Q || 0}
-          disabled
           orient="horizontal"
           onChange={(event, newValue) => {
             synth.set({
