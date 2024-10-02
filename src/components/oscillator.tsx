@@ -1,6 +1,6 @@
 "use client";
 
-import { SynthOptions, SynthOptionsContext } from "@/app/page";
+import { SynthContext, SynthOptions, SynthOptionsContext } from "@/app/page";
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import BaseModule from "./baseModule";
@@ -16,7 +16,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   name = "Oscillator",
   componentKey,
 }) => {
-  const { synth } = React.useContext(SynthOptionsContext);
+  const  { synth } = React.useContext(SynthContext);
 
   return (
     <BaseModule name={name} componentKey={componentKey}>

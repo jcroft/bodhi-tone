@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import BaseModule from "./baseModule";
-import { SynthOptions, SynthOptionsContext } from "@/app/page";
+import { SynthOptions, SynthContext } from "@/app/page";
 import Slider from "./input/slider";
 import { parse } from "path";
 import { env } from "process";
@@ -17,7 +17,7 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   name = "Envelope",
   componentKey,
 }) => {
-  const { synth } = React.useContext(SynthOptionsContext);
+  const { synth } = React.useContext(SynthContext);
 
   return (
     <BaseModule name={name} componentKey={componentKey}>

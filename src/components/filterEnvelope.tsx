@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import BaseModule from "./baseModule";
-import { SynthOptions, SynthOptionsContext } from "@/app/page";
+import { SynthContext, SynthOptions, SynthOptionsContext } from "@/app/page";
 import Slider from "./input/slider";
 import { parse } from "path";
 import { Frequency } from "tone/build/esm/core/type/Units";
@@ -17,9 +17,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   name = "Envelope",
   componentKey,
 }) => {
-  const { synth } = React.useContext(SynthOptionsContext);
-
-  console.log(synth.get());
+  const { synth } = React.useContext(SynthContext);
 
   return (
     <BaseModule name={name} componentKey={componentKey}>
@@ -48,7 +46,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={20}
           step={0.1}
-          value={synth.get().filter.Q}
+          value={synth.get().filter?.Q || 0}
           disabled
           orient="horizontal"
           onChange={(event, newValue) => {
@@ -68,7 +66,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().filterEnvelope.attack.toString())}
+          value={parseFloat(synth.get().filterEnvelope?.attack?.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
             synth.set({
@@ -84,7 +82,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().filterEnvelope.decay.toString())}
+          value={parseFloat(synth.get().filterEnvelope?.decay?.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
             synth.set({
@@ -100,7 +98,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().filterEnvelope.sustain.toString())}
+          value={parseFloat(synth.get().filterEnvelope?.sustain?.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
             synth.set({
@@ -116,7 +114,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().filterEnvelope.release.toString())}
+          value={parseFloat(synth.get().filterEnvelope?.release?.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
             synth.set({

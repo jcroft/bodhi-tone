@@ -1,6 +1,6 @@
 "use client";
 
-import { SynthOptions, SynthOptionsContext } from "@/app/page";
+import { SynthContext, SynthOptions, SynthOptionsContext } from "@/app/page";
 
 import React, { useContext, useEffect, useState } from "react";
 import * as Tone from "tone";
@@ -72,8 +72,8 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
   onDeactivate,
   children,
 }) => {
-  const { synthOptions, setSynthOptions } =
-    React.useContext(SynthOptionsContext);
+  const { synth } =
+    React.useContext(SynthContext);
   const [isActive, setIsActive] = useState(isOn);
 
   useEffect(() => {
