@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { WebMidi } from "webmidi";
 import Select from "@/components/input/select";
 import Synthesizer from "@/components/synth";
+import Keyboard from "@/components/Keyboard";
 
 export type SynthOptions = {
   power: boolean;
@@ -52,16 +53,17 @@ export const SynthContext = React.createContext({
 });
 
 const SynthesizerPage: React.FC = () => {
-  
   return (
-    <SynthContext.Provider value={{
-      synth: new Tone.PolySynth<Tone.MonoSynth>({
-        maxPolyphony: 8,
-        voice: Tone.MonoSynth,
-      })}
-    }>
+    <SynthContext.Provider
+      value={{
+        synth: new Tone.PolySynth<Tone.MonoSynth>({
+          maxPolyphony: 8,
+          voice: Tone.MonoSynth,
+        }),
+      }}
+    >
       <StyledSynthPage>
-      <Synthesizer />
+        <Synthesizer />
       </StyledSynthPage>
     </SynthContext.Provider>
   );

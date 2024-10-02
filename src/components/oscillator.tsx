@@ -18,27 +18,35 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
 }) => {
   const  { synth } = React.useContext(SynthContext);
 
+  const waveformOptions = React.useMemo(() => [
+    { value: "sine" as Tone.ToneOscillatorType, label: "Sine" },
+    { value: "square" as Tone.ToneOscillatorType, label: "Square" },
+    { value: "sawtooth" as Tone.ToneOscillatorType, label: "Sawtooth" },
+    { value: "triangle" as Tone.ToneOscillatorType, label: "Triangle" },
+  ], [])
+  const currentWaveform = synth.get().oscillator.type
+  console.log(currentWaveform, 'current')
+
+  const handleWaveformChange = (e:React.ChangeEvent<HTMLSelectElement>) => {
+    synth.set({
+      oscillator: {
+        type: e.target.value as OscillatorType | undefined,
+      },
+    });
+  }
+
+  console.log('osc type:',synth.get().oscillator.type)
+
   return (
     <BaseModule name={name} componentKey={componentKey}>
       <form className="column">
         <Select
           label="Waveform"
-          value={synth.get().oscillator.type.toString()}
+          value={currentWaveform}
           componentKey="type"
-          defaultOption="sine"
-          onChange={(event) => {
-            synth.set({
-              oscillator: {
-                type: event.target.value as OscillatorType | undefined,
-              },
-            });
-          }}
-          options={[
-            { value: "sine", label: "Sine" },
-            { value: "square", label: "Square" },
-            { value: "sawtooth", label: "Sawtooth" },
-            { value: "triangle", label: "Triangle" },
-          ]}
+          defaultOption={"sine" as Tone.ToneOscillatorType}
+          onChange={handleWaveformChange}
+          options={waveformOptions}
         />
       </form>
     </BaseModule>

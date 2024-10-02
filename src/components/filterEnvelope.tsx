@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import * as Tone from "tone";
+import React from "react";
 import BaseModule from "./baseModule";
-import { SynthContext, SynthOptions, SynthOptionsContext } from "@/app/page";
+import { SynthContext } from "@/app/page";
 import Slider from "./input/slider";
-import { parse } from "path";
-import { Frequency } from "tone/build/esm/core/type/Units";
 
 type FilterWithEnvelopeModuleOptions = {
   name: string;
