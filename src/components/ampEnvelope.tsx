@@ -17,7 +17,7 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   name = "Envelope",
   componentKey,
 }) => {
-  const { synth } = React.useContext(SynthContext);
+  const { synth, saveSynthOptions } = React.useContext(SynthContext);
 
   return (
     <BaseModule name={name} componentKey={componentKey}>

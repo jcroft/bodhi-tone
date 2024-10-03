@@ -9,12 +9,12 @@ import { Frequency, Time } from "tone/build/esm/core/type/Units";
 import styled from "styled-components";
 import { WebMidi } from "webmidi";
 import Select from "@/components/input/select";
-import { SynthContext } from "@/app/page";
+import { SynthContext, SynthOptions } from "@/app/page";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import Keyboard from "./Keyboard";
 import { act } from "react-dom/test-utils";
 
-const DEFAULT_SYNTH_OPTIONS = {
+export const DEFAULT_SYNTH_OPTIONS = {
   volume: -12,
   oscillator: {
     type: "sawtooth" as OscillatorType,
@@ -38,7 +38,7 @@ const DEFAULT_SYNTH_OPTIONS = {
     release: 0.25,
     baseFrequency: 100,
   },
-};
+} as SynthOptions;
 
 const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
   display: flex;
@@ -80,11 +80,11 @@ const Synthesizer: React.FC = () => {
   const [activeNotes, setActiveNotes] = React.useState<(string | number)[]>([]);
 
   // synth: The Tone.PolySynth instantiated by SynthContext
-  const { synth } = useContext(SynthContext);
+  const { synth, synthOptions, saveSynthOptions } = useContext(SynthContext);
 
   // Set the default synth options
   synth.set({
-    ...DEFAULT_SYNTH_OPTIONS,
+    ...(DEFAULT_SYNTH_OPTIONS as {}),
   });
 
   // Send the output of the synth to the primary output
@@ -100,15 +100,6 @@ const Synthesizer: React.FC = () => {
       Tone.start();
     }
   }, [power, synth]);
-
-  // A wrapper to onNoteOn for generated notes via user interaction (NOTE: May be unnecessary?)
-  const generateNotes = (
-    notes: (string | number)[],
-    velocity: number,
-    duration?: Tone.Unit.Time
-  ) => {
-    onNoteOn(notes, velocity, duration);
-  };
 
   // Handle incoming MIDI noteOn messages
   const onNoteOn = (
@@ -179,6 +170,16 @@ const Synthesizer: React.FC = () => {
       selectedInput.removeListener("noteoff");
     };
   }, [midiInput, WebMidi.enabled]);
+
+  // If there is no synthOptions in local storage, set the default options
+  useEffect(() => {
+    if (!synthOptions) {
+      console.log("No synth options found, setting defaults");
+      saveSynthOptions(DEFAULT_SYNTH_OPTIONS);
+    } else {
+      console.log("Synth options found, setting them", synthOptions);
+    }
+  }, [synthOptions]);
 
   console.log(synth.get(), "synth.get()");
 

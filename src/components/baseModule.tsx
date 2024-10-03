@@ -72,8 +72,7 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
   onDeactivate,
   children,
 }) => {
-  const { synth } =
-    React.useContext(SynthContext);
+  const { synth, saveSynthOptions } = React.useContext(SynthContext);
   // const [isActive, setIsActive] = useState(isOn);
 
   // useEffect(() => {

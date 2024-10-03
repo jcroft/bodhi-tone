@@ -11,11 +11,10 @@ import styled from "styled-components";
 const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
   ul {
     height: 10rem;
-    background-color: black;
-    border-right: 1px solid black;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    overflow: hidden;
     li {
       float: left;
       background-color: white;
@@ -68,7 +67,7 @@ const KeyboardOctave: React.FC<KeyboardOctaveOptions> = ({
   COnly = false,
   activeNotes = ["C2"],
 }) => {
-  const { synth } = React.useContext(SynthContext);
+  const { synth, saveSynthOptions } = React.useContext(SynthContext);
 
   const onNoteDown = (note: string) => {
     synth.triggerAttackRelease(note, "8n");
