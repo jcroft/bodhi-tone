@@ -1,45 +1,69 @@
 "use client";
 
-import AmpEnvelopeModule from "@/components/ampEnvelope";
-import FilterWithEnvelopeModule from "@/components/filterEnvelope";
-import OscillatorModule from "@/components/oscillator";
-import React, { use, useEffect } from "react";
+import React from "react";
 import * as Tone from "tone";
 import { ToneOscillatorType } from "tone";
-import { Frequency, Time } from "tone/build/esm/core/type/Units";
 import styled from "styled-components";
-import { WebMidi } from "webmidi";
-import Select from "@/components/input/select";
-import Synthesizer, { DEFAULT_SYNTH_OPTIONS } from "@/components/synth";
-import Keyboard from "@/components/Keyboard";
+import Synthesizer from "@/components/Synth";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 
-export type SynthOptions = {
-  power: boolean;
-  volume: number;
-  frequency: Frequency;
-  oscillator: {
-    type: ToneOscillatorType;
-    frequency: Frequency;
-  };
-  envelope: {
-    attack: Time;
-    decay: Time;
-    sustain: number;
-    release: Time;
-  };
-  filter: {
-    type: string;
-    rolloff: number;
-    Q: number;
-  };
-  filterEnvelope: {
-    attack: Time;
-    decay: Time;
-    sustain: number;
-    release: Time;
-    baseFrequency: Frequency;
-  };
+export const DEFAULT_DUO_SYNTH_OPTIONS: Tone.DuoSynthOptions = {
+  harmonicity: 1,
+  volume: -18,
+  vibratoAmount: 0,
+  vibratoRate: 5,
+  voice0: {
+    portamento: 0,
+    oscillator: {
+      type: "sawtooth" as ToneOscillatorType,
+    },
+    filter: {
+      Q: 6,
+      type: "lowpass",
+      rolloff: -24,
+    },
+    envelope: {
+      attack: 0.01,
+      decay: 0.25,
+      sustain: 0.5,
+      release: 1,
+    },
+    filterEnvelope: {
+      attack: 0.01,
+      decay: 0.25,
+      sustain: 0.5,
+      release: 1,
+      baseFrequency: 200,
+      octaves: 7,
+      exponent: 2,
+    },
+  },
+  voice1: {
+    portamento: 0,
+    oscillator: {
+      type: "square" as ToneOscillatorType,
+    },
+    filter: {
+      Q: 6,
+      type: "lowpass",
+      rolloff: -24,
+    },
+    envelope: {
+      attack: 0.01,
+      decay: 0.25,
+      sustain: 0.5,
+      release: 1,
+    },
+    filterEnvelope: {
+      attack: 0.01,
+      decay: 0.25,
+      sustain: 0.5,
+      release: 1,
+      baseFrequency: 200,
+      octaves: 7,
+      exponent: 2,
+    },
+  },
 };
 
 const StyledSynthPage = styled.div<{ $isOn?: boolean }>`
@@ -47,29 +71,29 @@ const StyledSynthPage = styled.div<{ $isOn?: boolean }>`
 `;
 
 export const SynthContext = React.createContext({
-  synth: new Tone.PolySynth<Tone.MonoSynth>({
+  synth: new Tone.PolySynth<Tone.DuoSynth>({
     maxPolyphony: 8,
-    voice: Tone.MonoSynth,
+    voice: Tone.DuoSynth,
   }),
-  synthOptions: DEFAULT_SYNTH_OPTIONS,
-  saveSynthOptions: (options: SynthOptions) => {},
+  synthOptions: DEFAULT_DUO_SYNTH_OPTIONS,
+  saveSynthOptions: (options: Tone.DuoSynthOptions) => {},
 });
 
 const SynthesizerPage: React.FC = () => {
   const [synthOptions, setSynthOptions] = useLocalStorageState<string>(
     "synthOptions",
-    JSON.stringify(DEFAULT_SYNTH_OPTIONS)
+    JSON.stringify(DEFAULT_DUO_SYNTH_OPTIONS)
   );
 
   return (
     <SynthContext.Provider
       value={{
-        synth: new Tone.PolySynth<Tone.MonoSynth>({
-          maxPolyphony: 8,
-          voice: Tone.MonoSynth,
+        synth: new Tone.PolySynth<Tone.DuoSynth>({
+          maxPolyphony: 16,
+          voice: Tone.DuoSynth,
         }),
         synthOptions: JSON.parse(synthOptions),
-        saveSynthOptions: (options: SynthOptions) => {
+        saveSynthOptions: (options: Tone.DuoSynthOptions) => {
           console.log("saving options", options);
           setSynthOptions(JSON.stringify(options));
         },

@@ -1,6 +1,6 @@
 "use client";
 
-import { SynthContext, SynthOptions, SynthOptionsContext } from "@/app/page";
+import { SynthContext, SynthOptions } from "@/app/page";
 
 import React, { useContext, useEffect, useState } from "react";
 import * as Tone from "tone";
@@ -10,6 +10,7 @@ type BaseModuleOptions = {
   name: string;
   componentKey: string;
   isOn?: boolean;
+  classNames?: string;
   onActivate?: () => void;
   onDeactivate?: () => void;
   children?: React.ReactNode;
@@ -40,6 +41,10 @@ const StyledModuleHeader = styled.div`
     margin: 0;
     padding: 0;
   }
+
+  &.red {
+    background-color: red;
+  }
 `;
 
 const StyledModuleBody = styled.div`
@@ -66,6 +71,7 @@ const StyledModuleBody = styled.div`
 
 const BaseModule: React.FC<BaseModuleOptions> = ({
   name = "Base Module",
+  classNames,
   componentKey,
   isOn,
   onActivate,
@@ -73,28 +79,11 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
   children,
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
-  // const [isActive, setIsActive] = useState(isOn);
-
-  // useEffect(() => {
-  //   if (isActive && onActivate) {
-  //     onActivate();
-  //   } else if (!isActive && onDeactivate) {
-  //     onDeactivate();
-  //   }
-  // }, [isActive]);
 
   return (
     <StyledBaseModule>
       <StyledModuleHeader>
         <h2>{name}</h2>
-        {/* <input
-          type="checkbox"
-          id="Active"
-          defaultChecked={isActive}
-          onChange={(event) => {
-            setIsActive(event.target.checked);
-          }}
-        /> */}
       </StyledModuleHeader>
       <StyledModuleBody>{children}</StyledModuleBody>
     </StyledBaseModule>

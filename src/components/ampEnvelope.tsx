@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
-import BaseModule from "./baseModule";
+import BaseModule from "./BaseModule";
 import { SynthOptions, SynthContext } from "@/app/page";
 import Slider from "./input/slider";
 import { parse } from "path";
@@ -11,13 +11,26 @@ import { env } from "process";
 type AmpEnvelopeModuleOptions = {
   name: string;
   componentKey: string;
+  voiceKeys: string[];
 };
 
 const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   name = "Envelope",
   componentKey,
+  voiceKeys = ["voice1", "voice2"],
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
+  const synthState = synth.get() as { [key: string]: SynthOptions };
+  const theseVoices = voiceKeys.map((key) => synthState[key]);
+  const referenceVoice = theseVoices[0];
+
+  const setAllVoices = (options: any) => {
+    voiceKeys.forEach((voiceKey) => {
+      synth.set({
+        [voiceKey]: options,
+      });
+    });
+  };
 
   return (
     <BaseModule name={name} componentKey={componentKey}>
@@ -28,10 +41,10 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().envelope.attack.toString())}
+          value={parseFloat(referenceVoice?.envelope.attack.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               envelope: {
                 attack: newValue,
               },
@@ -44,10 +57,10 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().envelope.decay.toString())}
+          value={parseFloat(referenceVoice?.envelope.decay.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               envelope: {
                 decay: newValue,
               },
@@ -60,10 +73,10 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().envelope.sustain.toString())}
+          value={parseFloat(referenceVoice?.envelope.sustain.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               envelope: {
                 sustain: newValue,
               },
@@ -76,10 +89,10 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().envelope.release.toString())}
+          value={parseFloat(referenceVoice?.envelope.release.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               envelope: {
                 release: newValue,
               },

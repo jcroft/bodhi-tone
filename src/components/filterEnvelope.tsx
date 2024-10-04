@@ -1,35 +1,52 @@
 "use client";
 
 import React from "react";
-import BaseModule from "./baseModule";
-import { SynthContext } from "@/app/page";
+import BaseModule from "./BaseModule";
+import { SynthContext, SynthOptions } from "@/app/page";
 import Slider from "./input/slider";
+import LogarithmicSlider from "./input/LogarithmicSlider";
 
 type FilterWithEnvelopeModuleOptions = {
   name: string;
   componentKey: string;
+  voiceKeys: string[];
 };
 
 const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   name = "Envelope",
   componentKey,
+  voiceKeys = ["voice1", "voice2"],
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
+  const synthState = synth.get() as { [key: string]: SynthOptions };
+  const theseVoices = voiceKeys.map((key) => synthState[key]);
+  const referenceVoice = theseVoices[0];
+
+  const setAllVoices = (options: any) => {
+    voiceKeys.forEach((voiceKey) => {
+      console.log(`Setting voice ${voiceKey} to`, options);
+      synth.set({
+        [voiceKey]: options,
+      });
+      console.log(synth.get()[`${voiceKey}`], `${voiceKey} after update`);
+    });
+  };
 
   return (
     <BaseModule name={name} componentKey={componentKey}>
       <form className="column">
-        <Slider
-          componentKey="filter-base-freq"
-          label="Frequency"
-          min={0}
-          max={8000}
-          step={0.01}
-          value={synth.get().filterEnvelope.baseFrequency}
-          valueType="frequency"
-          orient="horizontal"
+        <LogarithmicSlider
+          // componentKey="filter-base-freq"
+          // label="Frequency"
+          min={1}
+          max={20000}
+          // step={0.01}
+          value={referenceVoice?.filterEnvelope?.baseFrequency || 0}
+          // logarithmic
+          // valueType="frequency"
+          // orient="horizontal"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               filterEnvelope: {
                 baseFrequency: newValue,
               },
@@ -43,10 +60,10 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={20}
           step={0.1}
-          value={synth.get().filter?.Q || 0}
+          value={referenceVoice?.filter?.Q || 0}
           orient="horizontal"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               filter: {
                 Q: newValue,
               },
@@ -62,10 +79,10 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().filterEnvelope?.attack?.toString())}
+          value={parseFloat(referenceVoice?.filterEnvelope?.attack?.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               filterEnvelope: {
                 attack: newValue,
               },
@@ -78,10 +95,10 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().filterEnvelope?.decay?.toString())}
+          value={parseFloat(referenceVoice?.filterEnvelope?.decay?.toString())}
           orient="vertical"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               filterEnvelope: {
                 decay: newValue,
               },
@@ -94,10 +111,12 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().filterEnvelope?.sustain?.toString())}
+          value={parseFloat(
+            referenceVoice?.filterEnvelope?.sustain?.toString()
+          )}
           orient="vertical"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               filterEnvelope: {
                 sustain: newValue,
               },
@@ -110,10 +129,12 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
           min={0}
           max={1}
           step={0.01}
-          value={parseFloat(synth.get().filterEnvelope?.release?.toString())}
+          value={parseFloat(
+            referenceVoice?.filterEnvelope?.release?.toString()
+          )}
           orient="vertical"
           onChange={(event, newValue) => {
-            synth.set({
+            setAllVoices({
               filterEnvelope: {
                 release: newValue,
               },

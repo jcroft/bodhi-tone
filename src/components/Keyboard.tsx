@@ -3,7 +3,7 @@
 import { SynthContext, SynthOptions } from "@/app/page";
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
-import BaseModule from "./baseModule";
+import BaseModule from "./BaseModule";
 import Slider from "./input/slider";
 import Select from "./input/select";
 import styled from "styled-components";

@@ -1,44 +1,18 @@
 "use client";
 
-import AmpEnvelopeModule from "@/components/ampEnvelope";
-import FilterWithEnvelopeModule from "@/components/filterEnvelope";
-import OscillatorModule from "@/components/oscillator";
+import AmpEnvelopeModule from "@/components/AmpEnvelope";
+import FilterWithEnvelopeModule from "@/components/FilterEnvelope";
+import OscillatorModule from "@/components/Oscillator";
 import React, { useContext, useEffect } from "react";
 import * as Tone from "tone";
 import { Frequency, Time } from "tone/build/esm/core/type/Units";
 import styled from "styled-components";
 import { WebMidi } from "webmidi";
 import Select from "@/components/input/select";
-import { SynthContext, SynthOptions } from "@/app/page";
+import { SynthContext, DEFAULT_DUO_SYNTH_OPTIONS } from "@/app/page";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import Keyboard from "./Keyboard";
-import { act } from "react-dom/test-utils";
-
-export const DEFAULT_SYNTH_OPTIONS = {
-  volume: -12,
-  oscillator: {
-    type: "sawtooth" as OscillatorType,
-    frequency: 440 as Frequency,
-  },
-  envelope: {
-    attack: 0,
-    decay: 0.5,
-    sustain: 0.5,
-    release: 0.25,
-  },
-  filter: {
-    type: "lowpass" as BiquadFilterType,
-    Q: 6,
-    rolloff: -24 as Tone.FilterRollOff,
-  },
-  filterEnvelope: {
-    attack: 0,
-    decay: 0.5,
-    sustain: 0.5,
-    release: 0.25,
-    baseFrequency: 100,
-  },
-} as SynthOptions;
+import VoiceModule from "./VoiceControl";
 
 const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
   display: flex;
@@ -84,7 +58,7 @@ const Synthesizer: React.FC = () => {
 
   // Set the default synth options
   synth.set({
-    ...(DEFAULT_SYNTH_OPTIONS as {}),
+    ...(DEFAULT_DUO_SYNTH_OPTIONS as Tone.PolySynthOptions<Tone.DuoSynthOptions>),
   });
 
   // Send the output of the synth to the primary output
@@ -175,20 +149,40 @@ const Synthesizer: React.FC = () => {
   useEffect(() => {
     if (!synthOptions) {
       console.log("No synth options found, setting defaults");
-      saveSynthOptions(DEFAULT_SYNTH_OPTIONS);
+      saveSynthOptions(DEFAULT_DUO_SYNTH_OPTIONS);
     } else {
       console.log("Synth options found, setting them", synthOptions);
     }
   }, [synthOptions]);
 
-  console.log(synth.get(), "synth.get()");
-
   return (
     <StyledSynthesizer $isOn={power}>
       <StyledModuleContainer>
-        <OscillatorModule name="Oscillator" componentKey="oscillator" />
-        <FilterWithEnvelopeModule componentKey="filterEnvelope" name="Filter" />
-        <AmpEnvelopeModule componentKey="envelope" name="Amp" />
+        <VoiceModule
+          name="Voice Control"
+          componentKey="voiceControl"
+          voiceKeys={["voice0", "voice1"]}
+        />
+        <OscillatorModule
+          name="Oscillator"
+          componentKey="osc1"
+          voiceKeys={["voice0"]}
+        />
+        <OscillatorModule
+          name="Oscillator"
+          componentKey="osc2"
+          voiceKeys={["voice1"]}
+        />
+        <FilterWithEnvelopeModule
+          componentKey="filterEnvelope"
+          name="Filter"
+          voiceKeys={["voice0", "voice1"]}
+        />
+        <AmpEnvelopeModule
+          componentKey="envelope"
+          name="Amp"
+          voiceKeys={["voice0", "voice1"]}
+        />
       </StyledModuleContainer>
 
       <Keyboard

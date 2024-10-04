@@ -1,8 +1,3 @@
-"use client";
-
-import { log } from "console";
-import App from "next/app";
-import { parse } from "path";
 import React, { useState } from "react";
 import * as Tone from "tone";
 
@@ -11,7 +6,7 @@ const SLIDER_HORIZONTAL_WIDTH = 100;
 const SLIDER_VERTICAL_HEIGHT = 100;
 const SLIDER_VERTICAL_WIDTH = 10;
 
-interface SliderProps {
+interface LogarithmicSliderProps {
   label: string;
   componentKey: string;
   min: number;
@@ -19,7 +14,7 @@ interface SliderProps {
   step?: number;
   logarithmic?: boolean;
   defaultValue?: number;
-  value?: number;
+  value: number;
   valueType?: "frequency" | "time" | "volume";
   disabled?: boolean;
   orient?: "vertical" | "horizontal";
@@ -29,34 +24,21 @@ interface SliderProps {
   ) => void;
 }
 
-const Slider: React.FC<SliderProps> = ({
+const LogarithmicSlider: React.FC<LogarithmicSliderProps> = ({
   label,
   componentKey,
   min,
   max,
   value,
-  logarithmic,
-  defaultValue,
   valueType,
-  step,
-  disabled = false,
   orient = "horizontal",
   onChange,
 }) => {
-  // const [sliderValue, setSliderValue] = useState(value || defaultValue);
-  const [sliderValue, setSliderValue] = useState(
-    value !== undefined
-      ? logarithmic
-        ? Math.log10(value as number)
-        : value
-      : defaultValue
-  );
+  const [sliderValue, setSliderValue] = useState(Math.log10(value));
 
   const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = logarithmic
-      ? Math.pow(10, parseFloat(event.target.value))
-      : parseFloat(event.target.value);
-    setSliderValue(newValue);
+    const newValue = Math.pow(10, parseFloat(event.target.value));
+    setSliderValue(parseFloat(event.target.value));
     onChange(event, newValue);
   };
 
@@ -86,28 +68,16 @@ const Slider: React.FC<SliderProps> = ({
     <div style={containerStyles}>
       <label htmlFor={componentKey}>{label}</label>
       <input
-        id={componentKey}
-        style={styles}
         type="range"
-        min={logarithmic ? Math.log10(min) : min}
-        max={logarithmic ? Math.log10(max) : max}
-        defaultValue={defaultValue}
-        disabled={disabled}
+        min={Math.log10(min)}
+        max={Math.log10(max)}
         value={sliderValue}
-        step={step || 1}
+        step="0.01"
         onChange={handleSliderChange}
       />
-      <span className="value">
-        {valueType === "volume" && sliderValue !== undefined
-          ? `${parseFloat(sliderValue.toString()).toFixed()} dB`
-          : valueType === "frequency" && sliderValue !== undefined
-          ? `${sliderValue.toFixed()} Hz (${sliderValueAsFrequency})`
-          : sliderValue !== undefined
-          ? parseFloat(sliderValue.toString()).toFixed(2)
-          : "Unknown"}
-      </span>
+      <div>{value.toFixed(2)} Hz</div>
     </div>
   );
 };
 
-export default Slider;
+export default LogarithmicSlider;
