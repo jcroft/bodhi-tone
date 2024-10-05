@@ -1,10 +1,8 @@
 "use client";
 
-import { SynthContext } from "@/app/page";
-import { on } from "events";
 import React from "react";
-import styled from "styled-components";
 import * as Tone from "tone";
+import { SynthContext } from "../Synth";
 
 type KeyboardOctaveOptions = {
   octaveNumber?: number | string;

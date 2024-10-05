@@ -2,9 +2,9 @@
 
 import React from "react";
 import BaseModule from "./BaseModule";
-import { SynthContext } from "@/app/page";
 import Slider from "../Input/Slider";
 import * as Tone from "tone";
+import { SynthContext } from "../Synth";
 
 type FilterWithEnvelopeModuleOptions = {
   name: string;

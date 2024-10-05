@@ -6,7 +6,6 @@ import OscillatorModule from "@/components/Modules/Oscillator";
 import React, { useContext, useEffect } from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
-import { SynthContext } from "@/app/page";
 import Keyboard from "./Keyboard/Keyboard";
 import VoiceModule from "./Modules/VoiceControl";
 import MIDIInputSelect from "./MIDI/MIDIInputSelect";
@@ -48,6 +47,17 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
     },
   } as Tone.MonoSynthOptions,
 };
+
+export const SynthContext = React.createContext({
+  synth: new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS),
+  synthOptions: DEFAULT_SYNTH_OPTIONS,
+  saveSynthOptions: (options: Partial<Tone.MonoSynthOptions>) => {},
+  effects: {
+    chorus: new Tone.Chorus(4, 2.5, 0.5).toDestination(),
+    delay: new Tone.PingPongDelay("4n", 0.1).toDestination(),
+    reverb: new Tone.Reverb(0.5).toDestination(),
+  },
+});
 
 const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
   display: flex;

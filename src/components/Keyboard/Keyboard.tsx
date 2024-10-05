@@ -1,6 +1,5 @@
 "use client";
 
-import { SynthContext } from "@/app/page";
 import React from "react";
 import styled from "styled-components";
 import KeyboardOctave from "./KeyboardOctave";

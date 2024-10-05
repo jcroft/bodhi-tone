@@ -3,23 +3,15 @@
 import React from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
-import Synthesizer, { DEFAULT_SYNTH_OPTIONS } from "@/components/Synth";
+import Synthesizer, {
+  DEFAULT_SYNTH_OPTIONS,
+  SynthContext,
+} from "@/components/Synth";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 
 const StyledSynthPage = styled.div<{ $isOn?: boolean }>`
   padding: 1rem;
 `;
-
-export const SynthContext = React.createContext({
-  synth: new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS),
-  synthOptions: DEFAULT_SYNTH_OPTIONS,
-  saveSynthOptions: (options: Partial<Tone.MonoSynthOptions>) => {},
-  effects: {
-    chorus: new Tone.Chorus(4, 2.5, 0.5).toDestination(),
-    delay: new Tone.PingPongDelay("4n", 0.1).toDestination(),
-    reverb: new Tone.Reverb(0.5).toDestination(),
-  },
-});
 
 const SynthesizerPage: React.FC = () => {
   const [synthOptions, setSynthOptions] = useLocalStorageState<string>(

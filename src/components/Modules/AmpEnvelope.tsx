@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import BaseModule from "./BaseModule";
-import { SynthContext } from "@/app/page";
 import Slider from "../Input/Slider";
 import * as Tone from "tone";
+import { SynthContext } from "../Synth";
 
 type AmpEnvelopeModuleOptions = {
   name: string;

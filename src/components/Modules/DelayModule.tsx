@@ -1,8 +1,8 @@
-import { SynthContext } from "@/app/page";
 import React, { useState } from "react";
 import { PingPongDelayOptions } from "tone";
 import BaseModule from "./BaseModule";
 import Slider from "../Input/Slider";
+import { SynthContext } from "../Synth";
 
 interface DelayModuleProps {
   name: string;
