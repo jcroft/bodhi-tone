@@ -1,12 +1,13 @@
 "use client";
 
-import { DEFAULT_SYNTH_OPTIONS, SynthContext } from "@/app/page";
+import { SynthContext } from "@/app/page";
 import React, { useEffect } from "react";
 import * as Tone from "tone";
 import BaseModule from "./BaseModule";
 import Slider from "../Input/Slider";
 import Select from "../Input/Select";
 import { OmniOscillatorType } from "tone/build/esm/source/oscillator/OscillatorInterface";
+import { DEFAULT_SYNTH_OPTIONS } from "../Synth";
 
 type OscillatorModuleOptions = {
   name: string;

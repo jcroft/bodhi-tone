@@ -2,9 +2,8 @@
 
 import React from "react";
 import BaseModule from "./BaseModule";
-import { DEFAULT_SYNTH_OPTIONS, SynthContext } from "@/app/page";
+import { SynthContext } from "@/app/page";
 import Slider from "../Input/Slider";
-import LogarithmicSlider from "../Input/LogarithmicSlider";
 import * as Tone from "tone";
 
 type FilterWithEnvelopeModuleOptions = {
