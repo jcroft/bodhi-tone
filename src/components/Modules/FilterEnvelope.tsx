@@ -9,12 +9,10 @@ import * as Tone from "tone";
 
 type FilterWithEnvelopeModuleOptions = {
   name: string;
-  componentKey: string;
 };
 
 const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   name = "Envelope",
-  componentKey,
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
   const synthState = synth.get() as Tone.MonoSynthOptions;
@@ -24,7 +22,7 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   };
 
   return (
-    <BaseModule name={name} componentKey={componentKey}>
+    <BaseModule name={name}>
       <form>
         <Slider
           componentKey="filter-base-freq"

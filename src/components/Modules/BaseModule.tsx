@@ -7,7 +7,6 @@ import styled from "styled-components";
 
 type BaseModuleOptions = {
   name: string;
-  componentKey: string;
   isOn?: boolean;
   classNames?: string;
   onActivate?: () => void;
@@ -117,7 +116,6 @@ const StyledModuleBody = styled.div`
 const BaseModule: React.FC<BaseModuleOptions> = ({
   name = "Base Module",
   classNames,
-  componentKey,
   isOn,
   onActivate,
   onDeactivate,

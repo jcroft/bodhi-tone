@@ -7,14 +7,12 @@ import * as Tone from "tone";
 
 interface MIDIInputSelectProps {
   label: string;
-  componentKey: string;
   onNoteOn: (notes: string[]) => void;
   onNoteOff: (notes: string[]) => void;
 }
 
 const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
   label,
-  componentKey,
   onNoteOn,
   onNoteOff,
 }) => {
@@ -40,11 +38,19 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
     setMidiInputOptions(MIDIInputOptions);
   };
 
+  const browserSupportsMIDI = WebMidi.supported;
+
   // Enable the webMIDI APIs upon load
   React.useEffect(() => {
-    WebMidi.enable()
-      .then(onMidiEnabled)
-      .catch((err) => alert(err));
+    if (browserSupportsMIDI) {
+      WebMidi.enable().then(onMidiEnabled).catch(console.error);
+    } else {
+      console.error("WebMIDI is not supported in this browser");
+    }
+
+    return () => {
+      WebMidi.disable();
+    };
   }, []);
 
   // Add listeners for incoming MIDI messages
@@ -78,17 +84,19 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
     };
   }, [midiInput, WebMidi.enabled]);
 
-  return (
+  return browserSupportsMIDI ? (
     <Select
-      componentKey="midi-input"
-      defaultOption="none"
-      value={midiInput}
-      label="Midi Input"
+      componentKey="midiInput"
+      defaultOption="Select MIDI Input"
+      label={label}
       options={midiInputOptions}
-      onChange={(event) => {
-        setMidiInput(event.target.value);
+      value={midiInput}
+      onChange={(e) => {
+        setMidiInput(e.target.value);
       }}
     />
+  ) : (
+    <div>MIDI not supported in this browser</div>
   );
 };
 

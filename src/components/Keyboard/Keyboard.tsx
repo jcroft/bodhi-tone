@@ -60,7 +60,6 @@ const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
 
 type KeyboardOptions = {
   name: string;
-  componentKey: string;
   lowestOctave?: number;
   octaves?: number;
   activeNotes?: (string | number)[];
@@ -78,7 +77,6 @@ type KeyboardOptions = {
 
 const Keyboard: React.FC<KeyboardOptions> = ({
   name = "keyboard",
-  componentKey,
   lowestOctave = 1,
   octaves = 3,
   activeNotes = ["C4"],

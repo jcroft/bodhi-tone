@@ -9,13 +9,9 @@ import { parse } from "path";
 
 type ReverbModuleOptions = {
   name: string;
-  componentKey: string;
 };
 
-const ReverbModule: React.FC<ReverbModuleOptions> = ({
-  name = "Reverb",
-  componentKey,
-}) => {
+const ReverbModule: React.FC<ReverbModuleOptions> = ({ name = "Reverb" }) => {
   const { effects } = React.useContext(SynthContext);
 
   const updateEffectSettings = (
@@ -28,7 +24,7 @@ const ReverbModule: React.FC<ReverbModuleOptions> = ({
   };
 
   return (
-    <BaseModule name={name} componentKey={componentKey}>
+    <BaseModule name={name}>
       <form>
         <Slider
           componentKey="reverb-wet"

@@ -5,7 +5,6 @@ import * as Tone from "tone";
 import styled from "styled-components";
 import Synthesizer from "@/components/Synth";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
-import { OmniOscillatorSynthOptions } from "tone/build/esm/source/oscillator/OscillatorInterface";
 
 export const DEFAULT_SYNTH_OPTIONS: Partial<
   Tone.PolySynthOptions<Tone.MonoSynth>

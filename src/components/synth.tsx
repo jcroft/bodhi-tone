@@ -19,7 +19,8 @@ const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  opacity: ${({ $isOn }) => ($isOn ? 1 : 0.5)};
+  opacity: ${({ $isOn }) => ($isOn ? 1 : 0.25)};
+  transition: opacity 0.3s ease-in-out;
 `;
 
 const StyledModuleContainer = styled.div`
@@ -82,7 +83,6 @@ const Synthesizer: React.FC = () => {
       synth.triggerAttackRelease(notes, duration, Tone.now(), velocity);
       // After a duration, release the notes // TODO: Ideally this would be the same duration as the note length
       setTimeout(() => {
-        console.log("Releasing notes", notes);
         setActiveNotes((prevList) =>
           prevList.filter((note) => !notes.includes(note))
         );
@@ -121,7 +121,6 @@ const Synthesizer: React.FC = () => {
         <PowerButton isOn={power} onClick={() => setPower(!power)} />
         <MIDIInputSelect
           label="MIDI Input"
-          componentKey="midiInput"
           onNoteOn={onNoteOn}
           onNoteOff={onNoteOff}
         />
@@ -129,27 +128,19 @@ const Synthesizer: React.FC = () => {
 
       <StyledSynthesizer $isOn={power}>
         <StyledModuleContainer>
-          <VoiceModule name="Control" componentKey="voiceControl" />
-          <OscillatorModule
-            name="Oscillator"
-            componentKey="osc"
-            voiceKeys={["voice0"]}
-          />
-          <FilterWithEnvelopeModule
-            componentKey="filterEnvelope"
-            name="Filter"
-          />
-          <AmpEnvelopeModule componentKey="envelope" name="Amp" />
+          <VoiceModule name="Control" />
+          <OscillatorModule name="Oscillator" />
+          <FilterWithEnvelopeModule name="Filter" />
+          <AmpEnvelopeModule name="Amp" />
 
-          <ChorusModule componentKey="chorus" name="Chorus" />
-          <DelayModule componentKey="delay" name="Delay" />
-          <ReverbModule componentKey="reverb" name="Reverb" />
+          <ChorusModule name="Chorus" />
+          <DelayModule name="Delay" />
+          <ReverbModule name="Reverb" />
         </StyledModuleContainer>
 
         <Keyboard
           activeNotes={activeNotes}
           name="keyboard"
-          componentKey="keyboard"
           onNoteOn={onNoteOn}
           onNoteOff={onNoteOff}
         />

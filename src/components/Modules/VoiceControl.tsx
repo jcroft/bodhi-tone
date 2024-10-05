@@ -9,13 +9,9 @@ import Select from "../Input/Select";
 
 type VoiceModuleOptions = {
   name: string;
-  componentKey: string;
 };
 
-const VoiceModule: React.FC<VoiceModuleOptions> = ({
-  name = "Oscillator",
-  componentKey,
-}) => {
+const VoiceModule: React.FC<VoiceModuleOptions> = ({ name = "Oscillator" }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
   const synthState = synth.get() as Tone.MonoSynthOptions;
 
@@ -24,7 +20,7 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
   };
 
   return (
-    <BaseModule name={name} componentKey={componentKey}>
+    <BaseModule name={name}>
       <form>
         <Slider
           componentKey="volume"
@@ -41,10 +37,8 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
           }}
           showValueFill
         />
-        <div className="control-group">
-          <h3>Voices</h3>
 
-          {/* <Select
+        {/* <Select
             componentKey="maxPolyphony"
             label="Count"
             defaultOption="8"
@@ -60,7 +54,7 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
               setMaxPolyphony(parseInt(event.target.value));
             }}
           /> */}
-          <Slider
+        {/* <Slider
             componentKey="portamento"
             label="Glide"
             min={0}
@@ -73,22 +67,21 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
                 portamento: newValue,
               });
             }}
-          />
-          <Slider
-            componentKey="detune"
-            label="Tune"
-            min={-100}
-            max={100}
-            step={1}
-            value={synthState?.detune || 0}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              updateSynthSettings({
-                detune: newValue,
-              });
-            }}
-          />
-        </div>
+          /> */}
+        <Slider
+          componentKey="detune"
+          label="Tune"
+          min={-100}
+          max={100}
+          step={1}
+          value={synthState?.detune || 0}
+          orient="vertical"
+          onChange={(event, newValue) => {
+            updateSynthSettings({
+              detune: newValue,
+            });
+          }}
+        />
 
         {/* <Slider
           componentKey="harmonicity"

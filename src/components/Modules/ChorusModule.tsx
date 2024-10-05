@@ -6,13 +6,9 @@ import Slider from "../Input/Slider";
 
 interface ChorusModuleProps {
   name: string;
-  componentKey: string;
 }
 
-const ChorusModule: React.FC<ChorusModuleProps> = ({
-  name = "Chorus",
-  componentKey,
-}) => {
+const ChorusModule: React.FC<ChorusModuleProps> = ({ name = "Chorus" }) => {
   const { effects } = React.useContext(SynthContext);
 
   const updateEffectSettings = (options: Partial<ChorusOptions>) => {
@@ -25,7 +21,7 @@ const ChorusModule: React.FC<ChorusModuleProps> = ({
   };
 
   return (
-    <BaseModule name={name} componentKey={componentKey}>
+    <BaseModule name={name}>
       <form>
         <Slider
           componentKey="chorus-wet"

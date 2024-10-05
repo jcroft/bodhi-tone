@@ -8,12 +8,10 @@ import * as Tone from "tone";
 
 type AmpEnvelopeModuleOptions = {
   name: string;
-  componentKey: string;
 };
 
 const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   name = "Envelope",
-  componentKey,
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
   const synthState = synth.get() as Tone.MonoSynthOptions;
@@ -23,7 +21,7 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   };
 
   return (
-    <BaseModule name={name} componentKey={componentKey}>
+    <BaseModule name={name}>
       <form>
         <div className="control-group">
           <h3>Envelope</h3>

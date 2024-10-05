@@ -6,13 +6,9 @@ import Slider from "../Input/Slider";
 
 interface DelayModuleProps {
   name: string;
-  componentKey: string;
 }
 
-const DelayModule: React.FC<DelayModuleProps> = ({
-  name = "Delay",
-  componentKey,
-}) => {
+const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
   const { effects } = React.useContext(SynthContext);
 
   const updateEffectSettings = (options: Partial<PingPongDelayOptions>) => {
@@ -20,7 +16,7 @@ const DelayModule: React.FC<DelayModuleProps> = ({
   };
 
   return (
-    <BaseModule name={name} componentKey={componentKey}>
+    <BaseModule name={name}>
       <form>
         <Slider
           componentKey="delay-wet"
