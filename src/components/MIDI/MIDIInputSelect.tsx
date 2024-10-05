@@ -1,6 +1,7 @@
+"use client";
+
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import React from "react";
-import styled from "styled-components";
 import { WebMidi } from "webmidi";
 import Select from "@/components/Input/Select";
 import * as Tone from "tone";

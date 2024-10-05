@@ -15,7 +15,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   name = "Oscillator",
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
-  const synthState = synth.get() as Tone.MonoSynthOptions;
+  const synthState = synth?.get() as Tone.MonoSynthOptions;
 
   const [selectedOscillator, setSelectedOscillator] = React.useState(
     synthState?.oscillator?.type ||
@@ -23,7 +23,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   );
 
   const updateSynthSettings = (options: Partial<Tone.MonoSynthOptions>) => {
-    synth.set(options);
+    synth?.set(options);
   };
 
   const oscillatorChoices = React.useMemo(

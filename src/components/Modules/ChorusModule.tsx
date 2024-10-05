@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { ChorusOptions, PingPongDelayOptions } from "tone";
 import BaseModule from "./BaseModule";

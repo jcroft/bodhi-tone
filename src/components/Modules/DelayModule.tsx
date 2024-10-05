@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { PingPongDelayOptions } from "tone";
 import BaseModule from "./BaseModule";
