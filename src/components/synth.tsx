@@ -5,13 +5,12 @@ import FilterWithEnvelopeModule from "@/components/FilterEnvelope";
 import OscillatorModule from "@/components/Oscillator";
 import React, { useContext, useEffect } from "react";
 import * as Tone from "tone";
-import { Frequency, Time } from "tone/build/esm/core/type/Units";
 import styled from "styled-components";
 import { WebMidi } from "webmidi";
-import Select from "@/components/input/select";
+import Select from "@/components/input/Select";
 import { SynthContext, DEFAULT_DUO_SYNTH_OPTIONS } from "@/app/page";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
-import Keyboard from "./Keyboard";
+import Keyboard from "./Keyboard/Keyboard";
 import VoiceModule from "./VoiceControl";
 
 const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
@@ -25,7 +24,7 @@ const StyledModuleContainer = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 const StyledDevUtilityContainer = styled.div`
@@ -64,8 +63,8 @@ const Synthesizer: React.FC = () => {
   // Send the output of the synth to the primary output
   synth.toDestination();
 
-  console.log("CURRENT SYNTH:", synth, synth.get());
-  console.log("TONE STATE:", synth.context.state);
+  // console.log("CURRENT SYNTH:", synth, synth.get());
+  // console.log("TONE STATE:", synth.context.state);
 
   // turn the synth on when the user presses the power button
   useEffect(() => {
@@ -81,18 +80,21 @@ const Synthesizer: React.FC = () => {
     velocity?: number,
     duration?: Tone.Unit.Time
   ) => {
-    console.log("onNoteOn: Received notes:", notes);
+    // console.log("onNoteOn: Received notes:", notes);
     if (duration) {
+      setActiveNotes((prevList) => [...prevList, ...notes]);
       synth.triggerAttackRelease(notes, duration, Tone.now(), velocity);
       return;
     } else {
+      setActiveNotes((prevList) => [...prevList, ...notes]);
       synth.triggerAttack(notes, Tone.now(), velocity);
     }
   };
 
   // Handle incoming MIDI noteOff messages
   const onNoteOff = (notes: (string | number)[]) => {
-    console.log("onNoteOff: Received notes:", notes);
+    // console.log("onNoteOff: Received notes:", notes);
+    setActiveNotes(activeNotes.filter((note) => !notes.includes(note)));
     synth.triggerRelease(notes, Tone.now());
   };
 
@@ -129,13 +131,13 @@ const Synthesizer: React.FC = () => {
 
     selectedInput.addListener("noteon", (e) => {
       const noteString = Tone.Midi(e.data[1]).toNote();
-      console.log(`Received noteOn from ${selectedInput.name}: `, noteString);
+      // console.log(`Received noteOn from ${selectedInput.name}: `, noteString);
       onNoteOn([noteString]);
     });
 
     selectedInput.addListener("noteoff", (e) => {
       const noteString = Tone.Midi(e.data[1]).toNote();
-      console.log(`Received noteOn from ${selectedInput.name}: `, e);
+      // console.log(`Received noteOn from ${selectedInput.name}: `, e);
       onNoteOff([noteString]);
     });
 
@@ -152,6 +154,7 @@ const Synthesizer: React.FC = () => {
       saveSynthOptions(DEFAULT_DUO_SYNTH_OPTIONS);
     } else {
       console.log("Synth options found, setting them", synthOptions);
+      synth.set(synthOptions);
     }
   }, [synthOptions]);
 
@@ -159,17 +162,17 @@ const Synthesizer: React.FC = () => {
     <StyledSynthesizer $isOn={power}>
       <StyledModuleContainer>
         <VoiceModule
-          name="Voice Control"
+          name="Control"
           componentKey="voiceControl"
           voiceKeys={["voice0", "voice1"]}
         />
         <OscillatorModule
-          name="Oscillator"
+          name="Osc 1"
           componentKey="osc1"
           voiceKeys={["voice0"]}
         />
         <OscillatorModule
-          name="Oscillator"
+          name="Osc 2"
           componentKey="osc2"
           voiceKeys={["voice1"]}
         />

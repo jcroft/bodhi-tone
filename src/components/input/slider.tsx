@@ -1,8 +1,4 @@
 "use client";
-
-import { log } from "console";
-import App from "next/app";
-import { parse } from "path";
 import React, { useState } from "react";
 import * as Tone from "tone";
 
@@ -35,7 +31,6 @@ const Slider: React.FC<SliderProps> = ({
   min,
   max,
   value,
-  logarithmic,
   defaultValue,
   valueType,
   step,
@@ -43,29 +38,24 @@ const Slider: React.FC<SliderProps> = ({
   orient = "horizontal",
   onChange,
 }) => {
-  // const [sliderValue, setSliderValue] = useState(value || defaultValue);
   const [sliderValue, setSliderValue] = useState(
-    value !== undefined
-      ? logarithmic
-        ? Math.log10(value as number)
-        : value
-      : defaultValue
+    value !== undefined ? value : defaultValue
   );
 
   const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = logarithmic
-      ? Math.pow(10, parseFloat(event.target.value))
-      : parseFloat(event.target.value);
+    const newValue = parseFloat(event.target.value);
     setSliderValue(newValue);
     onChange(event, newValue);
   };
 
   // If the value type is frequency, use tone to figure out the midi note number
   // and display that in addition to of the raw frequency value
-  const sliderValueAsFrequency =
-    valueType === "frequency"
+
+  const sliderValueAsFrequency = React.useMemo(() => {
+    return valueType === "frequency" && sliderValue !== 0
       ? Tone.Frequency(sliderValue as number).toNote()
-      : undefined;
+      : "inf";
+  }, [sliderValue]);
 
   const containerStyles = {
     display: "flex",
@@ -74,38 +64,45 @@ const Slider: React.FC<SliderProps> = ({
     justifyContent: "top",
   } as React.CSSProperties;
 
-  const styles = {
-    appearance: orient === "vertical" ? "slider-vertical" : "slider-horizontal",
-    width:
-      orient === "vertical" ? SLIDER_VERTICAL_WIDTH : SLIDER_HORIZONTAL_WIDTH,
-    height:
-      orient === "vertical" ? SLIDER_VERTICAL_HEIGHT : SLIDER_HORIZONTAL_HEIGHT,
-  } as React.CSSProperties;
+  const inputStyles = React.useMemo(() => {
+    return {
+      appearance:
+        orient === "vertical" ? "slider-vertical" : "slider-horizontal",
+      width:
+        orient === "vertical" ? SLIDER_VERTICAL_WIDTH : SLIDER_HORIZONTAL_WIDTH,
+      height:
+        orient === "vertical"
+          ? SLIDER_VERTICAL_HEIGHT
+          : SLIDER_HORIZONTAL_HEIGHT,
+    } as React.CSSProperties;
+  }, [orient]);
+
+  const sliderValueDisplay = React.useMemo(() => {
+    return valueType === "volume" && sliderValue !== undefined
+      ? `${parseFloat(sliderValue.toString()).toFixed()} dB`
+      : valueType === "frequency" && sliderValue !== undefined
+      ? `${sliderValue.toFixed()} Hz (${sliderValueAsFrequency})`
+      : sliderValue !== undefined
+      ? parseFloat(sliderValue.toString()).toFixed(2)
+      : "Unknown";
+  }, [sliderValue]);
 
   return (
-    <div style={containerStyles}>
+    <div style={containerStyles} className="slider-container">
       <label htmlFor={componentKey}>{label}</label>
       <input
         id={componentKey}
-        style={styles}
+        style={inputStyles}
         type="range"
-        min={logarithmic ? Math.log10(min) : min}
-        max={logarithmic ? Math.log10(max) : max}
+        min={min}
+        max={max}
         defaultValue={defaultValue}
         disabled={disabled}
         value={sliderValue}
         step={step || 1}
         onChange={handleSliderChange}
       />
-      <span className="value">
-        {valueType === "volume" && sliderValue !== undefined
-          ? `${parseFloat(sliderValue.toString()).toFixed()} dB`
-          : valueType === "frequency" && sliderValue !== undefined
-          ? `${sliderValue.toFixed()} Hz (${sliderValueAsFrequency})`
-          : sliderValue !== undefined
-          ? parseFloat(sliderValue.toString()).toFixed(2)
-          : "Unknown"}
-      </span>
+      <span className="value">{sliderValueDisplay}</span>
     </div>
   );
 };

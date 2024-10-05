@@ -21,6 +21,8 @@ const StyledBaseModule = styled.div`
   padding: 0;
   display: flex;
   flex-direction: column;
+  border-bottom-left-radius: 0.35rem;
+  border-bottom-right-radius: 0.35rem;
 `;
 
 const StyledModuleHeader = styled.div`
@@ -29,12 +31,17 @@ const StyledModuleHeader = styled.div`
   justify-content: space-between;
   justify-items: center;
   align-items: center;
-  background-color: #e0e0e0;
+  background-color: #ff5500;
+  color: #fff;
   padding: 0.25rem;
+  border-top-left-radius: 0.35rem;
+  border-top-right-radius: 0.35rem;
 
   h2 {
     margin: 0;
-    padding: 0;
+    padding: 0 0 0 0.25rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
   }
 
   input {
@@ -48,7 +55,8 @@ const StyledModuleHeader = styled.div`
 `;
 
 const StyledModuleBody = styled.div`
-  padding: 1rem;
+  padding: 0.5rem;
+  padding-top: 1.5rem;
   display: flex;
   flex-direction: row;
   gap: 1rem;
@@ -56,11 +64,51 @@ const StyledModuleBody = styled.div`
   form {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: 0.75rem;
     font-size: 0.75rem;
 
     label {
-      font-weight: bold;
+      color: #666;
+      font-weight: 500;
+      text-align: left;
+      padding-top: 0.5rem;
+    }
+
+    .value {
+      opacity: 0;
+      font-size: 0.65rem;
+      text-align: right;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .slider-container {
+      &:hover {
+        .value {
+          opacity: 1;
+        }
+      }
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: row;
+      background-color: #ddd;
+      gap: 0.5rem;
+      position: relative;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      border-radius: 0.25rem;
+
+      h3 {
+        margin: 0;
+        position: absolute;
+        top: -1rem;
+        left: 0;
+        text-transform: uppercase;
+        font-size: 0.65rem;
+        color: #999;
+        font-weight: 500;
+      }
     }
   }
 

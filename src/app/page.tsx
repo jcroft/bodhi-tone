@@ -12,6 +12,7 @@ export const DEFAULT_DUO_SYNTH_OPTIONS: Tone.DuoSynthOptions = {
   volume: -18,
   vibratoAmount: 0,
   vibratoRate: 5,
+  maxPolyphony: 64,
   voice0: {
     portamento: 0,
     oscillator: {
@@ -72,7 +73,7 @@ const StyledSynthPage = styled.div<{ $isOn?: boolean }>`
 
 export const SynthContext = React.createContext({
   synth: new Tone.PolySynth<Tone.DuoSynth>({
-    maxPolyphony: 8,
+    maxPolyphony: 64,
     voice: Tone.DuoSynth,
   }),
   synthOptions: DEFAULT_DUO_SYNTH_OPTIONS,
@@ -89,7 +90,7 @@ const SynthesizerPage: React.FC = () => {
     <SynthContext.Provider
       value={{
         synth: new Tone.PolySynth<Tone.DuoSynth>({
-          maxPolyphony: 16,
+          maxPolyphony: 64,
           voice: Tone.DuoSynth,
         }),
         synthOptions: JSON.parse(synthOptions),

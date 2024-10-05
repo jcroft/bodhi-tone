@@ -1,108 +1,54 @@
 "use client";
 
 import { SynthContext } from "@/app/page";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import * as Tone from "tone";
 import BaseModule from "./BaseModule";
-import Slider from "./input/slider";
-import Select from "./input/select";
+import Slider from "./input/Slider";
+import Select from "./input/Select";
 
 type VoiceModuleOptions = {
   name: string;
   componentKey: string;
-  voiceKeys: string[];
+  voiceKeys: ("voice0" | "voice1")[];
 };
 
 const VoiceModule: React.FC<VoiceModuleOptions> = ({
   name = "Oscillator",
   componentKey,
-  voiceKeys,
+  voiceKeys = ["voice0", "voice1"],
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
-  const synthState = synth.get() as {
-    [key: string]: Tone.PolySynthOptions<Tone.DuoSynthOptions>;
-  };
+  const synthState = synth.get() as Tone.DuoSynthOptions;
   const theseVoices = voiceKeys.map(
-    (key) => synthState[key]
-  ) as Tone.PolySynthOptions<Tone.DuoSynthOptions>[];
-  const referenceVoice = theseVoices[0];
+    (key) => synthState[key] as Tone.MonoSynthOptions
+  );
+  const referenceVoice = theseVoices[0] as Tone.MonoSynthOptions;
 
   const setAllVoices = (options: Partial<Tone.DuoSynthOptions>) => {
     voiceKeys.forEach((voiceKey) => {
-      console.log(`Setting voice ${voiceKey} to`, options);
+      //   console.log(`Setting voice ${voiceKey} to`, options);
       synth.set({
         [voiceKey]: options,
       });
-      console.log(synth.get(), "synth.get()");
     });
   };
 
   const setGlobalSynthSettings = (
     options: Partial<Tone.PolySynthOptions<Tone.DuoSynthOptions>>
   ) => {
-    console.log(`Setting global synth settings to`, options);
+    // console.log(`Setting global synth settings to`, options);
     synth.set(options);
-    console.log(synth.get(), "synth.get()");
   };
 
   const setMaxPolyphony = (maxPolyphony: number) => {
-    console.log(`Setting max polyphony to`, maxPolyphony);
+    // console.log(`Setting max polyphony to`, maxPolyphony);
     synth.maxPolyphony = maxPolyphony;
-    console.log(synth.maxPolyphony, "synth.maxPolyphony");
   };
-
-  // We need a form that will handle the following:
-  // - Portamento
-  // - Detune
-  // - Volume
-  // Vibrato Rate
-  // Vibrato Depth
-  // Harmonicity
-
-  console.log(referenceVoice, "referenceVoice");
-  console.log("synthState", synthState);
 
   return (
     <BaseModule name={name} componentKey={componentKey}>
-      <form className="column">
-        <select
-          value={synth.maxPolyphony}
-          onChange={(event) => {
-            setMaxPolyphony(parseInt(event.target.value));
-          }}
-        >
-          <option value={1}>1</option>
-          <option value={2}>2</option>
-          <option value={4}>4</option>
-          <option value={8}>8</option>
-          <option value={16}>16</option>
-        </select>
-        <Slider
-          componentKey="portamento"
-          label="Portamento"
-          min={0}
-          max={0.1}
-          step={0.01}
-          value={synth.get()?.portamento || 0}
-          onChange={(event, newValue) => {
-            setGlobalSynthSettings({
-              portamento: newValue,
-            });
-          }}
-        />
-        <Slider
-          componentKey="detune"
-          label="Detune"
-          min={-100}
-          max={100}
-          step={1}
-          value={synth.detune || 0}
-          onChange={(event, newValue) => {
-            setGlobalSynthSettings({
-              detune: newValue,
-            });
-          }}
-        />
+      <form>
         <Slider
           componentKey="volume"
           label="Volume"
@@ -110,40 +56,63 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
           max={0}
           step={1}
           value={referenceVoice?.volume || 0}
+          orient="vertical"
           onChange={(event, newValue) => {
             setAllVoices({
               volume: newValue,
             });
           }}
         />
-        <Slider
-          componentKey="vibratoRate"
-          label="Vibrato Rate"
-          min={0}
-          max={50}
-          step={0.01}
-          valueType="frequency"
-          value={synth?.vibratoRate || 0}
-          onChange={(event, newValue) => {
-            setGlobalSynthSettings({
-              vibratoRate: newValue,
-            });
-          }}
-        />
-        <Slider
-          componentKey="vibratoDepth"
-          label="Vibrato Depth"
-          min={0}
-          max={1}
-          step={0.01}
-          value={synth?.vibratoAmount || 0}
-          onChange={(event, newValue) => {
-            setGlobalSynthSettings({
-              vibratoAmount: newValue,
-            });
-          }}
-        />
-        <Slider
+        <div className="control-group">
+          <h3>Voices</h3>
+
+          <Select
+            componentKey="maxPolyphony"
+            label="Count"
+            defaultOption="8"
+            options={[
+              { value: "1", label: "1" },
+              { value: "2", label: "2" },
+              { value: "4", label: "4" },
+              { value: "8", label: "8" },
+              { value: "16", label: "16" },
+            ]}
+            value={synth.maxPolyphony.toString()}
+            onChange={(event) => {
+              setMaxPolyphony(parseInt(event.target.value));
+            }}
+          />
+          <Slider
+            componentKey="portamento"
+            label="Glide"
+            min={0}
+            max={0.1}
+            step={0.01}
+            orient="vertical"
+            value={synth.get()?.portamento || 0}
+            onChange={(event, newValue) => {
+              setGlobalSynthSettings({
+                portamento: newValue,
+              });
+            }}
+          />
+          <Slider
+            componentKey="detune"
+            label="Tune"
+            min={-100}
+            max={100}
+            step={1}
+            value={synth.detune || 0}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              setGlobalSynthSettings({
+                detune: newValue,
+              });
+            }}
+          />
+        </div>
+
+        {/* <Slider
           componentKey="harmonicity"
           label="Harmonicity"
           min={0.5}
@@ -155,7 +124,40 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
               harmonicity: newValue,
             });
           }}
-        />
+        /> */}
+
+        <div className="control-group">
+          <h3>Vibrato</h3>
+          <Slider
+            componentKey="vibratoRate"
+            label="Rate"
+            min={0}
+            max={50}
+            step={0.01}
+            valueType="frequency"
+            orient="vertical"
+            value={synth?.vibratoRate || 0}
+            onChange={(event, newValue) => {
+              setGlobalSynthSettings({
+                vibratoRate: newValue,
+              });
+            }}
+          />
+          <Slider
+            componentKey="vibratoDepth"
+            label="Depth"
+            min={0}
+            max={1}
+            step={0.01}
+            value={synth?.vibratoAmount || 0}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              setGlobalSynthSettings({
+                vibratoAmount: newValue,
+              });
+            }}
+          />
+        </div>
       </form>
     </BaseModule>
   );
