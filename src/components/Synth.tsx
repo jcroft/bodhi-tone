@@ -49,6 +49,8 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
   } as Tone.MonoSynthOptions,
 };
 
+const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
+
 export const SynthContext = React.createContext({
   synth: null as Tone.PolySynth<Tone.MonoSynth> | null | undefined,
   synthOptions: DEFAULT_SYNTH_OPTIONS,
@@ -102,16 +104,6 @@ const Synthesizer: React.FC = () => {
     "synthOptions",
     JSON.stringify(DEFAULT_SYNTH_OPTIONS)
   );
-
-  const [synth, setSynth] = React.useState<
-    Tone.PolySynth<Tone.MonoSynth> | null | undefined
-  >();
-
-  // const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
-
-  useEffect(() => {
-    setSynth(new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS));
-  }, []);
 
   // Set the default synth options
   synth?.set(DEFAULT_SYNTH_OPTIONS);
