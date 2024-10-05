@@ -5,7 +5,7 @@ import * as Tone from "tone";
 const SLIDER_HORIZONTAL_HEIGHT = 10;
 const SLIDER_HORIZONTAL_WIDTH = 100;
 const SLIDER_VERTICAL_HEIGHT = 100;
-const SLIDER_VERTICAL_WIDTH = 10;
+const SLIDER_VERTICAL_WIDTH = 20;
 
 interface SliderProps {
   label: string;
@@ -81,7 +81,7 @@ const Slider: React.FC<SliderProps> = ({
     return valueType === "volume" && sliderValue !== undefined
       ? `${parseFloat(sliderValue.toString()).toFixed()} dB`
       : valueType === "frequency" && sliderValue !== undefined
-      ? `${sliderValue.toFixed()} Hz (${sliderValueAsFrequency})`
+      ? `${sliderValue.toFixed()} Hz` // `${sliderValue.toFixed()} Hz (${sliderValueAsFrequency})`
       : sliderValue !== undefined
       ? parseFloat(sliderValue.toString()).toFixed(2)
       : "Unknown";
@@ -102,7 +102,14 @@ const Slider: React.FC<SliderProps> = ({
         step={step || 1}
         onChange={handleSliderChange}
       />
-      <span className="value">{sliderValueDisplay}</span>
+      <span
+        className="value"
+        style={{
+          textAlign: orient === "vertical" ? "center" : "right",
+        }}
+      >
+        {sliderValueDisplay}
+      </span>
     </div>
   );
 };

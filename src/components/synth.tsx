@@ -7,11 +7,13 @@ import React, { useContext, useEffect } from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
 import { WebMidi } from "webmidi";
-import Select from "@/components/input/Select";
+import Select from "@/components/Input/Select";
 import { SynthContext, DEFAULT_DUO_SYNTH_OPTIONS } from "@/app/page";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import Keyboard from "./Keyboard/Keyboard";
 import VoiceModule from "./VoiceControl";
+import MIDIInputSelect from "./MIDI/MIDIInputSelect";
+import PowerButton from "./PowerButton";
 
 const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
   display: flex;
@@ -27,27 +29,25 @@ const StyledModuleContainer = styled.div`
   gap: 0.5rem;
 `;
 
-const StyledDevUtilityContainer = styled.div`
+const StyledMenuBar = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   gap: 1rem;
+  background-color: #f0f0f0;
+  font-size: 0.75rem;
+  padding: 0.25rem;
+  margin-bottom: 0.5rem;
+
+  [class^="Select__StyledSelectWrapper"] {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
 `;
 
 const Synthesizer: React.FC = () => {
   // power: Tone.js requires a user interaction to enable the synth, so we'll have a power button
   const [power, setPower] = React.useState(false);
-
-  // midiInput: The currently selected MIDI input
-  const [midiInput, setMidiInput] = useLocalStorageState(
-    "selectedMidiInput",
-    "none"
-  );
-
-  // midiInputOptions: The available MIDI ports as dropdown menu options
-  const [midiInputOptions, setMidiInputOptions] = React.useState([
-    { label: "Loading...", value: "none" },
-  ]);
 
   // We need to store the active notes so they can be displayed on the keyboard
   const [activeNotes, setActiveNotes] = React.useState<(string | number)[]>([]);
@@ -62,9 +62,6 @@ const Synthesizer: React.FC = () => {
 
   // Send the output of the synth to the primary output
   synth.toDestination();
-
-  // console.log("CURRENT SYNTH:", synth, synth.get());
-  // console.log("TONE STATE:", synth.context.state);
 
   // turn the synth on when the user presses the power button
   useEffect(() => {
@@ -98,55 +95,6 @@ const Synthesizer: React.FC = () => {
     synth.triggerRelease(notes, Tone.now());
   };
 
-  // Handle enabling of MIDI
-  const onMidiEnabled = () => {
-    console.log("MIDI enabled", WebMidi.inputs);
-    const MIDIInputOptions = WebMidi.inputs.map((input) => ({
-      label: input.name,
-      value: input.id,
-    }));
-    MIDIInputOptions.unshift({ label: "None", value: "none" });
-    setMidiInputOptions(MIDIInputOptions);
-  };
-
-  // Enable the webMIDI APIs upon load
-  useEffect(() => {
-    WebMidi.enable()
-      .then(onMidiEnabled)
-      .catch((err) => alert(err));
-  }, []);
-
-  // Add listeners for incoming MIDI messages
-  useEffect(() => {
-    if (midiInput === "none" || !WebMidi.enabled) {
-      return;
-    }
-
-    const selectedInput = WebMidi.getInputById(midiInput);
-    if (!selectedInput) {
-      return;
-    }
-
-    console.log("Adding note on/off listeners...");
-
-    selectedInput.addListener("noteon", (e) => {
-      const noteString = Tone.Midi(e.data[1]).toNote();
-      // console.log(`Received noteOn from ${selectedInput.name}: `, noteString);
-      onNoteOn([noteString]);
-    });
-
-    selectedInput.addListener("noteoff", (e) => {
-      const noteString = Tone.Midi(e.data[1]).toNote();
-      // console.log(`Received noteOn from ${selectedInput.name}: `, e);
-      onNoteOff([noteString]);
-    });
-
-    return () => {
-      selectedInput.removeListener("noteon");
-      selectedInput.removeListener("noteoff");
-    };
-  }, [midiInput, WebMidi.enabled]);
-
   // If there is no synthOptions in local storage, set the default options
   useEffect(() => {
     if (!synthOptions) {
@@ -159,62 +107,53 @@ const Synthesizer: React.FC = () => {
   }, [synthOptions]);
 
   return (
-    <StyledSynthesizer $isOn={power}>
-      <StyledModuleContainer>
-        <VoiceModule
-          name="Control"
-          componentKey="voiceControl"
-          voiceKeys={["voice0", "voice1"]}
+    <>
+      <StyledMenuBar>
+        <PowerButton isOn={power} onClick={() => setPower(!power)} />
+        <MIDIInputSelect
+          label="MIDI Input"
+          componentKey="midiInput"
+          onNoteOn={onNoteOn}
+          onNoteOff={onNoteOff}
         />
-        <OscillatorModule
-          name="Osc 1"
-          componentKey="osc1"
-          voiceKeys={["voice0"]}
-        />
-        <OscillatorModule
-          name="Osc 2"
-          componentKey="osc2"
-          voiceKeys={["voice1"]}
-        />
-        <FilterWithEnvelopeModule
-          componentKey="filterEnvelope"
-          name="Filter"
-          voiceKeys={["voice0", "voice1"]}
-        />
-        <AmpEnvelopeModule
-          componentKey="envelope"
-          name="Amp"
-          voiceKeys={["voice0", "voice1"]}
-        />
-      </StyledModuleContainer>
+      </StyledMenuBar>
 
-      <Keyboard
-        activeNotes={activeNotes}
-        name="keyboard"
-        componentKey="keyboard"
-      />
+      <StyledSynthesizer $isOn={power}>
+        <StyledModuleContainer>
+          <VoiceModule
+            name="Control"
+            componentKey="voiceControl"
+            voiceKeys={["voice0", "voice1"]}
+          />
+          <OscillatorModule
+            name="Osc 1"
+            componentKey="osc1"
+            voiceKeys={["voice0"]}
+          />
+          <OscillatorModule
+            name="Osc 2"
+            componentKey="osc2"
+            voiceKeys={["voice1"]}
+          />
+          <FilterWithEnvelopeModule
+            componentKey="filterEnvelope"
+            name="Filter"
+            voiceKeys={["voice0", "voice1"]}
+          />
+          <AmpEnvelopeModule
+            componentKey="envelope"
+            name="Amp"
+            voiceKeys={["voice0", "voice1"]}
+          />
+        </StyledModuleContainer>
 
-      <StyledDevUtilityContainer>
-        <button
-          onClick={() => {
-            setPower(!power);
-          }}
-        >
-          Power Button ({power ? "On" : "Off"})
-        </button>
-
-        <Select
-          componentKey="midi-input"
-          defaultOption="none"
-          value={midiInput}
-          label="Midi Input"
-          options={midiInputOptions}
-          onChange={(event) => {
-            setMidiInput(event.target.value);
-          }}
+        <Keyboard
+          activeNotes={activeNotes}
+          name="keyboard"
+          componentKey="keyboard"
         />
-      </StyledDevUtilityContainer>
-    </StyledSynthesizer>
+      </StyledSynthesizer>
+    </>
   );
 };
 

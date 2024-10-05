@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import BaseModule from "./BaseModule";
 import { SynthContext } from "@/app/page";
-import Slider from "./input/Slider";
+import Slider from "./Input/Slider";
 import * as Tone from "tone";
 
 type AmpEnvelopeModuleOptions = {

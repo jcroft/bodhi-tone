@@ -4,8 +4,8 @@ import { SynthContext } from "@/app/page";
 import React from "react";
 import * as Tone from "tone";
 import BaseModule from "./BaseModule";
-import Slider from "./input/Slider";
-import Select from "./input/Select";
+import Slider from "./Input/Slider";
+import Select from "./Input/Select";
 import { OmniOscillatorType } from "tone/build/esm/source/oscillator/OscillatorInterface";
 
 type OscillatorModuleOptions = {

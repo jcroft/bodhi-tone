@@ -3,8 +3,8 @@
 import React from "react";
 import BaseModule from "./BaseModule";
 import { SynthContext } from "@/app/page";
-import Slider from "./input/Slider";
-import LogarithmicSlider from "./input/LogarithmicSlider";
+import Slider from "./Input/Slider";
+import LogarithmicSlider from "./Input/LogarithmicSlider";
 import * as Tone from "tone";
 
 type FilterWithEnvelopeModuleOptions = {

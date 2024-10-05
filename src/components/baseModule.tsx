@@ -74,19 +74,26 @@ const StyledModuleBody = styled.div`
       padding-top: 0.5rem;
     }
 
-    .value {
-      opacity: 0;
-      font-size: 0.65rem;
-      text-align: right;
-      transition: opacity 0.3s ease-in-out;
-    }
-
     .slider-container {
+      padding-bottom: 1rem;
+      position: relative;
+
       &:hover {
         .value {
           opacity: 1;
         }
       }
+    }
+
+    .value {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      font-size: 0.65rem;
+      transition: opacity 0.3s ease-in-out;
     }
 
     .control-group {
@@ -98,6 +105,7 @@ const StyledModuleBody = styled.div`
       padding-left: 0.5rem;
       padding-right: 0.5rem;
       border-radius: 0.25rem;
+      min-height: 100px;
 
       h3 {
         margin: 0;
