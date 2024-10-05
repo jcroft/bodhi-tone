@@ -50,6 +50,9 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
 };
 
 const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
+const chorus = new Tone.Chorus(4, 2.5, 0.5).toDestination();
+const delay = new Tone.PingPongDelay("4n", 0.1).toDestination();
+const reverb = new Tone.Reverb(0.5).toDestination();
 
 export const SynthContext = React.createContext({
   synth: null as Tone.PolySynth<Tone.MonoSynth> | null | undefined,
@@ -160,9 +163,6 @@ const Synthesizer: React.FC = () => {
   //   }
   // }, [synthOptions]);
 
-  const chorus = new Tone.Chorus(4, 2.5, 0.5).toDestination();
-  const delay = new Tone.PingPongDelay("4n", 0.1).toDestination();
-  const reverb = new Tone.Reverb(0.5).toDestination();
   const effects = {
     chorus,
     delay,
