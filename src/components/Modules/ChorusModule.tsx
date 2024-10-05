@@ -37,66 +37,68 @@ const ChorusModule: React.FC<ChorusModuleProps> = ({ name = "Chorus" }) => {
             effects.chorus.wet.value = newValue;
           }}
         />
-        <Slider
-          componentKey="chorus-feedback"
-          label="Fdbk"
-          min={0}
-          max={1}
-          step={0.01}
-          value={parseFloat(effects.chorus.feedback.value.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.chorus.feedback.value = newValue;
-          }}
-        />
-        <Slider
-          componentKey="chorus-delay-time"
-          label="Time"
-          min={0}
-          max={1}
-          step={0.01}
-          value={parseFloat(effects.chorus.delayTime.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.chorus.delayTime = newValue;
-          }}
-        />
-        <Slider
-          componentKey="chorus-frequency"
-          label="Freq"
-          min={0}
-          max={1}
-          step={0.01}
-          value={parseFloat(effects.chorus.frequency.value.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.chorus.frequency.value = newValue;
-          }}
-        />
-        <Slider
-          componentKey="chorus-depth"
-          label="Depth"
-          min={0}
-          max={1}
-          step={0.01}
-          value={parseFloat(effects.chorus.depth.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.chorus.depth = newValue;
-          }}
-        />
-        <Slider
-          componentKey="chorus-spread"
-          label="Spread"
-          min={0}
-          max={1}
-          step={0.01}
-          value={parseFloat(effects.chorus.spread.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.chorus.spread = newValue;
-          }}
-        />
+        <div className="control-group">
+          <Slider
+            componentKey="chorus-feedback"
+            label="Fdbk"
+            min={0}
+            max={1}
+            step={0.01}
+            value={parseFloat(effects.chorus.feedback.value.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              effects.chorus.feedback.value = newValue;
+            }}
+          />
+          <Slider
+            componentKey="chorus-delay-time"
+            label="Time"
+            min={0}
+            max={1}
+            step={0.01}
+            value={parseFloat(effects.chorus.delayTime.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              effects.chorus.delayTime = newValue;
+            }}
+          />
+          <Slider
+            componentKey="chorus-frequency"
+            label="Freq"
+            min={0}
+            max={1}
+            step={0.01}
+            value={parseFloat(effects.chorus.frequency.value.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              effects.chorus.frequency.value = newValue;
+            }}
+          />
+          <Slider
+            componentKey="chorus-depth"
+            label="Depth"
+            min={0}
+            max={1}
+            step={0.01}
+            value={parseFloat(effects.chorus.depth.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              effects.chorus.depth = newValue;
+            }}
+          />
+          <Slider
+            componentKey="chorus-spread"
+            label="Spread"
+            min={0}
+            max={1}
+            step={0.01}
+            value={parseFloat(effects.chorus.spread.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              effects.chorus.spread = newValue;
+            }}
+          />
+        </div>
       </form>
     </BaseModule>
   );

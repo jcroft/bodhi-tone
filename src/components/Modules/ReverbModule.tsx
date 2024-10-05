@@ -38,34 +38,36 @@ const ReverbModule: React.FC<ReverbModuleOptions> = ({ name = "Reverb" }) => {
             effects.reverb.wet.value = newValue;
           }}
         />
-        <Slider
-          componentKey="reverb-decay"
-          label="Decay"
-          min={0}
-          max={10}
-          step={0.01}
-          value={parseFloat(effects.reverb.decay.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            updateEffectSettings({
-              decay: newValue,
-            });
-          }}
-        />
-        <Slider
-          componentKey="reverb-pre-delay"
-          label="Pre"
-          min={0}
-          max={1}
-          step={0.01}
-          value={parseFloat(effects.reverb.preDelay.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            updateEffectSettings({
-              preDelay: newValue,
-            });
-          }}
-        />
+        <div className="control-group">
+          <Slider
+            componentKey="reverb-decay"
+            label="Decay"
+            min={0}
+            max={10}
+            step={0.01}
+            value={parseFloat(effects.reverb.decay.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              updateEffectSettings({
+                decay: newValue,
+              });
+            }}
+          />
+          <Slider
+            componentKey="reverb-pre-delay"
+            label="Pre"
+            min={0}
+            max={1}
+            step={0.01}
+            value={parseFloat(effects.reverb.preDelay.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              updateEffectSettings({
+                preDelay: newValue,
+              });
+            }}
+          />
+        </div>
       </form>
     </BaseModule>
   );

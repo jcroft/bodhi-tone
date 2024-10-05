@@ -32,30 +32,32 @@ const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
             effects.delay.wet.value = newValue;
           }}
         />
-        <Slider
-          componentKey="delay-feedback"
-          label="Fdbk"
-          min={0}
-          max={1}
-          step={0.01}
-          value={parseFloat(effects.delay.feedback.value.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.delay.feedback.value = newValue;
-          }}
-        />
-        <Slider
-          componentKey="delay-time"
-          label="Time"
-          min={0}
-          max={1}
-          step={0.01}
-          value={parseFloat(effects.delay.delayTime.value.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.delay.delayTime.value = newValue;
-          }}
-        />
+        <div className="control-group">
+          <Slider
+            componentKey="delay-feedback"
+            label="Fdbk"
+            min={0}
+            max={1}
+            step={0.01}
+            value={parseFloat(effects.delay.feedback.value.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              effects.delay.feedback.value = newValue;
+            }}
+          />
+          <Slider
+            componentKey="delay-time"
+            label="Time"
+            min={0}
+            max={1}
+            step={0.01}
+            value={parseFloat(effects.delay.delayTime.value.toString())}
+            orient="vertical"
+            onChange={(event, newValue) => {
+              effects.delay.delayTime.value = newValue;
+            }}
+          />
+        </div>
       </form>
     </BaseModule>
   );
