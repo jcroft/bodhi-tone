@@ -6,7 +6,7 @@ import OscillatorModule from "@/components/Modules/Oscillator";
 import React, { useContext, useEffect } from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
-import { SynthContext, DEFAULT_SYNTH_OPTIONS } from "@/app/page";
+import { SynthContext } from "@/app/page";
 import Keyboard from "./Keyboard/Keyboard";
 import VoiceModule from "./Modules/VoiceControl";
 import MIDIInputSelect from "./MIDI/MIDIInputSelect";
@@ -14,6 +14,40 @@ import PowerButton from "./PowerButton";
 import ReverbModule from "./Modules/ReverbModule";
 import DelayModule from "./Modules/DelayModule";
 import ChorusModule from "./Modules/ChorusModule";
+
+export const DEFAULT_SYNTH_OPTIONS: Partial<
+  Tone.PolySynthOptions<Tone.MonoSynth>
+> = {
+  maxPolyphony: 16,
+  voice: Tone.MonoSynth,
+  volume: -18,
+  options: {
+    portamento: 0,
+    oscillator: {
+      type: "sawtooth",
+    },
+    envelope: {
+      attack: 0.01,
+      decay: 0.1,
+      sustain: 0.5,
+      release: 0.5,
+    },
+    filter: {
+      Q: 1,
+      type: "lowpass",
+      rolloff: -12,
+    },
+    filterEnvelope: {
+      attack: 0.01,
+      decay: 0.1,
+      sustain: 0.5,
+      release: 0.5,
+      baseFrequency: 200,
+      octaves: 7,
+      exponent: 2,
+    },
+  } as Tone.MonoSynthOptions,
+};
 
 const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
   display: flex;

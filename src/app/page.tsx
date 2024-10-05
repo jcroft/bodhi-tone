@@ -3,42 +3,8 @@
 import React from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
-import Synthesizer from "@/components/Synth";
+import Synthesizer, { DEFAULT_SYNTH_OPTIONS } from "@/components/Synth";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
-
-export const DEFAULT_SYNTH_OPTIONS: Partial<
-  Tone.PolySynthOptions<Tone.MonoSynth>
-> = {
-  maxPolyphony: 16,
-  voice: Tone.MonoSynth,
-  volume: -18,
-  options: {
-    portamento: 0,
-    oscillator: {
-      type: "sawtooth",
-    },
-    envelope: {
-      attack: 0.01,
-      decay: 0.1,
-      sustain: 0.5,
-      release: 0.5,
-    },
-    filter: {
-      Q: 1,
-      type: "lowpass",
-      rolloff: -12,
-    },
-    filterEnvelope: {
-      attack: 0.01,
-      decay: 0.1,
-      sustain: 0.5,
-      release: 0.5,
-      baseFrequency: 200,
-      octaves: 7,
-      exponent: 2,
-    },
-  } as Tone.MonoSynthOptions,
-};
 
 const StyledSynthPage = styled.div<{ $isOn?: boolean }>`
   padding: 1rem;
