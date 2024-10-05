@@ -1,8 +1,8 @@
 "use client";
 
-import AmpEnvelopeModule from "@/components/Modules/AmpEnvelope";
-import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
-import OscillatorModule from "@/components/Modules/Oscillator";
+import AmpEnvelopeModule from "../components/Modules/AmpEnvelope";
+import FilterWithEnvelopeModule from "../components/Modules/FilterEnvelope";
+import OscillatorModule from "../components/Modules/Oscillator";
 import React, { useContext, useEffect } from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
