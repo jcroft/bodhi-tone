@@ -1,17 +1,14 @@
 "use client";
 
-import AmpEnvelopeModule from "@/components/AmpEnvelope";
-import FilterWithEnvelopeModule from "@/components/FilterEnvelope";
-import OscillatorModule from "@/components/Oscillator";
+import AmpEnvelopeModule from "@/components/Modules/AmpEnvelope";
+import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
+import OscillatorModule from "@/components/Modules/Oscillator";
 import React, { useContext, useEffect } from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
-import { WebMidi } from "webmidi";
-import Select from "@/components/Input/Select";
 import { SynthContext, DEFAULT_DUO_SYNTH_OPTIONS } from "@/app/page";
-import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import Keyboard from "./Keyboard/Keyboard";
-import VoiceModule from "./VoiceControl";
+import VoiceModule from "./Modules/VoiceControl";
 import MIDIInputSelect from "./MIDI/MIDIInputSelect";
 import PowerButton from "./PowerButton";
 
@@ -56,9 +53,7 @@ const Synthesizer: React.FC = () => {
   const { synth, synthOptions, saveSynthOptions } = useContext(SynthContext);
 
   // Set the default synth options
-  synth.set({
-    ...(DEFAULT_DUO_SYNTH_OPTIONS as Tone.PolySynthOptions<Tone.DuoSynthOptions>),
-  });
+  synth.set(DEFAULT_DUO_SYNTH_OPTIONS);
 
   // Send the output of the synth to the primary output
   synth.toDestination();
@@ -81,6 +76,13 @@ const Synthesizer: React.FC = () => {
     if (duration) {
       setActiveNotes((prevList) => [...prevList, ...notes]);
       synth.triggerAttackRelease(notes, duration, Tone.now(), velocity);
+      // After a duration, release the notes // TODO: Ideally this would be the same duration as the note length
+      setTimeout(() => {
+        console.log("Releasing notes", notes);
+        setActiveNotes((prevList) =>
+          prevList.filter((note) => !notes.includes(note))
+        );
+      }, Tone.Time(duration).toMilliseconds());
       return;
     } else {
       setActiveNotes((prevList) => [...prevList, ...notes]);
@@ -151,6 +153,8 @@ const Synthesizer: React.FC = () => {
           activeNotes={activeNotes}
           name="keyboard"
           componentKey="keyboard"
+          onNoteOn={onNoteOn}
+          onNoteOff={onNoteOff}
         />
       </StyledSynthesizer>
     </>

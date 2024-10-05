@@ -4,6 +4,7 @@ import { SynthContext } from "@/app/page";
 import React from "react";
 import styled from "styled-components";
 import KeyboardOctave from "./KeyboardOctave";
+import * as Tone from "tone";
 
 const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
   ul {
@@ -63,6 +64,16 @@ type KeyboardOptions = {
   lowestOctave?: number;
   octaves?: number;
   activeNotes?: (string | number)[];
+  onNoteOn?: (
+    notes: (string | number)[],
+    velocity?: number,
+    duration?: Tone.Unit.Time
+  ) => void;
+  onNoteOff?: (
+    notes: (string | number)[],
+    velocity?: number,
+    duration?: Tone.Unit.Time
+  ) => void;
 };
 
 const Keyboard: React.FC<KeyboardOptions> = ({
@@ -71,6 +82,8 @@ const Keyboard: React.FC<KeyboardOptions> = ({
   lowestOctave = 1,
   octaves = 3,
   activeNotes = ["C4"],
+  onNoteOn,
+  onNoteOff,
 }) => {
   return (
     <>
@@ -81,6 +94,8 @@ const Keyboard: React.FC<KeyboardOptions> = ({
               key={i}
               octaveNumber={lowestOctave + i}
               activeNotes={activeNotes}
+              onNoteOn={onNoteOn}
+              onNoteOff={onNoteOff}
             />
           ))}
           <KeyboardOctave
