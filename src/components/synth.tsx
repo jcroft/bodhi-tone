@@ -11,6 +11,9 @@ import Keyboard from "./Keyboard/Keyboard";
 import VoiceModule from "./Modules/VoiceControl";
 import MIDIInputSelect from "./MIDI/MIDIInputSelect";
 import PowerButton from "./PowerButton";
+import ReverbModule from "./Modules/ReverbModule";
+import DelayModule from "./Modules/DelayModule";
+import ChorusModule from "./Modules/ChorusModule";
 
 const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
   display: flex;
@@ -50,7 +53,8 @@ const Synthesizer: React.FC = () => {
   const [activeNotes, setActiveNotes] = React.useState<(string | number)[]>([]);
 
   // synth: The Tone.PolySynth instantiated by SynthContext
-  const { synth, synthOptions, saveSynthOptions } = useContext(SynthContext);
+  const { synth, synthOptions, saveSynthOptions, effects } =
+    useContext(SynthContext);
 
   // Set the default synth options
   synth.set(DEFAULT_SYNTH_OPTIONS);
@@ -108,7 +112,8 @@ const Synthesizer: React.FC = () => {
     }
   }, [synthOptions]);
 
-  console.log(synth.get());
+  // Connect the synth to the effects
+  synth.chain(effects.chorus, effects.delay, effects.reverb);
 
   return (
     <>
@@ -135,6 +140,10 @@ const Synthesizer: React.FC = () => {
             name="Filter"
           />
           <AmpEnvelopeModule componentKey="envelope" name="Amp" />
+
+          <ChorusModule componentKey="chorus" name="Chorus" />
+          <DelayModule componentKey="delay" name="Delay" />
+          <ReverbModule componentKey="reverb" name="Reverb" />
         </StyledModuleContainer>
 
         <Keyboard

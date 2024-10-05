@@ -10,7 +10,7 @@ import { OmniOscillatorSynthOptions } from "tone/build/esm/source/oscillator/Osc
 export const DEFAULT_SYNTH_OPTIONS: Partial<
   Tone.PolySynthOptions<Tone.MonoSynth>
 > = {
-  maxPolyphony: 32,
+  maxPolyphony: 16,
   voice: Tone.MonoSynth,
   volume: -18,
   options: {
@@ -49,6 +49,11 @@ export const SynthContext = React.createContext({
   synth: new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS),
   synthOptions: DEFAULT_SYNTH_OPTIONS,
   saveSynthOptions: (options: Partial<Tone.MonoSynthOptions>) => {},
+  effects: {
+    chorus: new Tone.Chorus(4, 2.5, 0.5).toDestination(),
+    delay: new Tone.PingPongDelay("4n", 0.1).toDestination(),
+    reverb: new Tone.Reverb(0.5).toDestination(),
+  },
 });
 
 const SynthesizerPage: React.FC = () => {
@@ -56,6 +61,20 @@ const SynthesizerPage: React.FC = () => {
     "synthOptions",
     JSON.stringify(DEFAULT_SYNTH_OPTIONS)
   );
+
+  const chorus = React.useMemo(
+    () => new Tone.Chorus(4, 2.5, 0.5).toDestination(),
+    []
+  );
+
+  const delay = React.useMemo(
+    () => new Tone.PingPongDelay("4n", 0.1).toDestination(),
+    []
+  );
+  delay.wet.value = 0.05;
+
+  const reverb = React.useMemo(() => new Tone.Reverb(0.5).toDestination(), []);
+  reverb.wet.value = 0.5;
 
   return (
     <SynthContext.Provider
@@ -65,6 +84,11 @@ const SynthesizerPage: React.FC = () => {
         saveSynthOptions: (options: Partial<Tone.MonoSynthOptions>) => {
           console.log("saving options", options);
           setSynthOptions(JSON.stringify(options));
+        },
+        effects: {
+          chorus,
+          delay,
+          reverb,
         },
       }}
     >

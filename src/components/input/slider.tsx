@@ -9,8 +9,8 @@ const SLIDER_VERTICAL_HEIGHT = 100;
 const SLIDER_VERTICAL_WIDTH = 20;
 
 const StyledVerticalSliderContainer = styled.div<{
-  showValueFill: boolean;
-  orient: "vertical" | "horizontal";
+  $showValueFill: boolean;
+  $orient: "vertical" | "horizontal";
 }>`
   padding-bottom: 2rem;
   position: relative;
@@ -49,10 +49,11 @@ const StyledVerticalSliderContainer = styled.div<{
     margin-left: 1.25rem;
 
     transform: ${(props) =>
-      props.orient === "vertical" ? "rotate(-90deg)" : ""};
-    transform-origin: ${(props) => (props.orient === "vertical" ? "left" : "")};
-    position: ${(props) => (props.orient === "vertical" ? "absolute" : "")};
-    top: ${(props) => (props.orient === "vertical" ? "6rem" : "")};
+      props.$orient === "vertical" ? "rotate(-90deg)" : ""};
+    transform-origin: ${(props) =>
+      props.$orient === "vertical" ? "left" : ""};
+    position: ${(props) => (props.$orient === "vertical" ? "absolute" : "")};
+    top: ${(props) => (props.$orient === "vertical" ? "6rem" : "")};
   }
   input:focus-visible,
   input:hover {
@@ -65,7 +66,7 @@ const StyledVerticalSliderContainer = styled.div<{
     width: var(--w);
     background: var(--_c);
     border-image: ${(props) =>
-      props.showValueFill
+      props.$showValueFill
         ? "linear-gradient(90deg, var(--_c) 50%, #ccc 0) 0 1 / calc(50% - var(--l) / 2) 100vw/0 100vw"
         : "linear-gradient(90deg, #ccc 50%, #ccc 0) 0 1 / calc(50% - var(--l) / 2) 100vw/0 100vw"};
     -webkit-appearance: none;
@@ -86,7 +87,7 @@ const StyledVerticalSliderContainer = styled.div<{
     width: var(--w);
     background: var(--_c);
     border-image: ${(props) =>
-      props.showValueFill
+      props.$showValueFill
         ? "linear-gradient(90deg, var(--_c) 50%, #ccc 0) 0 1 / calc(50% - var(--l) / 2) 100vw/0 100vw"
         : "linear-gradient(90deg, #ccc 50%, #ccc 0) 0 1 / calc(50% - var(--l) / 2) 100vw/0 100vw"};
     -webkit-appearance: none;
@@ -187,8 +188,8 @@ const Slider: React.FC<SliderProps> = ({
 
   return (
     <StyledVerticalSliderContainer
-      showValueFill={showValueFill}
-      orient={orient}
+      $showValueFill={showValueFill}
+      $orient={orient}
     >
       <div style={sliderStyles}>
         <label htmlFor={componentKey}>{label}</label>
