@@ -3,7 +3,7 @@
 import React from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
-import Synthesizer from "../components/Synth";
+import Synthesizer from "@/components/Synth";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 
 export const DEFAULT_SYNTH_OPTIONS: Partial<
