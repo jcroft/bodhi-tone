@@ -1,12 +1,16 @@
 "use client";
 
-import { SynthContext } from "@/app/page";
+import { DEFAULT_SYNTH_OPTIONS, SynthContext } from "@/app/page";
 import React from "react";
 import * as Tone from "tone";
 import BaseModule from "./BaseModule";
 import Slider from "../Input/Slider";
 import Select from "../Input/Select";
-import { OmniOscillatorType } from "tone/build/esm/source/oscillator/OscillatorInterface";
+import {
+  OmniOscillatorOptions,
+  OmniOscillatorType,
+} from "tone/build/esm/source/oscillator/OscillatorInterface";
+import { parse } from "path";
 
 type OscillatorModuleOptions = {
   name: string;
@@ -20,14 +24,15 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   voiceKeys = ["voice0"],
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
-  const synthState = synth.get() as Tone.DuoSynthOptions;
-  const theseVoices = voiceKeys.map(
-    (key) => synthState[key] as Tone.MonoSynthOptions
-  );
-  const referenceVoice = theseVoices[0] as Tone.MonoSynthOptions;
-  const [selectedWaveform, setSelectedWaveform] = React.useState(
-    referenceVoice?.oscillator?.type || "sine"
-  );
+  const synthState = synth.get() as Tone.MonoSynthOptions;
+
+  const updateSynthSettings = (options: Partial<Tone.MonoSynthOptions>) => {
+    synth.set(options);
+  };
+
+  // const [selectedWaveform, setSelectedWaveform] = React.useState(
+  //   referenceVoice?.oscillator?.type || "sine"
+  // );
 
   const waveformOptions = React.useMemo(
     () => [
@@ -44,70 +49,74 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
     []
   );
 
-  const setAllVoices = (options: any) => {
-    voiceKeys.forEach((voiceKey) => {
-      // console.log(`Setting voice ${voiceKey} to`, options);
-      synth.set({
-        [voiceKey]: options,
-      });
-    });
-  };
-
-  const setGlobalSynthSettings = (
-    options: Partial<Tone.PolySynthOptions<Tone.DuoSynthOptions>>
-  ) => {
-    // console.log(`Setting global synth settings to`, options);
-    synth.set(options);
-  };
-
   const isOnlyVoice0 = voiceKeys.length === 1 && voiceKeys[0] === "voice0";
 
   return (
     <BaseModule name={name} componentKey={componentKey}>
-      <form className="column">
+      <form>
         <Select
           label="Waveform"
-          value={selectedWaveform}
+          value={
+            synthState?.oscillator?.type ||
+            DEFAULT_SYNTH_OPTIONS.options?.oscillator?.type
+          }
           componentKey="type"
           defaultOption={"sine" as Tone.ToneOscillatorType}
           onChange={(event, newValue) => {
-            setSelectedWaveform(newValue);
-            setAllVoices({
-              oscillator: {
-                type: newValue as OmniOscillatorType,
-              },
-            });
+            updateSynthSettings({
+              oscillator: { type: newValue as OmniOscillatorType },
+            } as Tone.MonoSynthOptions);
           }}
           options={waveformOptions}
         />
-        {!isOnlyVoice0 && (
+        <div className="control-group">
+          <h3>Tuning</h3>
           <Slider
-            componentKey="harmonicity"
-            label="Detune"
-            min={0.5}
-            max={2}
-            step={0.01}
-            value={synth.get()?.harmonicity || 0}
+            componentKey="detune"
+            label="Coarse"
+            min={-1200}
+            max={1200}
+            step={100}
+            value={synthState?.detune || 0}
+            valueType="semitones"
             onChange={(event, newValue) => {
-              setGlobalSynthSettings({
-                harmonicity: newValue,
+              updateSynthSettings({
+                detune: newValue,
               });
             }}
           />
-        )}
-        {referenceVoice?.oscillator?.type === "pwm" && (
+          <Slider
+            componentKey="detune"
+            label="Fine"
+            min={-100}
+            max={100}
+            step={1}
+            value={synthState?.detune || 0}
+            onChange={(event, newValue) => {
+              updateSynthSettings({
+                detune: newValue,
+              });
+            }}
+          />
+        </div>
+
+        {synthState?.oscillator?.type === "pwm" && (
           <Slider
             componentKey="pulse-width"
             label="Pulse Width Modulation"
             min={0}
             max={1}
             step={0.01}
-            value={referenceVoice?.oscillator?.modulationFrequency || 0}
+            value={
+              parseFloat(
+                synthState?.oscillator?.modulationFrequency.toString()
+              ) || 0
+            }
             onChange={(event, newValue) => {
-              setAllVoices({
+              updateSynthSettings({
                 oscillator: {
                   modulationFrequency: newValue,
-                },
+                } as Tone.PWMOscillatorOptions,
               });
             }}
           />

@@ -1,9 +1,8 @@
 "use client";
 
-import { SynthContext, SynthOptions } from "@/app/page";
+import { SynthContext } from "@/app/page";
 
-import React, { useContext, useEffect, useState } from "react";
-import * as Tone from "tone";
+import React from "react";
 import styled from "styled-components";
 
 type BaseModuleOptions = {
@@ -68,21 +67,11 @@ const StyledModuleBody = styled.div`
     font-size: 0.75rem;
 
     label {
+      font-size: 0.65rem;
       color: #666;
       font-weight: 500;
       text-align: left;
       padding-top: 0.5rem;
-    }
-
-    .slider-container {
-      padding-bottom: 1rem;
-      position: relative;
-
-      &:hover {
-        .value {
-          opacity: 1;
-        }
-      }
     }
 
     .value {

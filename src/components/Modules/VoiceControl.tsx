@@ -10,40 +10,17 @@ import Select from "../Input/Select";
 type VoiceModuleOptions = {
   name: string;
   componentKey: string;
-  voiceKeys: ("voice0" | "voice1")[];
 };
 
 const VoiceModule: React.FC<VoiceModuleOptions> = ({
   name = "Oscillator",
   componentKey,
-  voiceKeys = ["voice0", "voice1"],
 }) => {
   const { synth, saveSynthOptions } = React.useContext(SynthContext);
-  const synthState = synth.get() as Tone.DuoSynthOptions;
-  const theseVoices = voiceKeys.map(
-    (key) => synthState[key] as Tone.MonoSynthOptions
-  );
-  const referenceVoice = theseVoices[0] as Tone.MonoSynthOptions;
+  const synthState = synth.get() as Tone.MonoSynthOptions;
 
-  const setAllVoices = (options: Partial<Tone.DuoSynthOptions>) => {
-    voiceKeys.forEach((voiceKey) => {
-      //   console.log(`Setting voice ${voiceKey} to`, options);
-      synth.set({
-        [voiceKey]: options,
-      });
-    });
-  };
-
-  const setGlobalSynthSettings = (
-    options: Partial<Tone.PolySynthOptions<Tone.DuoSynthOptions>>
-  ) => {
-    // console.log(`Setting global synth settings to`, options);
+  const updateSynthSettings = (options: Partial<Tone.MonoSynthOptions>) => {
     synth.set(options);
-  };
-
-  const setMaxPolyphony = (maxPolyphony: number) => {
-    // console.log(`Setting max polyphony to`, maxPolyphony);
-    synth.maxPolyphony = maxPolyphony;
   };
 
   return (
@@ -55,13 +32,14 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
           min={-100}
           max={0}
           step={1}
-          value={referenceVoice?.volume || 0}
+          value={synthState?.volume || 0}
           orient="vertical"
           onChange={(event, newValue) => {
-            setAllVoices({
+            updateSynthSettings({
               volume: newValue,
             });
           }}
+          showValueFill
         />
         <div className="control-group">
           <h3>Voices</h3>
@@ -89,9 +67,9 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
             max={0.1}
             step={0.01}
             orient="vertical"
-            value={synth.get()?.portamento || 0}
+            value={synthState?.portamento || 0}
             onChange={(event, newValue) => {
-              setGlobalSynthSettings({
+              updateSynthSettings({
                 portamento: newValue,
               });
             }}
@@ -102,10 +80,10 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
             min={-100}
             max={100}
             step={1}
-            value={synth.detune || 0}
+            value={synthState?.detune || 0}
             orient="vertical"
             onChange={(event, newValue) => {
-              setGlobalSynthSettings({
+              updateSynthSettings({
                 detune: newValue,
               });
             }}
@@ -126,7 +104,7 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
           }}
         /> */}
 
-        <div className="control-group">
+        {/* <div className="control-group">
           <h3>Vibrato</h3>
           <Slider
             componentKey="vibratoRate"
@@ -136,7 +114,7 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
             step={0.01}
             valueType="frequency"
             orient="vertical"
-            value={synth?.vibratoRate || 0}
+            value={synthState?.vibratoRate || 0}
             onChange={(event, newValue) => {
               setGlobalSynthSettings({
                 vibratoRate: newValue,
@@ -149,7 +127,7 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
             min={0}
             max={1}
             step={0.01}
-            value={synth?.vibratoAmount || 0}
+            value={synthState?.vibratoAmount || 0}
             orient="vertical"
             onChange={(event, newValue) => {
               setGlobalSynthSettings({
@@ -157,7 +135,7 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({
               });
             }}
           />
-        </div>
+        </div> */}
       </form>
     </BaseModule>
   );

@@ -6,7 +6,7 @@ import OscillatorModule from "@/components/Modules/Oscillator";
 import React, { useContext, useEffect } from "react";
 import * as Tone from "tone";
 import styled from "styled-components";
-import { SynthContext, DEFAULT_DUO_SYNTH_OPTIONS } from "@/app/page";
+import { SynthContext, DEFAULT_SYNTH_OPTIONS } from "@/app/page";
 import Keyboard from "./Keyboard/Keyboard";
 import VoiceModule from "./Modules/VoiceControl";
 import MIDIInputSelect from "./MIDI/MIDIInputSelect";
@@ -53,7 +53,7 @@ const Synthesizer: React.FC = () => {
   const { synth, synthOptions, saveSynthOptions } = useContext(SynthContext);
 
   // Set the default synth options
-  synth.set(DEFAULT_DUO_SYNTH_OPTIONS);
+  synth.set(DEFAULT_SYNTH_OPTIONS);
 
   // Send the output of the synth to the primary output
   synth.toDestination();
@@ -101,12 +101,14 @@ const Synthesizer: React.FC = () => {
   useEffect(() => {
     if (!synthOptions) {
       console.log("No synth options found, setting defaults");
-      saveSynthOptions(DEFAULT_DUO_SYNTH_OPTIONS);
+      saveSynthOptions(DEFAULT_SYNTH_OPTIONS);
     } else {
       console.log("Synth options found, setting them", synthOptions);
       synth.set(synthOptions);
     }
   }, [synthOptions]);
+
+  console.log(synth.get());
 
   return (
     <>
@@ -122,31 +124,17 @@ const Synthesizer: React.FC = () => {
 
       <StyledSynthesizer $isOn={power}>
         <StyledModuleContainer>
-          <VoiceModule
-            name="Control"
-            componentKey="voiceControl"
-            voiceKeys={["voice0", "voice1"]}
-          />
+          <VoiceModule name="Control" componentKey="voiceControl" />
           <OscillatorModule
-            name="Osc 1"
-            componentKey="osc1"
+            name="Oscillator"
+            componentKey="osc"
             voiceKeys={["voice0"]}
-          />
-          <OscillatorModule
-            name="Osc 2"
-            componentKey="osc2"
-            voiceKeys={["voice1"]}
           />
           <FilterWithEnvelopeModule
             componentKey="filterEnvelope"
             name="Filter"
-            voiceKeys={["voice0", "voice1"]}
           />
-          <AmpEnvelopeModule
-            componentKey="envelope"
-            name="Amp"
-            voiceKeys={["voice0", "voice1"]}
-          />
+          <AmpEnvelopeModule componentKey="envelope" name="Amp" />
         </StyledModuleContainer>
 
         <Keyboard
