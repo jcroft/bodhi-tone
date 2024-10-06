@@ -3,14 +3,32 @@
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import React from "react";
 import { WebMidi } from "webmidi";
-import Select from "@/components/Input/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import * as Tone from "tone";
+import {
+  FormControl,
+  Input,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+} from "@mui/material";
 
 interface MIDIInputSelectProps {
   label: string;
   onNoteOn: (notes: string[]) => void;
   onNoteOff: (notes: string[]) => void;
 }
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
   label,
@@ -85,17 +103,31 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
     };
   }, [midiInput, WebMidi.enabled]);
 
+  const handleSelectChange = (e: SelectChangeEvent) => {
+    setMidiInput(e.target.value);
+  };
+
   return browserSupportsMIDI ? (
-    <Select
-      componentKey="midiInput"
-      defaultOption="Select MIDI Input"
-      label={label}
-      options={midiInputOptions}
-      value={midiInput}
-      onChange={(e) => {
-        setMidiInput(e.target.value);
-      }}
-    />
+    <FormControl variant="standard">
+      <InputLabel id="midi-input-select-label">{label}</InputLabel>
+      <Select
+        label={label}
+        labelId="midi-input-select-label"
+        id="midi-input-select"
+        value={midiInput}
+        onChange={handleSelectChange}
+        placeholder="Select MIDI Input"
+        displayEmpty
+        input={<Input />}
+        MenuProps={MenuProps}
+      >
+        {midiInputOptions.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   ) : (
     <div>MIDI not supported in this browser</div>
   );
