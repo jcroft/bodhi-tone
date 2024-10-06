@@ -80,7 +80,7 @@ const StyledSynthesizer = styled("div", {
   flex-direction: column;
   transition: opacity 0.3s ease-in-out;
   max-width: 960px;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 const StyledSynthBody = styled("div", {

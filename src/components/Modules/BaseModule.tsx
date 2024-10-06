@@ -35,12 +35,14 @@ const StyledModuleHeader = styled("div", {
   padding: 0.25rem;
   border-top-left-radius: 0.35rem;
   border-top-right-radius: 0.35rem;
+  border-bottom: 1px solid #222;
 
   h2 {
     margin: 0;
     padding: 0 0 0 0.25rem;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
+    font-weight: 500;
   }
 
   input {
@@ -98,27 +100,31 @@ const StyledModuleBody = styled("div", {
       padding-left: 0.5rem;
       padding-right: 0.5rem;
       border-radius: 0.3rem;
-      border-top-left-radius: 0;
       min-height: 138px;
+      border: 1px solid #2d2c2c;
 
       &.transparent {
         background-color: transparent;
+        border: none;
       }
 
       h3 {
         margin: 0;
         position: absolute;
-        top: -0.7rem;
-        left: 0;
+        bottom: 0rem;
+        right: 0;
         text-transform: uppercase;
-        line-height: 0.95rem;
+        line-height: 0.75rem;
         font-size: 0.5rem;
         color: #dfdfdf;
         font-weight: 500;
-        padding: 0 0.5rem;
-        background-color: #424242;
+        padding: 0 0.25rem;
+        background-color: #666;
         border-top-left-radius: 0.3rem;
-        border-top-right-radius: 0.3rem;
+        border-bottom-right-radius: 0.3rem;
+        border: 0.5px solid #777;
+        border-right: none;
+        border-bottom: none;
       }
     }
   }

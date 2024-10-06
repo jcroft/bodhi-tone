@@ -24,7 +24,7 @@ const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
       text-align: center;
 
       &:hover {
-        background-color: grey;
+        background-color: #dfdfdf;
       }
     }
 
@@ -46,15 +46,15 @@ const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
 
       &:hover {
         &:after {
-          background-color: grey;
+          background-color: #888;
         }
       }
     }
 
     li[data-active="true"] {
-      background-color: grey !important;
+      background-color: #ff5500 !important;
               &:after {
-          background-color: grey;
+          background-color: #ff5500;
           border: 1px solid black;
         }
     }
