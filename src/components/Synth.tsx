@@ -5,7 +5,7 @@ import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
 import OscillatorModule from "@/components/Modules/Oscillator";
 import React, { useEffect } from "react";
 import * as Tone from "tone";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import Keyboard from "./Keyboard/Keyboard";
 import VoiceModule from "./Modules/VoiceControl";
 import MIDIInputSelect from "./MIDI/MIDIInputSelect";
@@ -180,6 +180,8 @@ const Synthesizer: React.FC = () => {
   // Connect the synth to the effects
   synth?.chain(effects.chorus, effects.delay, effects.reverb);
 
+  const theme = useTheme();
+
   return (
     <SynthContext.Provider
       value={{
@@ -192,7 +194,7 @@ const Synthesizer: React.FC = () => {
         effects,
       }}
     >
-      <StyledMenuBar>
+      <StyledMenuBar $theme={theme}>
         <PowerButton isOn={power} onClick={() => setPower(!power)} />
         <MIDIInputSelect
           label="MIDI Input"
@@ -202,7 +204,7 @@ const Synthesizer: React.FC = () => {
       </StyledMenuBar>
 
       <StyledSynthesizer $isOn={power}>
-        <StyledModuleContainer>
+        <StyledModuleContainer $theme={theme}>
           <VoiceModule name="Main" />
           <OscillatorModule name="Oscillator" />
           <FilterWithEnvelopeModule name="Filter" />
