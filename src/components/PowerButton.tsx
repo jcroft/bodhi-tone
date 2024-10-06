@@ -18,6 +18,7 @@ const PowerButton: React.FC<PowerButtonProps> = ({ isOn, onClick }) => {
       className={isOn ? "on" : "off"}
       onClick={() => onClick(!isOn)}
       startIcon={<PowerIcon />}
+      size="small"
     >
       Power
     </Button>

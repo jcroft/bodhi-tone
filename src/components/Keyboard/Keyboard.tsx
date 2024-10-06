@@ -77,7 +77,7 @@ type KeyboardOptions = {
 const Keyboard: React.FC<KeyboardOptions> = ({
   name = "keyboard",
   lowestOctave = 1,
-  octaves = 3,
+  octaves = 4,
   activeNotes = ["C4"],
   onNoteOn,
   onNoteOff,

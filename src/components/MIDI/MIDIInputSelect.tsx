@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
-import React from "react";
+import React, { ReactNode } from "react";
 import { WebMidi } from "webmidi";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import * as Tone from "tone";
@@ -11,7 +11,22 @@ import {
   InputLabel,
   MenuItem,
   OutlinedInput,
+  styled,
+  useTheme,
 } from "@mui/material";
+
+const StyledSelect = styled(Select)({
+  color: "#ff6600",
+  "& .MuiSelect-icon": {
+    color: "#ff6600",
+  },
+  "& .MuiSelect-select": {
+    color: "#ff6600",
+  },
+  "& .MuiSelect-selectMenu": {
+    color: "#ff6600",
+  },
+});
 
 interface MIDIInputSelectProps {
   label: string;
@@ -103,14 +118,29 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
     };
   }, [midiInput, WebMidi.enabled]);
 
-  const handleSelectChange = (e: SelectChangeEvent) => {
-    setMidiInput(e.target.value);
+  const handleSelectChange = (
+    event: SelectChangeEvent<unknown>,
+    child: ReactNode
+  ) => {
+    const newValue = event.target.value as string;
+    setMidiInput(newValue);
   };
 
+  const theme = useTheme();
+
   return browserSupportsMIDI ? (
-    <FormControl variant="standard">
-      <InputLabel id="midi-input-select-label">{label}</InputLabel>
-      <Select
+    <FormControl variant="outlined">
+      <InputLabel
+        color="primary"
+        id="midi-input-select-label"
+        style={{
+          backgroundColor: "#111",
+          padding: "0 0.25rem",
+        }}
+      >
+        {label}
+      </InputLabel>
+      <StyledSelect
         label={label}
         labelId="midi-input-select-label"
         id="midi-input-select"
@@ -118,15 +148,16 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
         onChange={handleSelectChange}
         placeholder="Select MIDI Input"
         displayEmpty
-        input={<Input />}
+        input={<OutlinedInput />}
         MenuProps={MenuProps}
+        size="small"
       >
         {midiInputOptions.map((option) => (
           <MenuItem key={option.value} value={option.value}>
             {option.label}
           </MenuItem>
         ))}
-      </Select>
+      </StyledSelect>
     </FormControl>
   ) : (
     <div>MIDI not supported in this browser</div>

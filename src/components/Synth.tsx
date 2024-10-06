@@ -85,9 +85,7 @@ const StyledMenuBar = styled.div`
   flex-direction: row;
   justify-content: space-between;
   gap: 1rem;
-  background-color: #f0f0f0;
   font-size: 0.75rem;
-  padding: 0.25rem;
   margin-bottom: 0.5rem;
 
   [class^="Select__StyledSelectWrapper"] {

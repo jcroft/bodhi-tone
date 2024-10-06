@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import styled from "styled-components";
 import { SynthContext } from "../Synth";
+import { useTheme, styled } from "@mui/material";
 
 type BaseModuleOptions = {
   name: string;
@@ -12,7 +12,9 @@ type BaseModuleOptions = {
   children?: React.ReactNode;
 };
 
-const StyledBaseModule = styled.div`
+const StyledBaseModule = styled("div", {
+  shouldForwardProp: (prop) => prop !== "$theme",
+})<{ $theme: any }>`
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -20,13 +22,15 @@ const StyledBaseModule = styled.div`
   border-bottom-right-radius: 0.35rem;
 `;
 
-const StyledModuleHeader = styled.div`
+const StyledModuleHeader = styled("div", {
+  shouldForwardProp: (prop) => prop !== "$theme",
+})<{ $theme: any }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   justify-items: center;
   align-items: center;
-  background-color: #ff5500;
+  background-color: ${({ $theme }) => $theme.palette.primary.main};
   color: #fff;
   padding: 0.25rem;
   border-top-left-radius: 0.35rem;
@@ -49,7 +53,9 @@ const StyledModuleHeader = styled.div`
   }
 `;
 
-const StyledModuleBody = styled.div`
+const StyledModuleBody = styled("div", {
+  shouldForwardProp: (prop) => prop !== "theme",
+})<{ $theme: any }>`
   padding: 0.5rem;
   padding-top: 1.5rem;
   display: flex;
@@ -123,14 +129,14 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
   onDeactivate,
   children,
 }) => {
-  const { synth, saveSynthOptions } = React.useContext(SynthContext);
+  const theme = useTheme();
 
   return (
-    <StyledBaseModule>
-      <StyledModuleHeader>
+    <StyledBaseModule $theme={theme}>
+      <StyledModuleHeader $theme={theme}>
         <h2>{name}</h2>
       </StyledModuleHeader>
-      <StyledModuleBody>{children}</StyledModuleBody>
+      <StyledModuleBody $theme={theme}>{children}</StyledModuleBody>
     </StyledBaseModule>
   );
 };

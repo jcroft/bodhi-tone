@@ -1,6 +1,6 @@
 "use client";
 import Slider, { SliderProps } from "@mui/material/Slider";
-import { InputLabel, styled } from "@mui/material";
+import { InputLabel, styled, useTheme } from "@mui/material";
 import React, { useEffect } from "react";
 
 interface FaderProps {
@@ -20,12 +20,12 @@ const StyledFaderContainer = styled("div")({
   gap: ".75rem",
 });
 
-const StyledFader = styled(Slider)({
-  color: "#ff6600",
+const StyledFader = styled(Slider)<{ $theme: any }>(({ $theme }) => ({
+  color: $theme.palette.primary.main,
 
   "& .MuiSlider-track": {},
   "& .MuiSlider-thumb": {
-    backgroundColor: "#ff5500",
+    backgroundColor: $theme.palette.primary.main,
     // border: "1px solid white ",
     height: 10,
     width: 24,
@@ -39,10 +39,10 @@ const StyledFader = styled(Slider)({
   },
   "& .MuiSlider-valueLabel": {
     background: "unset",
-    backgroundColor: "#ff5500",
+    backgroundColor: $theme.palette.primary.main,
     "&::before": { display: "none" },
   },
-});
+}));
 
 const Fader: React.FC<FaderProps> = ({
   id,
@@ -57,8 +57,9 @@ const Fader: React.FC<FaderProps> = ({
     value || sliderProps?.defaultValue || 0
   );
 
+  const theme = useTheme();
+
   useEffect(() => {
-    console.log("value", value);
     if (value) {
       setSliderValue(value);
     }
@@ -68,10 +69,12 @@ const Fader: React.FC<FaderProps> = ({
     <StyledFaderContainer>
       <InputLabel id={`${id}-slider-label`}>{label}</InputLabel>
       <StyledFader
+        $theme={theme}
         aria-labelledby={`${id}-slider-label`}
         aria-label={label}
         {...sliderProps}
         value={sliderValue}
+        color="primary"
         onChange={(event, newValue) => {
           if (sliderProps.onChange) {
             sliderProps.onChange(event, newValue, 0);
