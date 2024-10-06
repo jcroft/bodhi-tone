@@ -5,6 +5,7 @@ import { PingPongDelayOptions } from "tone";
 import BaseModule from "./BaseModule";
 import Slider from "../Input/Slider";
 import { SynthContext } from "../Synth";
+import Fader from "../Input/Fader";
 
 interface DelayModuleProps {
   name: string;
@@ -20,41 +21,58 @@ const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
   return (
     <BaseModule name={name}>
       <form>
-        <Slider
-          componentKey="delay-wet"
+        <Fader
+          id="delay-wet"
           label="Wet"
-          min={0}
-          max={1}
-          step={0.01}
           value={parseFloat(effects.delay.wet.value.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.delay.wet.value = newValue;
+          sliderProps={{
+            valueLabelDisplay: "auto",
+            orientation: "vertical",
+            min: 0,
+            max: 1,
+            step: 0.01,
+            onChange: (event, newValue) => {
+              if (typeof newValue === "number") {
+                effects.delay.wet.value = newValue;
+              }
+            },
           }}
         />
+
         <div className="control-group">
-          <Slider
-            componentKey="delay-feedback"
+          <Fader
+            id="delay-feedback"
             label="Fdbk"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(effects.delay.feedback.value.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              effects.delay.feedback.value = newValue;
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.delay.feedback.value = newValue;
+                }
+              },
             }}
           />
-          <Slider
-            componentKey="delay-time"
+
+          <Fader
+            id="delay-time"
             label="Time"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(effects.delay.delayTime.value.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              effects.delay.delayTime.value = newValue;
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.delay.delayTime.value = newValue;
+                }
+              },
             }}
           />
         </div>

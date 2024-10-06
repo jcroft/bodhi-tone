@@ -199,7 +199,7 @@ const Synthesizer: React.FC = () => {
 
       <StyledSynthesizer $isOn={power}>
         <StyledModuleContainer>
-          <VoiceModule name="Control" />
+          <VoiceModule name="Main" />
           <OscillatorModule name="Oscillator" />
           <FilterWithEnvelopeModule name="Filter" />
           <AmpEnvelopeModule name="Amp" />

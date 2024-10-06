@@ -10,6 +10,8 @@ const Synthesizer = dynamic(() => import("../components/Synth"), {
 
 const StyledSynthPage = styled.div<{ $isOn?: boolean }>`
   padding: 1rem;
+  max-width: 1024px;
+  margin: 0 auto;
 `;
 
 const SynthesizerPage: React.FC = () => {

@@ -5,6 +5,7 @@ import { ChorusOptions, PingPongDelayOptions } from "tone";
 import BaseModule from "./BaseModule";
 import Slider from "../Input/Slider";
 import { SynthContext } from "../Synth";
+import Fader from "../Input/Fader";
 
 interface ChorusModuleProps {
   name: string;
@@ -13,89 +14,115 @@ interface ChorusModuleProps {
 const ChorusModule: React.FC<ChorusModuleProps> = ({ name = "Chorus" }) => {
   const { effects } = React.useContext(SynthContext);
 
-  const updateEffectSettings = (options: Partial<ChorusOptions>) => {
-    //     frequency: Frequency;
-    // delayTime: Milliseconds;
-    // depth: NormalRange;
-    // type: ToneOscillatorType;
-    // spread: Degrees;
-    effects.chorus.set(options);
-  };
-
   return (
     <BaseModule name={name}>
       <form>
-        <Slider
-          componentKey="chorus-wet"
+        <Fader
+          id="chorus-wet"
           label="Wet"
-          min={0}
-          max={1}
-          step={0.01}
           value={parseFloat(effects.chorus.wet.value.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.chorus.wet.value = newValue;
+          sliderProps={{
+            valueLabelDisplay: "auto",
+            orientation: "vertical",
+            min: 0,
+            max: 1,
+            step: 0.01,
+            onChange: (event, newValue) => {
+              if (typeof newValue === "number") {
+                effects.chorus.wet.value = newValue;
+              }
+            },
           }}
         />
+
         <div className="control-group">
-          <Slider
-            componentKey="chorus-feedback"
+          <Fader
+            id="chorus-feedback"
             label="Fdbk"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(effects.chorus.feedback.value.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              effects.chorus.feedback.value = newValue;
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.chorus.feedback.value = newValue;
+                }
+              },
             }}
           />
-          <Slider
-            componentKey="chorus-delay-time"
+
+          <Fader
+            id="chorus-delay-time"
             label="Time"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(effects.chorus.delayTime.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              effects.chorus.delayTime = newValue;
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.chorus.delayTime = newValue;
+                }
+              },
             }}
           />
-          <Slider
-            componentKey="chorus-frequency"
+
+          <Fader
+            id="chorus-frequency"
             label="Freq"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(effects.chorus.frequency.value.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              effects.chorus.frequency.value = newValue;
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.chorus.frequency.value = newValue;
+                }
+              },
             }}
           />
-          <Slider
-            componentKey="chorus-depth"
+
+          <Fader
+            id="chorus-depth"
             label="Depth"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(effects.chorus.depth.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              effects.chorus.depth = newValue;
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.chorus.depth = newValue;
+                }
+              },
             }}
           />
-          <Slider
-            componentKey="chorus-spread"
+
+          <Fader
+            id="chorus-spread"
             label="Spread"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(effects.chorus.spread.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              effects.chorus.spread = newValue;
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.chorus.spread = newValue;
+                }
+              },
             }}
           />
         </div>

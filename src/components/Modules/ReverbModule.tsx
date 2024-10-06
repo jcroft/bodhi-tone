@@ -6,6 +6,7 @@ import Slider from "../Input/Slider";
 import * as Tone from "tone";
 import { parse } from "path";
 import { SynthContext } from "../Synth";
+import Fader from "../Input/Fader";
 
 type ReverbModuleOptions = {
   name: string;
@@ -26,45 +27,62 @@ const ReverbModule: React.FC<ReverbModuleOptions> = ({ name = "Reverb" }) => {
   return (
     <BaseModule name={name}>
       <form>
-        <Slider
-          componentKey="reverb-wet"
+        <Fader
+          id="reverb-wet"
           label="Wet"
-          min={0}
-          max={1}
-          step={0.01}
           value={parseFloat(effects.reverb.wet.value.toString())}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            effects.reverb.wet.value = newValue;
+          sliderProps={{
+            valueLabelDisplay: "auto",
+            orientation: "vertical",
+            min: 0,
+            max: 1,
+            step: 0.01,
+            onChange: (event, newValue) => {
+              if (typeof newValue === "number") {
+                effects.reverb.wet.value = newValue;
+              }
+            },
           }}
         />
+
         <div className="control-group">
-          <Slider
-            componentKey="reverb-decay"
+          <Fader
+            id="reverb-decay"
             label="Decay"
-            min={0}
-            max={10}
-            step={0.01}
             value={parseFloat(effects.reverb.decay.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              updateEffectSettings({
-                decay: newValue,
-              });
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 10,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  updateEffectSettings({
+                    decay: newValue,
+                  });
+                }
+              },
             }}
           />
-          <Slider
-            componentKey="reverb-pre-delay"
+
+          <Fader
+            id="reverb-pre-delay"
             label="Pre"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(effects.reverb.preDelay.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              updateEffectSettings({
-                preDelay: newValue,
-              });
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  updateEffectSettings({
+                    preDelay: newValue,
+                  });
+                }
+              },
             }}
           />
         </div>

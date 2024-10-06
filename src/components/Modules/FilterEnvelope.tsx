@@ -5,6 +5,7 @@ import BaseModule from "./BaseModule";
 import Slider from "../Input/Slider";
 import * as Tone from "tone";
 import { SynthContext } from "../Synth";
+import Fader from "../Input/Fader";
 
 type FilterWithEnvelopeModuleOptions = {
   name: string;
@@ -23,108 +24,131 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   return (
     <BaseModule name={name}>
       <form>
-        <Slider
-          componentKey="filter-base-freq"
+        <Fader
+          id="filter-base-freq"
           label="Cutoff"
-          min={1}
-          max={2000}
-          step={0.01}
           value={
             parseFloat(synthState?.filterEnvelope?.baseFrequency.toString()) ||
             0
           }
-          valueType="frequency"
-          orient="vertical"
-          onChange={(event, newValue) => {
-            updateSynthSettings({
-              filterEnvelope: {
-                baseFrequency: newValue,
-              } as Tone.FrequencyEnvelopeOptions,
-            });
+          sliderProps={{
+            valueLabelDisplay: "auto",
+            valueLabelFormat: (value: number) => `${value.toFixed()} Hz`,
+            orientation: "vertical",
+            min: 1,
+            max: 2000,
+            step: 0.01,
+            onChange: (event, newValue) => {
+              updateSynthSettings({
+                filterEnvelope: {
+                  baseFrequency: newValue,
+                } as Tone.FrequencyEnvelopeOptions,
+              });
+            },
           }}
         />
 
-        <Slider
-          componentKey="filter-resonance"
+        <Fader
+          id="filter-resonance"
           label="Reso"
-          min={0}
-          max={20}
-          step={0.1}
           value={synthState?.filter?.Q || 0}
-          orient="vertical"
-          onChange={(event, newValue) => {
-            updateSynthSettings({
-              filter: {
-                Q: newValue,
-              } as Tone.FilterOptions,
-            });
+          sliderProps={{
+            valueLabelDisplay: "auto",
+            valueLabelFormat: (value: number) => `${value.toFixed()}`,
+            orientation: "vertical",
+            min: 0,
+            max: 20,
+            step: 0.1,
+            onChange: (event, newValue) => {
+              updateSynthSettings({
+                filter: {
+                  Q: newValue,
+                } as Tone.FilterOptions,
+              });
+            },
           }}
         />
 
         <div className="control-group">
           <h3>Envelope</h3>
-          <Slider
-            componentKey="filter-attack"
+
+          <Fader
+            id="filter-attack"
             label="A"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(synthState?.filterEnvelope?.attack?.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              updateSynthSettings({
-                filterEnvelope: {
-                  attack: newValue,
-                } as Tone.FrequencyEnvelopeOptions,
-              });
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  filterEnvelope: {
+                    attack: newValue,
+                  } as Tone.FrequencyEnvelopeOptions,
+                });
+              },
             }}
           />
-          <Slider
-            componentKey="filter-decay"
+
+          <Fader
+            id="filter-decay"
             label="D"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(synthState?.filterEnvelope?.decay?.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              updateSynthSettings({
-                filterEnvelope: {
-                  decay: newValue,
-                } as Tone.FrequencyEnvelopeOptions,
-              });
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  filterEnvelope: {
+                    decay: newValue,
+                  } as Tone.FrequencyEnvelopeOptions,
+                });
+              },
             }}
           />
-          <Slider
-            componentKey="filter-sustain"
+
+          <Fader
+            id="filter-sustain"
             label="S"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(synthState?.filterEnvelope?.sustain?.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              updateSynthSettings({
-                filterEnvelope: {
-                  sustain: newValue,
-                } as Tone.FrequencyEnvelopeOptions,
-              });
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  filterEnvelope: {
+                    sustain: newValue,
+                  } as Tone.FrequencyEnvelopeOptions,
+                });
+              },
             }}
           />
-          <Slider
-            componentKey="filter-release"
+
+          <Fader
+            id="filter-release"
             label="R"
-            min={0}
-            max={1}
-            step={0.01}
             value={parseFloat(synthState?.filterEnvelope?.release?.toString())}
-            orient="vertical"
-            onChange={(event, newValue) => {
-              updateSynthSettings({
-                filterEnvelope: {
-                  release: newValue,
-                } as Tone.FrequencyEnvelopeOptions,
-              });
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  filterEnvelope: {
+                    release: newValue,
+                  } as Tone.FrequencyEnvelopeOptions,
+                });
+              },
             }}
           />
         </div>

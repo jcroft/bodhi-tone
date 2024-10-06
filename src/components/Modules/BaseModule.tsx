@@ -13,7 +13,6 @@ type BaseModuleOptions = {
 };
 
 const StyledBaseModule = styled.div`
-  background-color: #f0f0f0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -55,7 +54,7 @@ const StyledModuleBody = styled.div`
   padding-top: 1.5rem;
   display: flex;
   flex-direction: row;
-  gap: 1rem;
+  background-color: #333;
 
   form {
     display: flex;
@@ -65,8 +64,8 @@ const StyledModuleBody = styled.div`
 
     label {
       font-size: 0.65rem;
-      color: #666;
-      font-weight: 500;
+      color: #fff;
+      font-weight: 400;
       text-align: left;
       padding-top: 0.5rem;
     }
@@ -85,23 +84,28 @@ const StyledModuleBody = styled.div`
     .control-group {
       display: flex;
       flex-direction: row;
-      background-color: #ddd;
+      background-color: rgba(255, 255, 255, 0.075);
       gap: 0.5rem;
       position: relative;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
       border-radius: 0.25rem;
+      border-top-left-radius: 0;
       min-height: 100px;
 
       h3 {
         margin: 0;
         position: absolute;
-        top: -1rem;
+        top: -0.75rem;
         left: 0;
         text-transform: uppercase;
-        font-size: 0.65rem;
-        color: #999;
+        font-size: 0.5rem;
+        color: #dfdfdf;
         font-weight: 500;
+        padding: 0 0.5rem;
+        background-color: rgba(255, 255, 255, 0.075);
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
       }
     }
   }
