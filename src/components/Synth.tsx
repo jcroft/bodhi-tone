@@ -78,9 +78,15 @@ const StyledSynthesizer = styled("div", {
 })<{ $isOn?: boolean }>`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  opacity: ${({ $isOn }) => ($isOn ? 1 : 0.25)};
   transition: opacity 0.3s ease-in-out;
+  max-width: 960px;
+  gap: 0.5rem;
+`;
+
+const StyledSynthBody = styled("div", {
+  shouldForwardProp: (prop) => prop !== "$isOn",
+})<{ $isOn?: boolean }>`
+  opacity: ${({ $isOn }) => ($isOn ? 1 : 0.25)};
 `;
 
 const StyledModuleContainer = styled("div", {
@@ -100,7 +106,6 @@ const StyledMenuBar = styled("div", {
   justify-content: space-between;
   gap: 1rem;
   font-size: 0.75rem;
-  margin-bottom: 0.5rem;
 
   [class^="Select__StyledSelectWrapper"] {
     flex-direction: row;
@@ -195,26 +200,27 @@ const Synthesizer: React.FC = () => {
         effects,
       }}
     >
-      <StyledMenuBar $theme={theme}>
-        <PowerButton isOn={power} onClick={() => setPower(!power)} />
-        <MIDIInputSelect
-          label="MIDI Input"
-          onNoteOn={onNoteOn}
-          onNoteOff={onNoteOff}
-        />
-      </StyledMenuBar>
-
       <StyledSynthesizer $isOn={power}>
-        <StyledModuleContainer $theme={theme}>
-          <VoiceModule name="Main" />
-          <OscillatorModule name="Oscillator" />
-          <FilterWithEnvelopeModule name="Filter" />
-          <AmpEnvelopeModule name="Amp" />
+        <StyledMenuBar $theme={theme}>
+          <PowerButton isOn={power} onClick={() => setPower(!power)} />
+          <MIDIInputSelect
+            label="MIDI Input"
+            onNoteOn={onNoteOn}
+            onNoteOff={onNoteOff}
+          />
+        </StyledMenuBar>
+        <StyledSynthBody $isOn={power}>
+          <StyledModuleContainer $theme={theme}>
+            <VoiceModule name="Main" />
+            <OscillatorModule name="Oscillator" />
+            <FilterWithEnvelopeModule name="Filter" />
+            <AmpEnvelopeModule name="Amp" />
 
-          <ChorusModule name="Chorus" />
-          <DelayModule name="Delay" />
-          <ReverbModule name="Reverb" />
-        </StyledModuleContainer>
+            <ChorusModule name="Chorus" />
+            <DelayModule name="Delay" />
+            <ReverbModule name="Reverb" />
+          </StyledModuleContainer>
+        </StyledSynthBody>
 
         <Keyboard
           activeNotes={activeNotes}

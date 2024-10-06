@@ -11,10 +11,12 @@ const Synthesizer = dynamic(() => import("../components/Synth"), {
 });
 
 const StyledSynthPage = styled.div<{ $isOn?: boolean }>`
-  padding: 1rem;
-  max-width: 960px;
-  margin: 0 auto;
   background-color: #111;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 let theme = createTheme({

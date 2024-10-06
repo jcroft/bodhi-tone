@@ -128,8 +128,7 @@ const StyledModuleBody = styled("div", {
 
     .control-group {
       flex-direction: column;
-      gap: 0.75rem;
-      padding: 0.5rem;
+      padding: 0;
       align-items: flex-start;
     }
   }

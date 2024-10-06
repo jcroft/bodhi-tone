@@ -7,10 +7,12 @@ import { OmniOscillatorType } from "tone/build/esm/source/oscillator/OscillatorI
 import { DEFAULT_SYNTH_OPTIONS, SynthContext } from "../Synth";
 import {
   Divider,
+  InputLabel,
   ListItemIcon,
   MenuItem,
   MenuList,
   styled,
+  Typography,
 } from "@mui/material";
 import Fader from "../Input/Fader";
 import { ContentCut } from "@mui/icons-material";
@@ -29,6 +31,7 @@ const StyledOscillatorIcon = styled("img")({
 
 const StyledSelect = styled(Select)({
   width: "100%",
+  minWidth: "135px",
   fontSize: "0.75rem",
 
   img: {
@@ -40,7 +43,13 @@ const StyledSelect = styled(Select)({
   ".MuiListItemIcon-root": {
     minWidth: "24px",
     position: "relative",
-    top: ".25rem",
+    top: ".125rem",
+  },
+
+  "& .MuiSelect-select": {
+    padding: ".25rem .5rem",
+    paddingRight: "2rem !important",
+    minHeight: "unset",
   },
 });
 
@@ -53,6 +62,13 @@ const StyledMenuItem = styled(MenuItem)({
   ".MuiListItemIcon-root": {
     minWidth: "24px",
   },
+});
+
+const StyledMenuGroupHeader = styled(Typography)({
+  fontSize: "0.5rem",
+  fontWeight: "bold",
+  padding: "0 .5rem",
+  color: "#999",
 });
 
 const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
@@ -190,9 +206,31 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   return (
     <BaseModule name={name}>
       <form className="column">
-        <div className="control-group transparent">
+        <div
+          className="control-group transparent"
+          style={{
+            position: "relative",
+            top: "-.4rem",
+          }}
+        >
+          <InputLabel
+            color="primary"
+            id="osc-engine-select-label"
+            style={{
+              position: "relative",
+              top: ".875rem",
+              left: "0.75rem",
+              padding: "0 0.25rem",
+              backgroundColor: "#333",
+              zIndex: 100,
+            }}
+          >
+            Engine
+          </InputLabel>
           <StyledSelect
             value={selectedOscillator}
+            label="Engine"
+            labelId="osc-engine--select-label"
             onChange={(event) => {
               const newValue = event.target.value as OmniOscillatorType;
               setSelectedOscillator(newValue);
@@ -204,6 +242,9 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
             }}
             size="small"
           >
+            <StyledMenuGroupHeader variant="overline">
+              Single Cycle
+            </StyledMenuGroupHeader>
             {basicOscillatorChoices.map((choice) => (
               <StyledMenuItem key={choice.value} value={choice.value}>
                 <ListItemIcon>
@@ -216,6 +257,9 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
               </StyledMenuItem>
             ))}
             <Divider />
+            <StyledMenuGroupHeader variant="overline">
+              Wave Stack
+            </StyledMenuGroupHeader>
             {fatOscillatorChoices.map((choice) => (
               <StyledMenuItem key={choice.value} value={choice.value}>
                 <ListItemIcon>
@@ -228,6 +272,9 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
               </StyledMenuItem>
             ))}
             <Divider />
+            <StyledMenuGroupHeader variant="overline">
+              Frequency Modulation
+            </StyledMenuGroupHeader>
             {fmOscillatorChoices.map((choice) => (
               <StyledMenuItem key={choice.value} value={choice.value}>
                 <ListItemIcon>
@@ -240,6 +287,9 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
               </StyledMenuItem>
             ))}
             <Divider />
+            <StyledMenuGroupHeader variant="overline">
+              Amplitude Modulation
+            </StyledMenuGroupHeader>
             {amOscillatorChoices.map((choice) => (
               <StyledMenuItem key={choice.value} value={choice.value}>
                 <ListItemIcon>

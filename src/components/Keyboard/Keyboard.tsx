@@ -12,6 +12,9 @@ const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
     flex-direction: row;
     flex-wrap: wrap;
     overflow: hidden;
+    list-style: none;
+    margin: 0;
+    padding: 0;
     li {
       float: left;
       background-color: white;

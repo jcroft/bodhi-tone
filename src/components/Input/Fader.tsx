@@ -18,11 +18,13 @@ const StyledFaderContainer = styled("div")<{
   alignItems: "center",
   justifyContent: "center",
   height: $orientation === "vertical" ? "120px" : "auto",
+  width: $orientation === "horizontal" ? "100%" : "auto",
   marginBottom: $orientation === "vertical" ? ".75rem" : "0",
-  gap: $orientation === "vertical" ? ".75rem" : ".25rem",
+  gap: $orientation === "vertical" ? ".75rem" : "0",
 
   "& .MuiSlider-root": {
-    width: $orientation === "horizontal" ? "70px" : undefined,
+    width: $orientation === "horizontal" ? "96px" : undefined,
+    padding: $orientation === "horizontal" ? "10px 0" : undefined,
   },
 }));
 
@@ -85,11 +87,15 @@ const StyledFader = styled(Slider, {
   }
 
   & .MuiSlider-valueLabel {
-    background: unset;
-    background-color: $theme.palette.primary.main;
-    &::before {
-      display: none;
-    }
+    // background: unset;
+    // background-color: $theme.palette.primary.main;
+    // &::before {
+    //   display: none;
+    // }
+    left: -4.75rem;
+    top: 3px;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 
   & .MuiSlider-rail {
