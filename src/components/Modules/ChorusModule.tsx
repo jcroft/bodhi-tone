@@ -15,23 +15,25 @@ const ChorusModule: React.FC<ChorusModuleProps> = ({ name = "Chorus" }) => {
   return (
     <BaseModule name={name}>
       <form>
-        <Fader
-          id="chorus-wet"
-          label="Wet"
-          value={parseFloat(effects.chorus.wet.value.toString())}
-          sliderProps={{
-            valueLabelDisplay: "auto",
-            orientation: "vertical",
-            min: 0,
-            max: 1,
-            step: 0.01,
-            onChange: (event, newValue) => {
-              if (typeof newValue === "number") {
-                effects.chorus.wet.value = newValue;
-              }
-            },
-          }}
-        />
+        <div className="control-group transparent">
+          <Fader
+            id="chorus-wet"
+            label="Wet"
+            value={parseFloat(effects.chorus.wet.value.toString())}
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.chorus.wet.value = newValue;
+                }
+              },
+            }}
+          />
+        </div>
 
         <div className="control-group">
           <Fader

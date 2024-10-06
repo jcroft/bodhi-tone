@@ -24,7 +24,8 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
   options: {
     portamento: 0,
     oscillator: {
-      type: "sawtooth",
+      type: "fatsawtooth",
+      count: 3,
     },
     envelope: {
       attack: 0.01,

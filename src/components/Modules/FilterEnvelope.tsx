@@ -23,50 +23,53 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   return (
     <BaseModule name={name}>
       <form>
-        <Fader
-          id="filter-base-freq"
-          label="Cutoff"
-          value={
-            parseFloat(synthState?.filterEnvelope?.baseFrequency.toString()) ||
-            0
-          }
-          sliderProps={{
-            valueLabelDisplay: "auto",
-            valueLabelFormat: (value: number) => `${value.toFixed()} Hz`,
-            orientation: "vertical",
-            min: 1,
-            max: 2000,
-            step: 0.01,
-            onChange: (event, newValue) => {
-              updateSynthSettings({
-                filterEnvelope: {
-                  baseFrequency: newValue,
-                } as Tone.FrequencyEnvelopeOptions,
-              });
-            },
-          }}
-        />
+        <div className="control-group transparent">
+          <Fader
+            id="filter-base-freq"
+            label="Cutoff"
+            value={
+              parseFloat(
+                synthState?.filterEnvelope?.baseFrequency.toString()
+              ) || 0
+            }
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              valueLabelFormat: (value: number) => `${value.toFixed()} Hz`,
+              orientation: "vertical",
+              min: 1,
+              max: 2000,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  filterEnvelope: {
+                    baseFrequency: newValue,
+                  } as Tone.FrequencyEnvelopeOptions,
+                });
+              },
+            }}
+          />
 
-        <Fader
-          id="filter-resonance"
-          label="Reso"
-          value={synthState?.filter?.Q || 0}
-          sliderProps={{
-            valueLabelDisplay: "auto",
-            valueLabelFormat: (value: number) => `${value.toFixed()}`,
-            orientation: "vertical",
-            min: 0,
-            max: 20,
-            step: 0.1,
-            onChange: (event, newValue) => {
-              updateSynthSettings({
-                filter: {
-                  Q: newValue,
-                } as Tone.FilterOptions,
-              });
-            },
-          }}
-        />
+          <Fader
+            id="filter-resonance"
+            label="Reso"
+            value={synthState?.filter?.Q || 0}
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              valueLabelFormat: (value: number) => `${value.toFixed()}`,
+              orientation: "vertical",
+              min: 0,
+              max: 20,
+              step: 0.1,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  filter: {
+                    Q: newValue,
+                  } as Tone.FilterOptions,
+                });
+              },
+            }}
+          />
+        </div>
 
         <div className="control-group">
           <h3>Envelope</h3>

@@ -20,26 +20,28 @@ const VoiceModule: React.FC<VoiceModuleOptions> = ({ name = "Oscillator" }) => {
   return (
     <BaseModule name={name}>
       <form>
-        <Fader
-          id="volume"
-          label="Volume"
-          sliderProps={{
-            valueLabelDisplay: "auto",
-            orientation: "vertical",
-            valueLabelFormat: (value: number) => `${value.toFixed()} dB`,
-            defaultValue: 0,
-            step: 1,
-            // marks: true,
-            min: -80,
-            max: 0,
-            track: "normal",
-            onChange: (event, newValue) => {
-              if (typeof newValue === "number") {
-                synth!.volume.value = newValue;
-              }
-            },
-          }}
-        />
+        <div className="control-group transparent">
+          <Fader
+            id="volume"
+            label="Volume"
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              valueLabelFormat: (value: number) => `${value.toFixed()} dB`,
+              defaultValue: 0,
+              step: 1,
+              // marks: true,
+              min: -80,
+              max: 0,
+              track: "normal",
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  synth!.volume.value = newValue;
+                }
+              },
+            }}
+          />
+        </div>
 
         {/* <Fader
           id="detune"

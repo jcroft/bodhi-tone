@@ -57,10 +57,12 @@ const StyledModuleBody = styled("div", {
   shouldForwardProp: (prop) => prop !== "theme",
 })<{ $theme: any }>`
   padding: 0.5rem;
-  padding-top: 1.5rem;
+  gap: 0.5rem;
   display: flex;
   flex-direction: row;
   background-color: #333;
+  border-bottom-left-radius: 0.35rem;
+  border-bottom-right-radius: 0.35rem;
 
   form {
     display: flex;
@@ -73,7 +75,6 @@ const StyledModuleBody = styled("div", {
       color: #fff;
       font-weight: 400;
       text-align: left;
-      padding-top: 0.5rem;
     }
 
     .value {
@@ -90,34 +91,47 @@ const StyledModuleBody = styled("div", {
     .control-group {
       display: flex;
       flex-direction: row;
-      background-color: rgba(255, 255, 255, 0.075);
+      background-color: #424242;
       gap: 0.5rem;
       position: relative;
+      padding-top: 0.5rem;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
-      border-radius: 0.25rem;
+      border-radius: 0.3rem;
       border-top-left-radius: 0;
-      min-height: 100px;
+      min-height: 138px;
+
+      &.transparent {
+        background-color: transparent;
+      }
 
       h3 {
         margin: 0;
         position: absolute;
-        top: -0.75rem;
+        top: -0.7rem;
         left: 0;
         text-transform: uppercase;
+        line-height: 0.95rem;
         font-size: 0.5rem;
         color: #dfdfdf;
         font-weight: 500;
         padding: 0 0.5rem;
-        background-color: rgba(255, 255, 255, 0.075);
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
+        background-color: #424242;
+        border-top-left-radius: 0.3rem;
+        border-top-right-radius: 0.3rem;
       }
     }
   }
 
   form.column {
     flex-direction: column;
+
+    .control-group {
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      align-items: flex-start;
+    }
   }
 `;
 

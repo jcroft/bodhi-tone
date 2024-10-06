@@ -5,12 +5,55 @@ import BaseModule from "./BaseModule";
 import Select from "@mui/material/Select";
 import { OmniOscillatorType } from "tone/build/esm/source/oscillator/OscillatorInterface";
 import { DEFAULT_SYNTH_OPTIONS, SynthContext } from "../Synth";
-import { MenuItem } from "@mui/material";
+import {
+  Divider,
+  ListItemIcon,
+  MenuItem,
+  MenuList,
+  styled,
+} from "@mui/material";
 import Fader from "../Input/Fader";
+import { ContentCut } from "@mui/icons-material";
 
 type OscillatorModuleOptions = {
   name: string;
 };
+
+const StyledOscillatorIcon = styled("img")({
+  width: "1rem",
+  height: "1rem",
+  backgroundColor: "white",
+  // marginRight: "0.5rem",
+  borderRadius: "0.25rem",
+});
+
+const StyledSelect = styled(Select)({
+  width: "100%",
+  fontSize: "0.75rem",
+
+  img: {
+    width: "1rem",
+    height: "1rem",
+    display: "inline-block",
+  },
+
+  ".MuiListItemIcon-root": {
+    minWidth: "24px",
+    position: "relative",
+    top: ".25rem",
+  },
+});
+
+const StyledMenuItem = styled(MenuItem)({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-start",
+
+  fontSize: "0.75rem",
+  ".MuiListItemIcon-root": {
+    minWidth: "24px",
+  },
+});
 
 const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   name = "Oscillator",
@@ -27,36 +70,128 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
     synth?.set(options);
   };
 
-  const oscillatorChoices = React.useMemo(
+  const oscillatorChoices: {
+    value: OmniOscillatorType;
+    label: string;
+    iconUrl?: string;
+  }[] = React.useMemo(
     () => [
-      { value: "sine", label: "Sine (Single)" },
-      { value: "fatsine", label: "Sine (Unison)" },
-      { value: "triangle", label: "Tri (Single)" },
-      { value: "fattriangle", label: "Tri (Unison)" },
-      { value: "sawtooth", label: "Saw (Single)" },
-      { value: "fatsawtooth", label: "Saw (Unison)" },
-      { value: "square", label: "Square (Single)" },
-      { value: "fatsquare", label: "Square (Unison)" },
-      { value: "pwm", label: "Square (PWM)" },
+      {
+        value: "sine",
+        label: "Sine",
+        iconUrl: "/images/icons/sine-wave.svg",
+      },
+      {
+        value: "fatsine",
+        label: "Sines",
+        iconUrl: "/images/icons/sine-wave.svg",
+      },
 
-      { value: "fmsine", label: "FM Sines" },
-      { value: "fmtriangle", label: "FM Triangles" },
-      { value: "fmsawtooth", label: "FM Saws" },
-      { value: "fmsquare", label: "FM Squares" },
+      {
+        value: "triangle",
+        label: "Triangle",
+        iconUrl: "/images/icons/triangle-wave.svg",
+      },
+      {
+        value: "fattriangle",
+        label: "Triangles",
+        iconUrl: "/images/icons/triangle-wave.svg",
+      },
 
-      { value: "amsine", label: "AM Sines" },
-      { value: "amtriangle", label: "AM Triangles" },
-      { value: "amsawtooth", label: "AM Saws" },
-      { value: "amsquare", label: "AM Squares" },
+      {
+        value: "sawtooth",
+        label: "Sawtooth",
+        iconUrl: "/images/icons/saw-wave.svg",
+      },
+      {
+        value: "fatsawtooth",
+        label: "Sawtooths",
+        iconUrl: "/images/icons/saw-wave.svg",
+      },
+
+      {
+        value: "square",
+        label: "Square",
+        iconUrl: "/images/icons/pulse-wave.svg",
+      },
+      {
+        value: "fatsquare",
+        label: "Squares",
+        iconUrl: "/images/icons/pulse-wave.svg",
+      },
+      {
+        value: "pwm",
+        label: "Square (PWM)",
+        iconUrl: "/images/icons/pulse-wave.svg",
+      },
+
+      {
+        value: "fmsine",
+        label: "FM Sines",
+        iconUrl: "/images/icons/sine-wave.svg",
+      },
+      {
+        value: "fmtriangle",
+        label: "FM Triangles",
+        iconUrl: "/images/icons/triangle-wave.svg",
+      },
+      {
+        value: "fmsawtooth",
+        label: "FM Saws",
+        iconUrl: "/images/icons/saw-wave.svg",
+      },
+      {
+        value: "fmsquare",
+        label: "FM Squares",
+        iconUrl: "/images/icons/pulse-wave.svg",
+      },
+
+      {
+        value: "amsine",
+        label: "AM Sines",
+        iconUrl: "/images/icons/sine-wave.svg",
+      },
+      {
+        value: "amtriangle",
+        label: "AM Triangles",
+        iconUrl: "/images/icons/triangle-wave.svg",
+      },
+      {
+        value: "amsawtooth",
+        label: "AM Saws",
+        iconUrl: "/images/icons/saw-wave.svg",
+      },
+      {
+        value: "amsquare",
+        label: "AM Squares",
+        iconUrl: "/images/icons/pulse-wave.svg",
+      },
     ],
     []
   );
 
+  const basicOscillatorChoices = oscillatorChoices.filter(
+    (choice) =>
+      choice.value === "sine" ||
+      choice.value === "triangle" ||
+      choice.value === "sawtooth" ||
+      choice.value === "square"
+  );
+  const fatOscillatorChoices = oscillatorChoices.filter((choice) =>
+    choice?.value?.startsWith("fat")
+  );
+  const amOscillatorChoices = oscillatorChoices.filter((choice) =>
+    choice?.value?.startsWith("am")
+  );
+  const fmOscillatorChoices = oscillatorChoices.filter((choice) =>
+    choice?.value?.startsWith("fm")
+  );
+
   return (
     <BaseModule name={name}>
-      <form>
-        <div className="control-group">
-          <Select
+      <form className="column">
+        <div className="control-group transparent">
+          <StyledSelect
             value={selectedOscillator}
             onChange={(event) => {
               const newValue = event.target.value as OmniOscillatorType;
@@ -67,14 +202,56 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
                 } as Tone.OmniOscillatorOptions,
               });
             }}
-            style={{ maxHeight: "40px" }}
+            size="small"
           >
-            {oscillatorChoices.map((choice) => (
-              <MenuItem key={choice.value} value={choice.value}>
+            {basicOscillatorChoices.map((choice) => (
+              <StyledMenuItem key={choice.value} value={choice.value}>
+                <ListItemIcon>
+                  {choice.iconUrl ? (
+                    <StyledOscillatorIcon src={choice.iconUrl} />
+                  ) : null}
+                </ListItemIcon>
+
                 {choice.label}
-              </MenuItem>
+              </StyledMenuItem>
             ))}
-          </Select>
+            <Divider />
+            {fatOscillatorChoices.map((choice) => (
+              <StyledMenuItem key={choice.value} value={choice.value}>
+                <ListItemIcon>
+                  {choice.iconUrl ? (
+                    <StyledOscillatorIcon src={choice.iconUrl} />
+                  ) : null}
+                </ListItemIcon>
+
+                {choice.label}
+              </StyledMenuItem>
+            ))}
+            <Divider />
+            {fmOscillatorChoices.map((choice) => (
+              <StyledMenuItem key={choice.value} value={choice.value}>
+                <ListItemIcon>
+                  {choice.iconUrl ? (
+                    <StyledOscillatorIcon src={choice.iconUrl} />
+                  ) : null}
+                </ListItemIcon>
+
+                {choice.label}
+              </StyledMenuItem>
+            ))}
+            <Divider />
+            {amOscillatorChoices.map((choice) => (
+              <StyledMenuItem key={choice.value} value={choice.value}>
+                <ListItemIcon>
+                  {choice.iconUrl ? (
+                    <StyledOscillatorIcon src={choice.iconUrl} />
+                  ) : null}
+                </ListItemIcon>
+
+                {choice.label}
+              </StyledMenuItem>
+            ))}
+          </StyledSelect>
 
           {synthState?.oscillator?.type === "pwm" && (
             <Fader
@@ -85,7 +262,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
               )}
               sliderProps={{
                 valueLabelDisplay: "auto",
-                orientation: "vertical",
+                orientation: "horizontal",
                 min: 0,
                 max: 1,
                 step: 0.01,
@@ -111,7 +288,8 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
                 value={parseFloat(synthState?.oscillator.count.toString())}
                 sliderProps={{
                   valueLabelDisplay: "auto",
-                  orientation: "vertical",
+                  orientation: "horizontal",
+                  defaultValue: 1,
                   min: 1,
                   max: 8,
                   step: 1,
@@ -131,7 +309,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
                 value={parseFloat(synthState?.oscillator.spread.toString())}
                 sliderProps={{
                   valueLabelDisplay: "auto",
-                  orientation: "vertical",
+                  orientation: "horizontal",
                   min: 0,
                   max: 100,
                   step: 1,
@@ -160,7 +338,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
                 )}
                 sliderProps={{
                   valueLabelDisplay: "auto",
-                  orientation: "vertical",
+                  orientation: "horizontal",
                   min: 0,
                   max: 100,
                   step: 1,
@@ -182,7 +360,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
                 )}
                 sliderProps={{
                   valueLabelDisplay: "auto",
-                  orientation: "vertical",
+                  orientation: "horizontal",
                   min: 0,
                   max: 100,
                   step: 1,
@@ -211,7 +389,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
                 )}
                 sliderProps={{
                   valueLabelDisplay: "auto",
-                  orientation: "vertical",
+                  orientation: "horizontal",
                   min: 0,
                   max: 100,
                   step: 1,
@@ -227,6 +405,8 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
             </>
           ) : null}
         </div>
+      </form>
+      <form>
         <div className="control-group">
           <h3>Tuning</h3>
           <Fader

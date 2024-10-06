@@ -20,23 +20,25 @@ const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
   return (
     <BaseModule name={name}>
       <form>
-        <Fader
-          id="delay-wet"
-          label="Wet"
-          value={parseFloat(effects.delay.wet.value.toString())}
-          sliderProps={{
-            valueLabelDisplay: "auto",
-            orientation: "vertical",
-            min: 0,
-            max: 1,
-            step: 0.01,
-            onChange: (event, newValue) => {
-              if (typeof newValue === "number") {
-                effects.delay.wet.value = newValue;
-              }
-            },
-          }}
-        />
+        <div className="control-group transparent">
+          <Fader
+            id="delay-wet"
+            label="Wet"
+            value={parseFloat(effects.delay.wet.value.toString())}
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "vertical",
+              min: 0,
+              max: 1,
+              step: 0.01,
+              onChange: (event, newValue) => {
+                if (typeof newValue === "number") {
+                  effects.delay.wet.value = newValue;
+                }
+              },
+            }}
+          />
+        </div>
 
         <div className="control-group">
           <Fader
