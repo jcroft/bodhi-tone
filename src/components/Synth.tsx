@@ -5,7 +5,7 @@ import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
 import OscillatorModule from "@/components/Modules/Oscillator";
 import React, { useEffect } from "react";
 import * as Tone from "tone";
-import styled from "styled-components";
+import { styled } from "@mui/material/styles";
 import Keyboard from "./Keyboard/Keyboard";
 import VoiceModule from "./Modules/VoiceControl";
 import MIDIInputSelect from "./MIDI/MIDIInputSelect";
@@ -50,22 +50,31 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
 };
 
 const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
+
 const chorus = new Tone.Chorus(4, 2.5, 0.5).toDestination();
 const delay = new Tone.PingPongDelay("4n", 0.1).toDestination();
 const reverb = new Tone.Reverb(0.5).toDestination();
 
+const effects = {
+  chorus,
+  delay,
+  reverb,
+};
+
 export const SynthContext = React.createContext({
-  synth: null as Tone.PolySynth<Tone.MonoSynth> | null | undefined,
+  synth: synth,
   synthOptions: DEFAULT_SYNTH_OPTIONS,
   saveSynthOptions: (options: Partial<Tone.MonoSynthOptions>) => {},
   effects: {
-    chorus: new Tone.Chorus(4, 2.5, 0.5).toDestination(),
-    delay: new Tone.PingPongDelay("4n", 0.1).toDestination(),
-    reverb: new Tone.Reverb(0.5).toDestination(),
+    chorus,
+    delay,
+    reverb,
   },
 });
 
-const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
+const StyledSynthesizer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "$isOn",
+})<{ $isOn?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -73,14 +82,18 @@ const StyledSynthesizer = styled.div<{ $isOn?: boolean }>`
   transition: opacity 0.3s ease-in-out;
 `;
 
-const StyledModuleContainer = styled.div`
+const StyledModuleContainer = styled("div", {
+  shouldForwardProp: (prop) => prop !== "$theme",
+})<{ $theme: any }>`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 0.5rem;
 `;
 
-const StyledMenuBar = styled.div`
+const StyledMenuBar = styled("div", {
+  shouldForwardProp: (prop) => prop !== "$theme",
+})<{ $theme: any }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -161,15 +174,8 @@ const Synthesizer: React.FC = () => {
   //   }
   // }, [synthOptions]);
 
-  const effects = {
-    chorus,
-    delay,
-    reverb,
-  };
-
-  delay.wet.value = 0.05;
-
-  reverb.wet.value = 0.5;
+  effects.delay.wet.value = 0.05;
+  effects.reverb.wet.value = 0.5;
 
   // Connect the synth to the effects
   synth?.chain(effects.chorus, effects.delay, effects.reverb);
