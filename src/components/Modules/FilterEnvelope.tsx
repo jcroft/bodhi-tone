@@ -2,7 +2,6 @@
 
 import React from "react";
 import BaseModule from "./BaseModule";
-import Slider from "../Input/Slider";
 import * as Tone from "tone";
 import { SynthContext } from "../Synth";
 import Fader from "../Input/Fader";

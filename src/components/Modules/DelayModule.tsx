@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { PingPongDelayOptions } from "tone";
 import BaseModule from "./BaseModule";
-import Slider from "../Input/Slider";
 import { SynthContext } from "../Synth";
 import Fader from "../Input/Fader";
 

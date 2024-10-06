@@ -1,9 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChorusOptions, PingPongDelayOptions } from "tone";
 import BaseModule from "./BaseModule";
-import Slider from "../Input/Slider";
 import { SynthContext } from "../Synth";
 import Fader from "../Input/Fader";
 

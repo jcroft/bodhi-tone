@@ -2,9 +2,7 @@
 import React from "react";
 import * as Tone from "tone";
 import BaseModule from "./BaseModule";
-import Slider from "../Input/Slider";
 import { SynthContext } from "../Synth";
-import { InputLabel } from "@mui/material";
 import Fader from "../Input/Fader";
 
 type VoiceModuleOptions = {
