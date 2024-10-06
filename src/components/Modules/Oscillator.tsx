@@ -3,9 +3,10 @@ import React from "react";
 import * as Tone from "tone";
 import BaseModule from "./BaseModule";
 import Slider from "../Input/Slider";
-import Select from "../Input/Select";
+import Select from "@mui/material/Select";
 import { OmniOscillatorType } from "tone/build/esm/source/oscillator/OscillatorInterface";
 import { DEFAULT_SYNTH_OPTIONS, SynthContext } from "../Synth";
+import { MenuItem } from "@mui/material";
 
 type OscillatorModuleOptions = {
   name: string;
@@ -56,18 +57,24 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
       <form>
         <div className="control-group">
           <Select
-            componentKey="oscillator"
-            label="Engine"
-            value={selectedOscillator || "sine"}
-            defaultOption={"sine" as Tone.ToneOscillatorType}
-            onChange={(event, newValue) => {
+            value={selectedOscillator}
+            onChange={(event) => {
+              const newValue = event.target.value as OmniOscillatorType;
+              setSelectedOscillator(newValue);
               updateSynthSettings({
-                oscillator: { type: newValue as OmniOscillatorType },
-              } as Tone.MonoSynthOptions);
-              setSelectedOscillator(newValue as OmniOscillatorType);
+                oscillator: {
+                  type: newValue,
+                } as Tone.OmniOscillatorOptions,
+              });
             }}
-            options={oscillatorChoices}
-          />
+            style={{ maxHeight: "40px" }}
+          >
+            {oscillatorChoices.map((choice) => (
+              <MenuItem key={choice.value} value={choice.value}>
+                {choice.label}
+              </MenuItem>
+            ))}
+          </Select>
 
           {synthState?.oscillator?.type === "pwm" && (
             <Slider
