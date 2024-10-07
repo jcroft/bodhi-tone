@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { createContext } from "react";
 import { useTheme, styled } from "@mui/material";
 
 type BaseModuleOptions = {
   name: string;
   classNames?: string;
+  color?: string;
   children?: React.ReactNode;
 };
 
@@ -132,24 +133,44 @@ const StyledModuleBody = styled("div")`
   }
 `;
 
+type ModuleContextType = {
+  name: string;
+  color: string;
+  classNames?: string;
+};
+
+export const ModuleContext = createContext<ModuleContextType>({
+  name: "Init Module",
+  color: "#ff5500",
+  classNames: "",
+});
+
 const BaseModule: React.FC<BaseModuleOptions> = ({
   name = "Base Module",
+  color,
   classNames,
   children,
 }) => {
   const theme = useTheme();
 
   return (
-    <StyledBaseModule>
-      <StyledModuleHeader
-        sx={{
-          backgroundColor: theme.palette.primary.main,
-        }}
-      >
-        <h2>{name}</h2>
-      </StyledModuleHeader>
-      <StyledModuleBody>{children}</StyledModuleBody>
-    </StyledBaseModule>
+    <ModuleContext.Provider
+      value={{
+        name,
+        color: color || theme.palette.primary.main,
+      }}
+    >
+      <StyledBaseModule>
+        <StyledModuleHeader
+          sx={{
+            backgroundColor: color,
+          }}
+        >
+          <h2>{name}</h2>
+        </StyledModuleHeader>
+        <StyledModuleBody>{children}</StyledModuleBody>
+      </StyledBaseModule>
+    </ModuleContext.Provider>
   );
 };
 

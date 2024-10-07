@@ -2,6 +2,7 @@
 import Slider, { SliderProps } from "@mui/material/Slider";
 import { InputLabel, styled, useTheme } from "@mui/material";
 import React, { useEffect } from "react";
+import { ModuleContext } from "../Modules/BaseModule";
 
 interface FaderProps {
   id: string;
@@ -80,6 +81,7 @@ const Fader: React.FC<FaderProps> = ({
   );
 
   const theme = useTheme();
+  const moduleContext = React.useContext(ModuleContext);
 
   useEffect(() => {
     if (value) {
@@ -103,17 +105,17 @@ const Fader: React.FC<FaderProps> = ({
           setSliderValue(newValue);
         }}
         sx={{
-          color: theme.palette.primary.main,
+          color: moduleContext.color,
           "& .MuiSlider-track": {},
           "& .MuiSlider-thumb": {
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: moduleContext.color,
             border: `1.5px solid white`,
           },
           "& .MuiSlider-rail": {
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: moduleContext.color,
           },
           "& .MuiSlider-valueLabel": {
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: moduleContext.color,
             color: "#fff",
           },
         }}
