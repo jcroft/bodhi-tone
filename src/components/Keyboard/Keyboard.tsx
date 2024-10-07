@@ -53,7 +53,7 @@ const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
 
     li[data-active="true"] {
       background-color: #ff5500 !important;
-              &:after {
+        &:after {
           background-color: #ff5500;
           border: 1px solid black;
         }

@@ -13,7 +13,7 @@ type FilterWithEnvelopeModuleOptions = {
 const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   name = "Envelope",
 }) => {
-  const { synth, saveSynthOptions } = React.useContext(SynthContext);
+  const { synth } = React.useContext(SynthContext);
   const synthState = synth?.get() as Tone.MonoSynthOptions;
 
   const updateSynthSettings = (options: Partial<Tone.MonoSynthOptions>) => {

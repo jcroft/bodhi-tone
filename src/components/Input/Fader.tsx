@@ -35,21 +35,15 @@ const StyledInputLabel = styled(InputLabel)({
   margin: "0 !important",
 });
 
-const StyledFader = styled(Slider, {
-  shouldForwardProp: (prop) => prop !== "$theme",
-})<{ $theme: any }>`
-  color: $theme.palette.primary.main;
+const StyledFader = styled(Slider)`
   padding: 0 10px;
 
   & .MuiSlider-track {
   }
 
   & .MuiSlider-thumb {
-    background-color: $theme.palette.secondary.main;
     height: 16px;
     width: 16px;
-    border: 1.5px solid rgba(255, 255, 255, 0.75);
-    // border-radius: 0;
     &:focus,
     &:hover,
     &.Mui-active,
@@ -62,11 +56,6 @@ const StyledFader = styled(Slider, {
   }
 
   & .MuiSlider-valueLabel {
-    // background: unset;
-    // background-color: $theme.palette.primary.main;
-    // &::before {
-    //   display: none;
-    // }
     left: -4.75rem;
     top: 3px;
     padding-left: 2rem;
@@ -74,7 +63,6 @@ const StyledFader = styled(Slider, {
   }
 
   & .MuiSlider-rail {
-    background-color: $theme.palette.primary.main;
   }
 `;
 
@@ -103,7 +91,6 @@ const Fader: React.FC<FaderProps> = ({
     <StyledFaderContainer $orientation={sliderProps.orientation}>
       <StyledInputLabel id={`${id}-slider-label`}>{label}</StyledInputLabel>
       <StyledFader
-        $theme={theme}
         aria-labelledby={`${id}-slider-label`}
         aria-label={label}
         {...sliderProps}
@@ -114,6 +101,17 @@ const Fader: React.FC<FaderProps> = ({
             sliderProps.onChange(event, newValue, 0);
           }
           setSliderValue(newValue);
+        }}
+        sx={{
+          color: theme.palette.primary.main,
+          "& .MuiSlider-track": {},
+          "& .MuiSlider-thumb": {
+            backgroundColor: theme.palette.primary.main,
+            border: `1.5px solid white`,
+          },
+          "& .MuiSlider-rail": {
+            backgroundColor: theme.palette.primary.main,
+          },
         }}
       />
     </StyledFaderContainer>

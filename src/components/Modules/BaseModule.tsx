@@ -1,20 +1,14 @@
 "use client";
 import React from "react";
-import { SynthContext } from "../Synth";
 import { useTheme, styled } from "@mui/material";
 
 type BaseModuleOptions = {
   name: string;
-  isOn?: boolean;
   classNames?: string;
-  onActivate?: () => void;
-  onDeactivate?: () => void;
   children?: React.ReactNode;
 };
 
-const StyledBaseModule = styled("div", {
-  shouldForwardProp: (prop) => prop !== "$theme",
-})<{ $theme: any }>`
+const StyledBaseModule = styled("div")`
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -23,15 +17,12 @@ const StyledBaseModule = styled("div", {
   box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.25);
 `;
 
-const StyledModuleHeader = styled("div", {
-  shouldForwardProp: (prop) => prop !== "$theme",
-})<{ $theme: any }>`
+const StyledModuleHeader = styled("div")`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   justify-items: center;
   align-items: center;
-  background-color: ${({ $theme }) => $theme.palette.primary.main};
   color: #fff;
   padding: 0.25rem;
   border-top-left-radius: 0.35rem;
@@ -56,9 +47,7 @@ const StyledModuleHeader = styled("div", {
   }
 `;
 
-const StyledModuleBody = styled("div", {
-  shouldForwardProp: (prop) => prop !== "theme",
-})<{ $theme: any }>`
+const StyledModuleBody = styled("div")`
   padding: 0.5rem;
   gap: 0.5rem;
   display: flex;
@@ -146,19 +135,20 @@ const StyledModuleBody = styled("div", {
 const BaseModule: React.FC<BaseModuleOptions> = ({
   name = "Base Module",
   classNames,
-  isOn,
-  onActivate,
-  onDeactivate,
   children,
 }) => {
   const theme = useTheme();
 
   return (
-    <StyledBaseModule $theme={theme}>
-      <StyledModuleHeader $theme={theme}>
+    <StyledBaseModule>
+      <StyledModuleHeader
+        sx={{
+          backgroundColor: theme.palette.primary.main,
+        }}
+      >
         <h2>{name}</h2>
       </StyledModuleHeader>
-      <StyledModuleBody $theme={theme}>{children}</StyledModuleBody>
+      <StyledModuleBody>{children}</StyledModuleBody>
     </StyledBaseModule>
   );
 };

@@ -10,12 +10,10 @@ import {
   InputLabel,
   ListItemIcon,
   MenuItem,
-  MenuList,
   styled,
   Typography,
 } from "@mui/material";
 import Fader from "../Input/Fader";
-import { ContentCut } from "@mui/icons-material";
 
 type OscillatorModuleOptions = {
   name: string;
@@ -25,7 +23,6 @@ const StyledOscillatorIcon = styled("img")({
   width: "1rem",
   height: "1rem",
   backgroundColor: "white",
-  // marginRight: "0.5rem",
   borderRadius: "0.25rem",
 });
 
@@ -74,7 +71,7 @@ const StyledMenuGroupHeader = styled(Typography)({
 const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   name = "Oscillator",
 }) => {
-  const { synth, saveSynthOptions } = React.useContext(SynthContext);
+  const { synth } = React.useContext(SynthContext);
   const synthState = synth?.get() as Tone.MonoSynthOptions;
 
   const [selectedOscillator, setSelectedOscillator] = React.useState(

@@ -1,19 +1,19 @@
 "use client";
 
-import AmpEnvelopeModule from "@/components/Modules/AmpEnvelope";
+import AmpEnvelopeModule from "@/components/Modules/AmpEnvelopeModule";
 import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
-import OscillatorModule from "@/components/Modules/Oscillator";
+import OscillatorModule from "@/components/Modules/OscillatorModule";
 import React, { useEffect } from "react";
 import * as Tone from "tone";
 import { styled, useTheme } from "@mui/material/styles";
 import Keyboard from "./Keyboard/Keyboard";
-import VoiceModule from "./Modules/VoiceControl";
 import MIDIInputSelect from "./MIDI/MIDIInputSelect";
 import PowerButton from "./PowerButton";
 import ReverbModule from "./Modules/ReverbModule";
 import DelayModule from "./Modules/DelayModule";
 import ChorusModule from "./Modules/ChorusModule";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
+import GlobalControlModule from "./Modules/GlobalControlModule";
 
 export const DEFAULT_SYNTH_OPTIONS: Partial<
   Tone.PolySynthOptions<Tone.MonoSynth>
@@ -212,7 +212,7 @@ const Synthesizer: React.FC = () => {
               flexDirection: { xs: "column", sm: "row" },
             }}
           >
-            <VoiceModule name="Main" />
+            <GlobalControlModule name="Main" />
             <OscillatorModule name="Oscillator" />
             <FilterWithEnvelopeModule name="Filter" />
             <AmpEnvelopeModule name="Amp" />

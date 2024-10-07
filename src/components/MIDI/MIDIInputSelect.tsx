@@ -7,7 +7,6 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import * as Tone from "tone";
 import {
   FormControl,
-  Input,
   InputLabel,
   MenuItem,
   OutlinedInput,
