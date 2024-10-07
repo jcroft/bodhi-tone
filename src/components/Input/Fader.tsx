@@ -57,7 +57,7 @@ const StyledFader = styled(Slider)`
 
   & .MuiSlider-valueLabel {
     left: -4.75rem;
-    top: 3px;
+    top: 6px;
     padding-left: 2rem;
     padding-right: 2rem;
   }
@@ -111,6 +111,10 @@ const Fader: React.FC<FaderProps> = ({
           },
           "& .MuiSlider-rail": {
             backgroundColor: theme.palette.primary.main,
+          },
+          "& .MuiSlider-valueLabel": {
+            backgroundColor: theme.palette.primary.main,
+            color: "#fff",
           },
         }}
       />

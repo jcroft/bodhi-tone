@@ -62,7 +62,7 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
 
   // Handle enabling of MIDI
   const onMidiEnabled = () => {
-    console.log("MIDI enabled", WebMidi.inputs);
+    console.log("MIDI enabled");
     const MIDIInputOptions = WebMidi.inputs.map((input) => ({
       label: input.name,
       value: input.id,
@@ -143,13 +143,14 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
         label={label}
         labelId="midi-input-select-label"
         id="midi-input-select"
-        value={midiInput}
+        value={WebMidi.inputs.find((input) => input.id === midiInput)?.id || ""}
         onChange={handleSelectChange}
         placeholder="Select MIDI Input"
         displayEmpty
         input={<OutlinedInput />}
         MenuProps={MenuProps}
         size="small"
+        defaultValue=""
       >
         {midiInputOptions.map((option) => (
           <MenuItem key={option.value} value={option.value}>

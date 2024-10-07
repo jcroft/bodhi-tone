@@ -226,11 +226,15 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
           </InputLabel>
           <StyledSelect
             value={selectedOscillator}
+            defaultValue=""
             label="Engine"
             labelId="osc-engine--select-label"
             onChange={(event) => {
               const newValue = event.target.value as OmniOscillatorType;
-              setSelectedOscillator(newValue);
+              setSelectedOscillator(
+                oscillatorChoices.find((o) => o.value === newValue)?.value ||
+                  "sine"
+              );
               updateSynthSettings({
                 oscillator: {
                   type: newValue,
