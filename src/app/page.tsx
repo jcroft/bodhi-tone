@@ -6,7 +6,7 @@ import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import dynamic from "next/dynamic";
 import React from "react";
 
-const Synthesizer = dynamic(() => import("../components/Synth"), {
+const SynthWrapper = dynamic(() => import("../components/SynthWrapper"), {
   ssr: false,
 });
 
@@ -38,11 +38,9 @@ const StyledSynthPage = styled("div")`
 const SynthesizerPage: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
-      <SynthProvider>
-        <StyledSynthPage>
-          <Synthesizer />
-        </StyledSynthPage>
-      </SynthProvider>
+      <StyledSynthPage>
+        <SynthWrapper />
+      </StyledSynthPage>
     </ThemeProvider>
   );
 };
