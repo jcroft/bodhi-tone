@@ -2,15 +2,15 @@
 
 import React from "react";
 import BaseModule from "./BaseModule";
-import { SynthContext } from "../Synth";
 import Fader from "../Input/Fader";
+import { useSynth } from "@/contexts/SynthContext";
 
 interface ChorusModuleProps {
   name: string;
 }
 
 const ChorusModule: React.FC<ChorusModuleProps> = ({ name = "Chorus" }) => {
-  const { effects } = React.useContext(SynthContext);
+  const { effects } = useSynth();
 
   return (
     <BaseModule name={name}>

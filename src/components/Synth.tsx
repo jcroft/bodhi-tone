@@ -3,7 +3,7 @@
 import AmpEnvelopeModule from "@/components/Modules/AmpEnvelopeModule";
 import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
 import OscillatorModule from "@/components/Modules/OscillatorModule";
-import React, { useEffect } from "react";
+import React from "react";
 import * as Tone from "tone";
 import { styled, useTheme } from "@mui/material/styles";
 import Keyboard from "./Keyboard/Keyboard";
@@ -12,66 +12,8 @@ import PowerButton from "./PowerButton";
 import ReverbModule from "./Modules/ReverbModule";
 import DelayModule from "./Modules/DelayModule";
 import ChorusModule from "./Modules/ChorusModule";
-import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import GlobalControlModule from "./Modules/GlobalControlModule";
-
-export const DEFAULT_SYNTH_OPTIONS: Partial<
-  Tone.PolySynthOptions<Tone.MonoSynth>
-> = {
-  maxPolyphony: 16,
-  voice: Tone.MonoSynth,
-  volume: -18,
-  options: {
-    portamento: 0,
-    oscillator: {
-      type: "fatsawtooth",
-      count: 3,
-    },
-    envelope: {
-      attack: 0.01,
-      decay: 0.1,
-      sustain: 0.5,
-      release: 0.5,
-    },
-    filter: {
-      Q: 1,
-      type: "lowpass",
-      rolloff: -12,
-    },
-    filterEnvelope: {
-      attack: 0.01,
-      decay: 0.1,
-      sustain: 0.5,
-      release: 0.5,
-      baseFrequency: 200,
-      octaves: 7,
-      exponent: 2,
-    },
-  } as Tone.MonoSynthOptions,
-};
-
-const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
-
-const chorus = new Tone.Chorus(4, 2.5, 0.5).toDestination();
-const delay = new Tone.PingPongDelay("4n", 0.1).toDestination();
-const reverb = new Tone.Reverb(0.5).toDestination();
-
-const effects = {
-  chorus,
-  delay,
-  reverb,
-};
-
-export const SynthContext = React.createContext({
-  synth: synth,
-  synthOptions: DEFAULT_SYNTH_OPTIONS,
-  saveSynthOptions: (options: Partial<Tone.MonoSynthOptions>) => {},
-  effects: {
-    chorus,
-    delay,
-    reverb,
-  },
-});
+import { SynthProvider, useSynth } from "@/contexts/SynthContext";
 
 const StyledSynthesizer = styled("div")`
   display: flex;
@@ -107,30 +49,14 @@ const StyledMenuBar = styled("div")`
 `;
 
 const Synthesizer: React.FC = () => {
-  // power: Tone.js requires a user interaction to enable the synth, so we'll have a power button
-  const [power, setPower] = React.useState(false);
+  const { power, setPower, synth, effects, activeNotes, setActiveNotes } =
+    useSynth();
 
-  // We need to store the active notes so they can be displayed on the keyboard
-  const [activeNotes, setActiveNotes] = React.useState<(string | number)[]>([]);
-
-  const [synthOptions, setSynthOptions] = useLocalStorageState<string>(
-    "synthOptions",
-    JSON.stringify(DEFAULT_SYNTH_OPTIONS)
-  );
-
-  // Set the default synth options
-  synth?.set(DEFAULT_SYNTH_OPTIONS);
+  // Connect the synth to the effects
+  synth?.chain(effects.chorus, effects.delay, effects.reverb);
 
   // Send the output of the synth to the primary output
   synth?.toDestination();
-
-  // turn the synth on when the user presses the power button
-  useEffect(() => {
-    if (power && Tone.context.state !== "running") {
-      console.log("Powering on");
-      Tone.start();
-    }
-  }, [power, synth]);
 
   // Handle incoming MIDI noteOn messages
   const onNoteOn = (
@@ -138,11 +64,9 @@ const Synthesizer: React.FC = () => {
     velocity?: number,
     duration?: Tone.Unit.Time
   ) => {
-    // console.log("onNoteOn: Received notes:", notes);
     if (duration) {
       setActiveNotes((prevList) => [...prevList, ...notes]);
       synth?.triggerAttackRelease(notes, duration, Tone.now(), velocity);
-      // After a duration, release the notes // TODO: Ideally this would be the same duration as the note length
       setTimeout(() => {
         setActiveNotes((prevList) =>
           prevList.filter((note) => !notes.includes(note))
@@ -157,42 +81,14 @@ const Synthesizer: React.FC = () => {
 
   // Handle incoming MIDI noteOff messages
   const onNoteOff = (notes: (string | number)[]) => {
-    // console.log("onNoteOff: Received notes:", notes);
     setActiveNotes(activeNotes.filter((note) => !notes.includes(note)));
     synth?.triggerRelease(notes, Tone.now());
   };
 
-  // If there is no synthOptions in local storage, set the default options
-  // useEffect(() => {
-  //   if (!synthOptions) {
-  //     console.log("No synth options found, setting defaults");
-  //     saveSynthOptions(DEFAULT_SYNTH_OPTIONS);
-  //   } else {
-  //     console.log("Synth options found, setting them", synthOptions);
-  //     synth.set(synthOptions);
-  //   }
-  // }, [synthOptions]);
-
-  effects.delay.wet.value = 0.05;
-  effects.reverb.wet.value = 0.5;
-
-  // Connect the synth to the effects
-  synth?.chain(effects.chorus, effects.delay, effects.reverb);
-
   const theme = useTheme();
 
   return (
-    <SynthContext.Provider
-      value={{
-        synth: synth,
-        synthOptions: JSON.parse(synthOptions),
-        saveSynthOptions: (options: Partial<Tone.MonoSynthOptions>) => {
-          console.log("saving options", options);
-          setSynthOptions(JSON.stringify(options));
-        },
-        effects,
-      }}
-    >
+    <SynthProvider>
       <StyledSynthesizer
         sx={{
           justifyContent: { xxs: "flex-sart", sm: "center" },
@@ -224,13 +120,13 @@ const Synthesizer: React.FC = () => {
         </StyledSynthBody>
 
         <Keyboard
-          activeNotes={activeNotes}
           name="keyboard"
           onNoteOn={onNoteOn}
           onNoteOff={onNoteOff}
+          activeNotes={activeNotes}
         />
       </StyledSynthesizer>
-    </SynthContext.Provider>
+    </SynthProvider>
   );
 };
 

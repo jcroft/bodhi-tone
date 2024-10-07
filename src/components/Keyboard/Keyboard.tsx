@@ -5,6 +5,7 @@ import KeyboardOctave from "./KeyboardOctave";
 import * as Tone from "tone";
 import { useTheme } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useSynth } from "@/contexts/SynthContext";
 
 const StyledKeyboard = styled("div")`
   ul {
@@ -82,9 +83,9 @@ const Keyboard: React.FC<KeyboardOptions> = ({
   name = "keyboard",
   lowestOctave = 1,
   octaves = 4,
-  activeNotes = ["C4"],
   onNoteOn,
   onNoteOff,
+  activeNotes,
   color,
 }) => {
   const theme = useTheme();
@@ -107,16 +108,12 @@ const Keyboard: React.FC<KeyboardOptions> = ({
             <KeyboardOctave
               key={i}
               octaveNumber={lowestOctave + i}
-              activeNotes={activeNotes}
               onNoteOn={onNoteOn}
               onNoteOff={onNoteOff}
+              activeNotes={activeNotes}
             />
           ))}
-          <KeyboardOctave
-            COnly={true}
-            octaveNumber={octaves + 1}
-            activeNotes={activeNotes}
-          />
+          <KeyboardOctave COnly={true} octaveNumber={octaves + 1} />
         </ul>
       </StyledKeyboard>
     </>

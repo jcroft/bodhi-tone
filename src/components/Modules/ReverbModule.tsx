@@ -2,15 +2,15 @@
 
 import React from "react";
 import BaseModule from "./BaseModule";
-import { SynthContext } from "../Synth";
 import Fader from "../Input/Fader";
+import { useSynth } from "@/contexts/SynthContext";
 
 type ReverbModuleOptions = {
   name: string;
 };
 
 const ReverbModule: React.FC<ReverbModuleOptions> = ({ name = "Reverb" }) => {
-  const { effects } = React.useContext(SynthContext);
+  const { effects } = useSynth();
 
   const updateEffectSettings = (
     options: Partial<{

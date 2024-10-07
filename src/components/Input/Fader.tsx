@@ -2,7 +2,7 @@
 import Slider, { SliderProps } from "@mui/material/Slider";
 import { InputLabel, styled, useTheme } from "@mui/material";
 import React, { useEffect } from "react";
-import { ModuleContext } from "../Modules/BaseModule";
+import { useModule } from "@/contexts/ModuleContext";
 
 interface FaderProps {
   id: string;
@@ -81,7 +81,7 @@ const Fader: React.FC<FaderProps> = ({
   );
 
   const theme = useTheme();
-  const moduleContext = React.useContext(ModuleContext);
+  const moduleContext = useModule();
 
   useEffect(() => {
     if (value) {

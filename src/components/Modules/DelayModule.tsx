@@ -3,15 +3,15 @@
 import React, { useState } from "react";
 import { PingPongDelayOptions } from "tone";
 import BaseModule from "./BaseModule";
-import { SynthContext } from "../Synth";
 import Fader from "../Input/Fader";
+import { useSynth } from "@/contexts/SynthContext";
 
 interface DelayModuleProps {
   name: string;
 }
 
 const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
-  const { effects } = React.useContext(SynthContext);
+  const { effects } = useSynth();
 
   const updateEffectSettings = (options: Partial<PingPongDelayOptions>) => {
     effects.delay.set(options);

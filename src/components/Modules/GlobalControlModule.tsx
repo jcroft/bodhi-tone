@@ -1,9 +1,8 @@
 "use client";
 import React from "react";
-import * as Tone from "tone";
 import BaseModule from "./BaseModule";
-import { SynthContext } from "../Synth";
 import Fader from "../Input/Fader";
+import { useSynth } from "@/contexts/SynthContext";
 
 type GlobalControlModuleOptions = {
   name: string;
@@ -12,7 +11,7 @@ type GlobalControlModuleOptions = {
 const GlobalControlModule: React.FC<GlobalControlModuleOptions> = ({
   name = "Oscillator",
 }) => {
-  const { synth } = React.useContext(SynthContext);
+  const { synth } = useSynth();
 
   return (
     <BaseModule name={name}>

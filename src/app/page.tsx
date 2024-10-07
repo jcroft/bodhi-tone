@@ -1,5 +1,6 @@
 "use client";
 
+import { SynthProvider, useSynth } from "@/contexts/SynthContext";
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 
 import dynamic from "next/dynamic";
@@ -37,9 +38,11 @@ const StyledSynthPage = styled("div")`
 const SynthesizerPage: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
-      <StyledSynthPage>
-        <Synthesizer />
-      </StyledSynthPage>
+      <SynthProvider>
+        <StyledSynthPage>
+          <Synthesizer />
+        </StyledSynthPage>
+      </SynthProvider>
     </ThemeProvider>
   );
 };

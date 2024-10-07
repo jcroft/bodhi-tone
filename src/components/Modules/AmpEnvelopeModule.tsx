@@ -3,8 +3,8 @@
 import React from "react";
 import BaseModule from "./BaseModule";
 import * as Tone from "tone";
-import { SynthContext } from "../Synth";
 import Fader from "../Input/Fader";
+import { useSynth } from "@/contexts/SynthContext";
 
 type AmpEnvelopeModuleOptions = {
   name: string;
@@ -13,7 +13,7 @@ type AmpEnvelopeModuleOptions = {
 const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   name = "Envelope",
 }) => {
-  const { synth } = React.useContext(SynthContext);
+  const { synth } = useSynth();
   const synthState = synth?.get() as Tone.MonoSynthOptions;
 
   const updateSynthSettings = (options: Partial<Tone.MonoSynthOptions>) => {

@@ -4,7 +4,6 @@ import * as Tone from "tone";
 import BaseModule from "./BaseModule";
 import Select from "@mui/material/Select";
 import { OmniOscillatorType } from "tone/build/esm/source/oscillator/OscillatorInterface";
-import { DEFAULT_SYNTH_OPTIONS, SynthContext } from "../Synth";
 import {
   Divider,
   InputLabel,
@@ -14,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import Fader from "../Input/Fader";
+import { DEFAULT_SYNTH_OPTIONS, useSynth } from "@/contexts/SynthContext";
 
 type OscillatorModuleOptions = {
   name: string;
@@ -71,7 +71,7 @@ const StyledMenuGroupHeader = styled(Typography)({
 const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   name = "Oscillator",
 }) => {
-  const { synth } = React.useContext(SynthContext);
+  const { synth } = useSynth();
   const synthState = synth?.get() as Tone.MonoSynthOptions;
 
   const [selectedOscillator, setSelectedOscillator] = React.useState(
