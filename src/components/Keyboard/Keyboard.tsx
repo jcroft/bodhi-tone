@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
-import styled from "styled-components";
 import KeyboardOctave from "./KeyboardOctave";
 import * as Tone from "tone";
+import { useTheme } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
+const StyledKeyboard = styled("div")`
   ul {
     height: 10rem;
     display: flex;
@@ -19,7 +20,7 @@ const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
       float: left;
       background-color: white;
       height: 10rem;
-      width: 2rem;
+      width: 1.75rem;
       border: 0.5px solid;
       text-align: center;
 
@@ -52,16 +53,16 @@ const StyledKeyboard = styled.div<{ $isOn?: boolean }>`
     }
 
     li[data-active="true"] {
-      background-color: #ff5500 !important;
-        &:after {
-          background-color: #ff5500;
-          border: 1px solid black;
-        }
+      &:after {
+        border: 1px solid black;
+      }
     }
+  }
 `;
 
 type KeyboardOptions = {
   name: string;
+  color?: string;
   lowestOctave?: number;
   octaves?: number;
   activeNotes?: (string | number)[];
@@ -84,10 +85,23 @@ const Keyboard: React.FC<KeyboardOptions> = ({
   activeNotes = ["C4"],
   onNoteOn,
   onNoteOff,
+  color,
 }) => {
+  const theme = useTheme();
+  const keyboardColor = color || theme.palette.primary.main;
+
   return (
     <>
-      <StyledKeyboard>
+      <StyledKeyboard
+        sx={{
+          "& li[data-active='true']": {
+            backgroundColor: `${keyboardColor} !important`,
+            "&:after": {
+              backgroundColor: keyboardColor,
+            },
+          },
+        }}
+      >
         <ul className="set">
           {Array.from({ length: octaves }).map((_, i) => (
             <KeyboardOctave

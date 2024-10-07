@@ -3,6 +3,7 @@
 import React from "react";
 import * as Tone from "tone";
 import { SynthContext } from "../Synth";
+import { useTheme } from "@emotion/react";
 
 type KeyboardOctaveOptions = {
   octaveNumber?: number | string;
@@ -27,8 +28,6 @@ const KeyboardOctave: React.FC<KeyboardOctaveOptions> = ({
   onNoteOn,
   onNoteOff,
 }) => {
-  const { synth, saveSynthOptions } = React.useContext(SynthContext);
-
   const handleKeyDown = (notes: (string | number)[]) => {
     onNoteOn && onNoteOn(notes, 0.5, "4n");
   };

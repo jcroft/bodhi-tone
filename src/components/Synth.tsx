@@ -77,7 +77,7 @@ const StyledSynthesizer = styled("div")`
   display: flex;
   flex-direction: column;
   transition: opacity 0.3s ease-in-out;
-  max-width: 960px;
+  max-width: 845px;
   gap: 0.5rem;
 `;
 
@@ -195,7 +195,7 @@ const Synthesizer: React.FC = () => {
     >
       <StyledSynthesizer
         sx={{
-          justifyContent: { xs: "flex-sart", sm: "center" },
+          justifyContent: { xxs: "flex-sart", sm: "center" },
         }}
       >
         <StyledMenuBar>

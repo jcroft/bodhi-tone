@@ -139,15 +139,17 @@ type ModuleContextType = {
   classNames?: string;
 };
 
-export const ModuleContext = createContext<ModuleContextType>({
+const defaultModuleContext: ModuleContextType = {
   name: "Init Module",
   color: "#ff5500",
-  classNames: "",
-});
+};
+
+export const ModuleContext =
+  createContext<ModuleContextType>(defaultModuleContext);
 
 const BaseModule: React.FC<BaseModuleOptions> = ({
   name = "Base Module",
-  color,
+  color = defaultModuleContext.color,
   classNames,
   children,
 }) => {

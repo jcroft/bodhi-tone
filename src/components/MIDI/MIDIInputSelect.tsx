@@ -99,21 +99,29 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
 
     console.log("Adding note on/off listeners...");
 
-    selectedInput.addListener("noteon", (e) => {
-      const noteString = Tone.Midi(e.data[1]).toNote();
-      // console.log(`Received noteOn from ${selectedInput.name}: `, noteString);
-      onNoteOn([noteString]);
-    });
-
-    selectedInput.addListener("noteoff", (e) => {
-      const noteString = Tone.Midi(e.data[1]).toNote();
-      // console.log(`Received noteOn from ${selectedInput.name}: `, e);
-      onNoteOff([noteString]);
-    });
+    if (selectedInput.getListeners("noteon").length === 0) {
+      selectedInput?.addListener("noteon", (e) => {
+        const noteString = Tone.Midi(e.data[1]).toNote();
+        // console.log(`Received noteOn from ${selectedInput.name}: `, noteString);
+        onNoteOn([noteString]);
+      });
+    }
+    if (selectedInput.getListeners("noteoff").length === 0) {
+      selectedInput?.addListener("noteoff", (e) => {
+        const noteString = Tone.Midi(e.data[1]).toNote();
+        // console.log(`Received noteOn from ${selectedInput.name}: `, e);
+        onNoteOff([noteString]);
+      });
+    }
 
     return () => {
-      selectedInput.removeListener("noteon");
-      selectedInput.removeListener("noteoff");
+      console.log("Removing note on/off listeners...");
+      if (selectedInput.getListeners("noteon").length > 0) {
+        selectedInput?.removeListener("noteon");
+      }
+      if (selectedInput.getListeners("noteoff").length > 0) {
+        selectedInput?.removeListener("noteoff");
+      }
     };
   }, [midiInput, WebMidi.enabled]);
 
