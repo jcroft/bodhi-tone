@@ -35,31 +35,6 @@ const StyledInputLabel = styled(InputLabel)({
   margin: "0 !important",
 });
 
-// const StyledFader = styled(Slider)<{ $theme: any }>(({ $theme }) => ({
-//   color: $theme.palette.primary.main,
-//   padding: "0 10px",
-
-//   "& .MuiSlider-track": {},
-//   "& .MuiSlider-thumb": {
-//     backgroundColor: $theme.palette.primary.main,
-//     // border: "1px solid white ",
-//     height: 10,
-//     width: 24,
-//     borderRadius: 0,
-//     "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
-//       boxShadow: "inherit",
-//     },
-//     "&::before": {
-//       display: "none",
-//     },
-//   },
-//   "& .MuiSlider-valueLabel": {
-//     background: "unset",
-//     backgroundColor: $theme.palette.primary.main,
-//     "&::before": { display: "none" },
-//   },
-// }));
-
 const StyledFader = styled(Slider, {
   shouldForwardProp: (prop) => prop !== "$theme",
 })<{ $theme: any }>`
@@ -70,10 +45,10 @@ const StyledFader = styled(Slider, {
   }
 
   & .MuiSlider-thumb {
-    background-color: $theme.palette.primary.main;
-    height: 10px;
-    width: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: $theme.palette.secondary.main;
+    height: 16px;
+    width: 16px;
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
     // border-radius: 0;
     &:focus,
     &:hover,

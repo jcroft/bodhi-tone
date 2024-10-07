@@ -20,6 +20,7 @@ const StyledBaseModule = styled("div", {
   flex-direction: column;
   border-bottom-left-radius: 0.35rem;
   border-bottom-right-radius: 0.35rem;
+  box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.25);
 `;
 
 const StyledModuleHeader = styled("div", {
@@ -101,22 +102,24 @@ const StyledModuleBody = styled("div", {
       padding-right: 0.5rem;
       border-radius: 0.3rem;
       min-height: 138px;
-      border: 1px solid #2d2c2c;
+      border: 1.5px solid #606060;
+      box-shadow: inset 0 0 0.25rem rgba(0, 0, 0, 0.35);
 
       &.transparent {
         background-color: transparent;
         border: none;
+        box-shadow: none;
       }
 
       h3 {
         margin: 0;
         position: absolute;
-        bottom: 0rem;
-        right: 0;
+        bottom: -1px;
+        right: -1px;
         text-transform: uppercase;
-        line-height: 0.75rem;
+        line-height: 0.8rem;
         font-size: 0.5rem;
-        color: #dfdfdf;
+        color: #fff;
         font-weight: 500;
         padding: 0 0.25rem;
         background-color: #666;

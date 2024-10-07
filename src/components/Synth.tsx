@@ -73,34 +73,27 @@ export const SynthContext = React.createContext({
   },
 });
 
-const StyledSynthesizer = styled("div", {
-  shouldForwardProp: (prop) => prop !== "$isOn",
-})<{ $isOn?: boolean }>`
+const StyledSynthesizer = styled("div")`
   display: flex;
   flex-direction: column;
   transition: opacity 0.3s ease-in-out;
   max-width: 960px;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
-const StyledSynthBody = styled("div", {
-  shouldForwardProp: (prop) => prop !== "$isOn",
-})<{ $isOn?: boolean }>`
-  opacity: ${({ $isOn }) => ($isOn ? 1 : 0.25)};
+const StyledSynthBody = styled("div")`
+  background-color: #222;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
 `;
 
-const StyledModuleContainer = styled("div", {
-  shouldForwardProp: (prop) => prop !== "$theme",
-})<{ $theme: any }>`
+const StyledModuleContainer = styled("div")`
   display: flex;
-  flex-direction: row;
   flex-wrap: wrap;
   gap: 0.5rem;
 `;
 
-const StyledMenuBar = styled("div", {
-  shouldForwardProp: (prop) => prop !== "$theme",
-})<{ $theme: any }>`
+const StyledMenuBar = styled("div")`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -200,8 +193,12 @@ const Synthesizer: React.FC = () => {
         effects,
       }}
     >
-      <StyledSynthesizer $isOn={power}>
-        <StyledMenuBar $theme={theme}>
+      <StyledSynthesizer
+        sx={{
+          justifyContent: { xs: "flex-sart", sm: "center" },
+        }}
+      >
+        <StyledMenuBar>
           <PowerButton isOn={power} onClick={() => setPower(!power)} />
           <MIDIInputSelect
             label="MIDI Input"
@@ -209,8 +206,12 @@ const Synthesizer: React.FC = () => {
             onNoteOff={onNoteOff}
           />
         </StyledMenuBar>
-        <StyledSynthBody $isOn={power}>
-          <StyledModuleContainer $theme={theme}>
+        <StyledSynthBody sx={{ opacity: power ? 1 : 0.25 }}>
+          <StyledModuleContainer
+            sx={{
+              flexDirection: { xs: "column", sm: "row" },
+            }}
+          >
             <VoiceModule name="Main" />
             <OscillatorModule name="Oscillator" />
             <FilterWithEnvelopeModule name="Filter" />
