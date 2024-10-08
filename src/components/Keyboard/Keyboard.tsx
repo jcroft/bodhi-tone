@@ -60,19 +60,22 @@ const StyledKeyboard = styled("div")`
   }
 `;
 
+const DEFAULT_LOWEST_OCTAVE = 1;
+const DEFAULT_OCTAVES = 4;
+
 type KeyboardOptions = {
   name: string;
   color?: string;
   lowestOctave?: number;
   octaves?: number;
-  activeNotes?: (string | number)[];
+  activeNotes?: Tone.Unit.Frequency[];
   onNoteOn?: (
-    notes: (string | number)[],
+    notes: Tone.Unit.Frequency[],
     velocity?: number,
     duration?: Tone.Unit.Time
   ) => void;
   onNoteOff?: (
-    notes: (string | number)[],
+    notes: Tone.Unit.Frequency[],
     velocity?: number,
     duration?: Tone.Unit.Time
   ) => void;
@@ -80,8 +83,8 @@ type KeyboardOptions = {
 
 const Keyboard: React.FC<KeyboardOptions> = ({
   name = "keyboard",
-  lowestOctave = 1,
-  octaves = 4,
+  lowestOctave = DEFAULT_LOWEST_OCTAVE,
+  octaves = DEFAULT_OCTAVES,
   onNoteOn,
   onNoteOff,
   activeNotes,
@@ -89,6 +92,20 @@ const Keyboard: React.FC<KeyboardOptions> = ({
 }) => {
   const theme = useTheme();
   const keyboardColor = color || theme.palette.primary.main;
+
+  const octaveElements = React.useMemo(
+    () =>
+      Array.from({ length: octaves }).map((_, i) => (
+        <KeyboardOctave
+          key={i}
+          octaveNumber={lowestOctave + i}
+          onNoteOn={onNoteOn}
+          onNoteOff={onNoteOff}
+          activeNotes={activeNotes}
+        />
+      )),
+    [octaves, lowestOctave, onNoteOn, onNoteOff, activeNotes]
+  );
 
   return (
     <>
@@ -101,17 +118,11 @@ const Keyboard: React.FC<KeyboardOptions> = ({
             },
           },
         }}
+        role="group"
+        aria-label={`${name} keyboard`}
       >
         <ul className="set">
-          {Array.from({ length: octaves }).map((_, i) => (
-            <KeyboardOctave
-              key={i}
-              octaveNumber={lowestOctave + i}
-              onNoteOn={onNoteOn}
-              onNoteOff={onNoteOff}
-              activeNotes={activeNotes}
-            />
-          ))}
+          {octaveElements}
           <KeyboardOctave COnly={true} octaveNumber={octaves + 1} />
         </ul>
       </StyledKeyboard>

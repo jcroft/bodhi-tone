@@ -7,30 +7,22 @@ const SynthWrapper = dynamic(() => import("../components/SynthWrapper"), {
   ssr: false,
 });
 
-let theme = createTheme({
+const theme = createTheme({
   palette: {
     mode: "dark",
+    primary: {
+      main: "#ff5500",
+    },
   },
 });
 
-theme = createTheme(theme, {
-  palette: {
-    primary: theme.palette.augmentColor({
-      color: {
-        main: "#ff5500",
-      },
-      name: "orange",
-    }),
-  },
-});
-
-const StyledSynthPage = styled("div")`
-  background-color: #111;
-  display: flex;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
-`;
+const StyledSynthPage = styled("div")(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
+  display: "flex",
+  justifyContent: "center",
+  height: "100%",
+  width: "100%",
+}));
 
 const SynthesizerPage: React.FC = () => {
   return (
