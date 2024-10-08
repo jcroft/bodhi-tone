@@ -38,6 +38,25 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
   } as Tone.MonoSynthOptions,
 };
 
+export const DEFAULT_EFFECTS_OPTIONS: Partial<{
+  chorus: Partial<Tone.ChorusOptions>;
+  delay: Partial<Tone.PingPongDelayOptions>;
+  reverb: Partial<Tone.JCReverbOptions>;
+}> = {
+  chorus: {
+    frequency: 0.5,
+    depth: 0.5,
+  },
+  delay: {
+    delayTime: 0.25,
+    feedback: 0.5,
+    wet: 0.5,
+  },
+  reverb: {
+    wet: 0.5,
+  },
+};
+
 const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
 
 const chorus = new Tone.Chorus(4, 2.5, 0.5).toDestination();
@@ -84,9 +103,6 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
     delay,
     reverb,
   };
-
-  effects.delay.wet.value = 0.05;
-  effects.reverb.wet.value = 0.5;
 
   // When the power is off, mute the volume
   useEffect(() => {

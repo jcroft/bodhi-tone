@@ -13,7 +13,13 @@ import ReverbModule from "./Modules/ReverbModule";
 import DelayModule from "./Modules/DelayModule";
 import ChorusModule from "./Modules/ChorusModule";
 import GlobalControlModule from "./Modules/GlobalControlModule";
-import { SynthProvider, useSynth } from "@/contexts/SynthContext";
+import {
+  DEFAULT_EFFECTS_OPTIONS,
+  DEFAULT_SYNTH_OPTIONS,
+  SynthProvider,
+  useSynth,
+} from "@/contexts/SynthContext";
+import { RecursivePartial } from "tone/build/esm/core/util/Interface";
 
 const OPACITY_POWERED_OFF = 0.25;
 const TRANSITION_DURATION = "0.3s";
@@ -59,6 +65,31 @@ const Synthesizer: React.FC = () => {
     if (synth && effects.chorus && effects.delay && effects.reverb) {
       synth.chain(effects.chorus, effects.delay, effects.reverb);
       synth.toDestination();
+    }
+  }, [synth, effects]);
+
+  const isInitialized = React.useRef(false);
+
+  React.useEffect(() => {
+    if (
+      !isInitialized.current &&
+      synth &&
+      effects.chorus &&
+      effects.delay &&
+      effects.reverb &&
+      DEFAULT_EFFECTS_OPTIONS
+    ) {
+      synth.set(DEFAULT_SYNTH_OPTIONS);
+      effects.chorus.set(
+        DEFAULT_EFFECTS_OPTIONS.chorus as RecursivePartial<Tone.ChorusOptions>
+      );
+      effects.delay.set(
+        DEFAULT_EFFECTS_OPTIONS.delay as RecursivePartial<Tone.PingPongDelayOptions>
+      );
+      effects.reverb.set(
+        DEFAULT_EFFECTS_OPTIONS.reverb as RecursivePartial<Tone.JCReverbOptions>
+      );
+      isInitialized.current = true;
     }
   }, [synth, effects]);
 
