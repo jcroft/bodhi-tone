@@ -10,8 +10,8 @@ import "@fontsource/roboto/700.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Bodhi Tone",
-  description: "A Web Synth by Jeff Croft",
+  title: "Bodhi Tone - an unfinished Web Synth by Jeff Croft",
+  description: "An (unfinished) Web Synth by Jeff Croft",
 };
 
 export default function RootLayout({

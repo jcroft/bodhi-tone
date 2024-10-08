@@ -15,6 +15,9 @@ import ChorusModule from "./Modules/ChorusModule";
 import GlobalControlModule from "./Modules/GlobalControlModule";
 import { SynthProvider, useSynth } from "@/contexts/SynthContext";
 
+const OPACITY_POWERED_OFF = 0.25;
+const TRANSITION_DURATION = "0.3s";
+
 const StyledSynthesizer = styled("div")`
   display: flex;
   flex-direction: column;
@@ -52,38 +55,49 @@ const Synthesizer: React.FC = () => {
   const { power, setPower, synth, effects, activeNotes, setActiveNotes } =
     useSynth();
 
-  // Connect the synth to the effects
-  synth?.chain(effects.chorus, effects.delay, effects.reverb);
-
-  // Send the output of the synth to the primary output
-  synth?.toDestination();
+  React.useEffect(() => {
+    if (synth && effects.chorus && effects.delay && effects.reverb) {
+      synth.chain(effects.chorus, effects.delay, effects.reverb);
+      synth.toDestination();
+    }
+  }, [synth, effects]);
 
   // Handle incoming MIDI noteOn messages
-  const onNoteOn = (
-    notes: (string | number)[],
-    velocity?: number,
-    duration?: Tone.Unit.Time
-  ) => {
-    if (duration) {
-      setActiveNotes((prevList) => [...prevList, ...notes]);
-      synth?.triggerAttackRelease(notes, duration, Tone.now(), velocity);
-      setTimeout(() => {
-        setActiveNotes((prevList) =>
-          prevList.filter((note) => !notes.includes(note))
-        );
-      }, Tone.Time(duration).toMilliseconds());
-      return;
-    } else {
-      setActiveNotes((prevList) => [...prevList, ...notes]);
-      synth?.triggerAttack(notes, Tone.now(), velocity);
-    }
-  };
+  const onNoteOn = React.useCallback(
+    (
+      notes: Tone.Unit.Frequency[],
+      velocity?: number,
+      duration?: Tone.Unit.Time
+    ) => {
+      if (!synth) return;
+
+      if (duration) {
+        setActiveNotes((prevList) => [...prevList, ...notes]);
+        synth.triggerAttackRelease(notes, duration, Tone.now(), velocity);
+        setTimeout(() => {
+          setActiveNotes((prevList) =>
+            prevList.filter((note) => !notes.includes(note))
+          );
+        }, Tone.Time(duration).toMilliseconds());
+      } else {
+        setActiveNotes((prevList) => [...prevList, ...notes]);
+        synth.triggerAttack(notes, Tone.now(), velocity);
+      }
+    },
+    [setActiveNotes, synth]
+  );
 
   // Handle incoming MIDI noteOff messages
-  const onNoteOff = (notes: (string | number)[]) => {
-    setActiveNotes(activeNotes.filter((note) => !notes.includes(note)));
-    synth?.triggerRelease(notes, Tone.now());
-  };
+  const onNoteOff = React.useCallback(
+    (notes: Tone.Unit.Frequency[]) => {
+      if (!synth) return;
+      setActiveNotes((prevNotes) =>
+        prevNotes.filter((note) => !notes.includes(note))
+      );
+      synth.triggerRelease(notes, Tone.now());
+    },
+    [setActiveNotes, synth]
+  );
 
   const theme = useTheme();
 
@@ -95,14 +109,23 @@ const Synthesizer: React.FC = () => {
         }}
       >
         <StyledMenuBar>
-          <PowerButton isOn={power} onClick={() => setPower(!power)} />
+          <PowerButton
+            isOn={power}
+            onClick={() => setPower(!power)}
+            aria-label={power ? "Turn off synthesizer" : "Turn on synthesizer"}
+          />
           <MIDIInputSelect
             label="MIDI Input"
             onNoteOn={onNoteOn}
             onNoteOff={onNoteOff}
           />
         </StyledMenuBar>
-        <StyledSynthBody sx={{ opacity: power ? 1 : 0.25 }}>
+        <StyledSynthBody
+          sx={{
+            opacity: power ? 1 : OPACITY_POWERED_OFF,
+            transition: `opacity ${TRANSITION_DURATION} ease-in-out`,
+          }}
+        >
           <StyledModuleContainer
             sx={{
               flexDirection: { xs: "column", sm: "row" },

@@ -5,7 +5,6 @@ import KeyboardOctave from "./KeyboardOctave";
 import * as Tone from "tone";
 import { useTheme } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useSynth } from "@/contexts/SynthContext";
 
 const StyledKeyboard = styled("div")`
   ul {

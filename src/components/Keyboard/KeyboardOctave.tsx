@@ -1,6 +1,4 @@
 "use client";
-
-import { useSynth } from "@/contexts/SynthContext";
 import React from "react";
 import * as Tone from "tone";
 

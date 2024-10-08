@@ -1,8 +1,5 @@
 "use client";
-
-import { SynthProvider, useSynth } from "@/contexts/SynthContext";
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-
 import dynamic from "next/dynamic";
 import React from "react";
 
