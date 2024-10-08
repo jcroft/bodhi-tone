@@ -10,129 +10,126 @@ type BaseModuleOptions = {
   children?: React.ReactNode;
 };
 
-const StyledBaseModule = styled("div")`
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  border-bottom-left-radius: 0.35rem;
-  border-bottom-right-radius: 0.35rem;
-  box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.25);
-`;
+const StyledBaseModule = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0),
+  display: "flex",
+  flexDirection: "column",
+  borderBottomLeftRadius: theme.spacing(0.35),
+  borderBottomRightRadius: theme.spacing(0.35),
+  boxShadow: theme.shadows[1],
+}));
 
-const StyledModuleHeader = styled("div")`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  justify-items: center;
-  align-items: center;
-  color: #fff;
-  padding: 0.25rem;
-  border-top-left-radius: 0.35rem;
-  border-top-right-radius: 0.35rem;
-  border-bottom: 1px solid #222;
+const StyledModuleHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  justifyItems: "center",
+  alignItems: "center",
+  color: "#fff",
+  padding: theme.spacing(0.25),
+  borderTopLeftRadius: theme.spacing(0.35),
+  borderTopRightRadius: theme.spacing(0.35),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  fontSize: theme.typography.body2.fontSize,
 
-  h2 {
-    margin: 0;
-    padding: 0 0 0 0.25rem;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    font-weight: 500;
-  }
+  h2: {
+    margin: 0,
+    padding: "0 0 0 0.25rem",
+    fontSize: ".75rem",
+    textTransform: "uppercase",
+    fontWeight: "500",
+  },
 
-  input {
-    margin: 0;
-    padding: 0;
-  }
+  input: {
+    margin: 0,
+    padding: 0,
+  },
+}));
 
-  &.red {
-    background-color: red;
-  }
-`;
+const StyledModuleBody = styled("div")(({ theme }) => ({
+  padding: "0.5rem",
+  gap: "0.5rem",
+  display: "flex",
+  flexDirection: "row",
+  backgroundColor: "#333",
+  borderBottomLeftRadius: "0.35rem",
+  borderBottomRightRadius: "0.35rem",
 
-const StyledModuleBody = styled("div")`
-  padding: 0.5rem;
-  gap: 0.5rem;
-  display: flex;
-  flex-direction: row;
-  background-color: #333;
-  border-bottom-left-radius: 0.35rem;
-  border-bottom-right-radius: 0.35rem;
+  "& form": {
+    display: "flex",
+    flexDirection: "row",
+    gap: "0.75rem",
+    fontSize: "0.75rem",
 
-  form {
-    display: flex;
-    flex-direction: row;
-    gap: 0.75rem;
-    font-size: 0.75rem;
+    "& label": {
+      fontSize: "0.65rem",
+      color: "#fff",
+      fontWeight: 400,
+      textAlign: "left",
+    },
 
-    label {
-      font-size: 0.65rem;
-      color: #fff;
-      font-weight: 400;
-      text-align: left;
-    }
+    "& .value": {
+      position: "absolute",
+      left: 0,
+      bottom: 0,
+      width: "100%",
+      textAlign: "center",
+      opacity: 0,
+      fontSize: "0.65rem",
+      transition: "opacity 0.3s ease-in-out",
+    },
 
-    .value {
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      text-align: center;
-      opacity: 0;
-      font-size: 0.65rem;
-      transition: opacity 0.3s ease-in-out;
-    }
+    "& .control-group": {
+      display: "flex",
+      flexDirection: "row",
+      backgroundColor: "#424242",
+      gap: "0.5rem",
+      position: "relative",
+      paddingTop: "0.5rem",
+      paddingLeft: "0.5rem",
+      paddingRight: "0.5rem",
+      borderRadius: "0.3rem",
+      minHeight: "138px",
+      border: "1.5px solid #606060",
+      boxShadow: "inset 0 0 0.25rem rgba(0, 0, 0, 0.35)",
 
-    .control-group {
-      display: flex;
-      flex-direction: row;
-      background-color: #424242;
-      gap: 0.5rem;
-      position: relative;
-      padding-top: 0.5rem;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-      border-radius: 0.3rem;
-      min-height: 138px;
-      border: 1.5px solid #606060;
-      box-shadow: inset 0 0 0.25rem rgba(0, 0, 0, 0.35);
+      "&.transparent": {
+        backgroundColor: "transparent",
+        border: "none",
+        boxShadow: "none",
+      },
 
-      &.transparent {
-        background-color: transparent;
-        border: none;
-        box-shadow: none;
-      }
+      "& h3": {
+        margin: 0,
+        position: "absolute",
+        bottom: "-1px",
+        right: "-1px",
+        textTransform: "uppercase",
+        lineHeight: "0.8rem",
+        fontSize: "0.5rem",
+        color: "#fff",
+        fontWeight: 500,
+        padding: "0 0.25rem",
+        backgroundColor: "#666",
+        borderTopLeftRadius: "0.3rem",
+        borderBottomRightRadius: "0.3rem",
+        border: "0.5px solid #777",
+        borderRight: "none",
+        borderBottom: "none",
+      },
+    },
+  },
 
-      h3 {
-        margin: 0;
-        position: absolute;
-        bottom: -1px;
-        right: -1px;
-        text-transform: uppercase;
-        line-height: 0.8rem;
-        font-size: 0.5rem;
-        color: #fff;
-        font-weight: 500;
-        padding: 0 0.25rem;
-        background-color: #666;
-        border-top-left-radius: 0.3rem;
-        border-bottom-right-radius: 0.3rem;
-        border: 0.5px solid #777;
-        border-right: none;
-        border-bottom: none;
-      }
-    }
-  }
+  "& form.column": {
+    flexDirection: "column",
 
-  form.column {
-    flex-direction: column;
-
-    .control-group {
-      flex-direction: column;
-      padding: 0;
-      align-items: flex-start;
-    }
-  }
-`;
+    "& .control-group": {
+      flexDirection: "column",
+      padding: 0,
+      alignItems: "flex-start",
+    },
+  },
+}));
 
 const BaseModule: React.FC<BaseModuleOptions> = ({
   name = "Base Module",
@@ -146,13 +143,17 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
     <ModuleProvider>
       <StyledBaseModule>
         <StyledModuleHeader
+          role="banner"
+          aria-label={`${name} module header`}
           sx={{
             backgroundColor: color,
           }}
         >
           <h2>{name}</h2>
         </StyledModuleHeader>
-        <StyledModuleBody>{children}</StyledModuleBody>
+        <StyledModuleBody role="region" aria-label={`${name} module content`}>
+          {children}
+        </StyledModuleBody>
       </StyledBaseModule>
     </ModuleProvider>
   );

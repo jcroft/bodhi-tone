@@ -5,6 +5,15 @@ import BaseModule from "./BaseModule";
 import * as Tone from "tone";
 import Fader from "../Input/Fader";
 import { useSynth } from "@/contexts/SynthContext";
+import { RecursivePartial } from "tone/build/esm/core/util/Interface";
+
+type FilterParams = "Q";
+type FilterEnvelopeParams =
+  | "attack"
+  | "decay"
+  | "sustain"
+  | "release"
+  | "baseFrequency";
 
 type FilterWithEnvelopeModuleOptions = {
   name: string;
@@ -16,143 +25,137 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   const { synth } = useSynth();
   const synthState = synth?.get() as Tone.MonoSynthOptions;
 
-  const updateSynthSettings = (options: Partial<Tone.MonoSynthOptions>) => {
-    synth?.set(options);
-  };
+  const updateSynthSettings = React.useCallback(
+    (options: RecursivePartial<Tone.MonoSynthOptions>) => {
+      synth?.set(options);
+    },
+    [synth]
+  );
+
+  const createFilterEnvelopeFader = React.useCallback(
+    (
+      param: FilterEnvelopeParams,
+      label: string,
+      min: number,
+      max: number,
+      step: number,
+      valueLabelFormat?:
+        | string
+        | ((value: number, index: number) => React.ReactNode)
+        | undefined
+    ) => (
+      <Fader
+        key={param}
+        id={param}
+        label={label}
+        value={parseFloat(synthState?.filterEnvelope?.[param]?.toString())}
+        sliderProps={{
+          valueLabelDisplay: "auto",
+          valueLabelFormat: valueLabelFormat,
+          orientation: "vertical",
+          min: min,
+          max: max,
+          step: step,
+          onChange: (event, newValue) => {
+            updateSynthSettings({
+              filterEnvelope: {
+                [param]: newValue as number,
+              } as Partial<Tone.FrequencyEnvelopeOptions>,
+            });
+          },
+        }}
+      />
+    ),
+    [synthState?.filterEnvelope, updateSynthSettings]
+  );
+
+  const createFilterFader = React.useCallback(
+    (
+      param: FilterParams,
+      label: string,
+      min: number,
+      max: number,
+      step: number,
+      valueLabelFormat?:
+        | string
+        | ((value: number, index: number) => React.ReactNode)
+        | undefined
+    ) => (
+      <Fader
+        key={param}
+        id={param}
+        label={label}
+        value={parseFloat(synthState?.filter?.[param]?.toString() ?? "0")}
+        sliderProps={{
+          valueLabelDisplay: "auto",
+          valueLabelFormat: valueLabelFormat,
+          orientation: "vertical",
+          min: min,
+          max: max,
+          step: step,
+          onChange: (event, newValue) => {
+            updateSynthSettings({
+              filter: {
+                [param]: newValue as number,
+              } as Tone.FilterOptions,
+            });
+          },
+        }}
+      />
+    ),
+    [synthState, updateSynthSettings]
+  );
+
+  const frequencyFader = React.useMemo(
+    () =>
+      createFilterEnvelopeFader(
+        "baseFrequency",
+        "Freq",
+        20,
+        2000,
+        1,
+        (value: number) => `${value.toFixed()} Hz`
+      ),
+    [createFilterEnvelopeFader]
+  );
+
+  const resonanceFader = React.useMemo(
+    () => createFilterFader("Q", "Reso", 0, 20, 0.01),
+    [createFilterFader]
+  );
+
+  const mainFaders = React.useMemo(
+    () => [frequencyFader, resonanceFader],
+    [frequencyFader, resonanceFader]
+  );
+
+  const envelopeFaders = React.useMemo(
+    () =>
+      [
+        { param: "attack", label: "A", min: 0, max: 1, step: 0.01 },
+        { param: "decay", label: "D", min: 0, max: 1, step: 0.01 },
+        { param: "sustain", label: "S", min: 0, max: 1, step: 0.01 },
+        { param: "release", label: "R", min: 0, max: 1, step: 0.01 },
+      ].map(({ param, label, min, max, step }) =>
+        createFilterEnvelopeFader(
+          param as FilterEnvelopeParams,
+          label,
+          min,
+          max,
+          step
+        )
+      ),
+    [createFilterEnvelopeFader]
+  );
 
   return (
     <BaseModule name={name}>
       <form>
-        <div className="control-group transparent">
-          <Fader
-            id="filter-base-freq"
-            label="Cutoff"
-            value={
-              parseFloat(
-                synthState?.filterEnvelope?.baseFrequency.toString()
-              ) || 0
-            }
-            sliderProps={{
-              valueLabelDisplay: "auto",
-              valueLabelFormat: (value: number) => `${value.toFixed()} Hz`,
-              orientation: "vertical",
-              min: 1,
-              max: 2000,
-              step: 0.01,
-              onChange: (event, newValue) => {
-                updateSynthSettings({
-                  filterEnvelope: {
-                    baseFrequency: newValue,
-                  } as Tone.FrequencyEnvelopeOptions,
-                });
-              },
-            }}
-          />
-
-          <Fader
-            id="filter-resonance"
-            label="Reso"
-            value={synthState?.filter?.Q || 0}
-            sliderProps={{
-              valueLabelDisplay: "auto",
-              valueLabelFormat: (value: number) => `${value.toFixed()}`,
-              orientation: "vertical",
-              min: 0,
-              max: 20,
-              step: 0.1,
-              onChange: (event, newValue) => {
-                updateSynthSettings({
-                  filter: {
-                    Q: newValue,
-                  } as Tone.FilterOptions,
-                });
-              },
-            }}
-          />
-        </div>
+        <div className="control-group transparent">{mainFaders}</div>
 
         <div className="control-group">
           <h3>Envelope</h3>
-
-          <Fader
-            id="filter-attack"
-            label="A"
-            value={parseFloat(synthState?.filterEnvelope?.attack?.toString())}
-            sliderProps={{
-              valueLabelDisplay: "auto",
-              orientation: "vertical",
-              min: 0,
-              max: 1,
-              step: 0.01,
-              onChange: (event, newValue) => {
-                updateSynthSettings({
-                  filterEnvelope: {
-                    attack: newValue,
-                  } as Tone.FrequencyEnvelopeOptions,
-                });
-              },
-            }}
-          />
-
-          <Fader
-            id="filter-decay"
-            label="D"
-            value={parseFloat(synthState?.filterEnvelope?.decay?.toString())}
-            sliderProps={{
-              valueLabelDisplay: "auto",
-              orientation: "vertical",
-              min: 0,
-              max: 1,
-              step: 0.01,
-              onChange: (event, newValue) => {
-                updateSynthSettings({
-                  filterEnvelope: {
-                    decay: newValue,
-                  } as Tone.FrequencyEnvelopeOptions,
-                });
-              },
-            }}
-          />
-
-          <Fader
-            id="filter-sustain"
-            label="S"
-            value={parseFloat(synthState?.filterEnvelope?.sustain?.toString())}
-            sliderProps={{
-              valueLabelDisplay: "auto",
-              orientation: "vertical",
-              min: 0,
-              max: 1,
-              step: 0.01,
-              onChange: (event, newValue) => {
-                updateSynthSettings({
-                  filterEnvelope: {
-                    sustain: newValue,
-                  } as Tone.FrequencyEnvelopeOptions,
-                });
-              },
-            }}
-          />
-
-          <Fader
-            id="filter-release"
-            label="R"
-            value={parseFloat(synthState?.filterEnvelope?.release?.toString())}
-            sliderProps={{
-              valueLabelDisplay: "auto",
-              orientation: "vertical",
-              min: 0,
-              max: 1,
-              step: 0.01,
-              onChange: (event, newValue) => {
-                updateSynthSettings({
-                  filterEnvelope: {
-                    release: newValue,
-                  } as Tone.FrequencyEnvelopeOptions,
-                });
-              },
-            }}
-          />
+          {envelopeFaders}
         </div>
       </form>
     </BaseModule>

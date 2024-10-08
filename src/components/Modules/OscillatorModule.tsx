@@ -68,6 +68,14 @@ const StyledMenuGroupHeader = styled(Typography)({
   color: "#999",
 });
 
+const MIN_DETUNE = -1200;
+const MAX_DETUNE = 1200;
+const DETUNE_STEP = 100;
+
+const MIN_FINE_DETUNE = -100;
+const MAX_FINE_DETUNE = 100;
+const FINE_DETUNE_STEP = 1;
+
 const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
   name = "Oscillator",
 }) => {
@@ -79,9 +87,12 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
       DEFAULT_SYNTH_OPTIONS.options?.oscillator?.type
   );
 
-  const updateSynthSettings = (options: Partial<Tone.MonoSynthOptions>) => {
-    synth?.set(options);
-  };
+  const updateSynthSettings = React.useCallback(
+    (options: Partial<Tone.MonoSynthOptions>) => {
+      synth?.set(options);
+    },
+    [synth]
+  );
 
   const oscillatorChoices: {
     value: OmniOscillatorType;
@@ -200,6 +211,173 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
     choice?.value?.startsWith("fm")
   );
 
+  const renderOscillatorControls = React.useCallback(() => {
+    if (synthState?.oscillator?.type === "pwm") {
+      return (
+        <Fader
+          id="pulse-width"
+          label="PWM"
+          value={parseFloat(
+            synthState?.oscillator.modulationFrequency.toString()
+          )}
+          sliderProps={{
+            valueLabelDisplay: "auto",
+            orientation: "horizontal",
+            min: 0,
+            max: 1,
+            step: 0.01,
+            onChange: (event, newValue) => {
+              updateSynthSettings({
+                oscillator: {
+                  modulationFrequency: newValue,
+                } as Tone.PWMOscillatorOptions,
+              });
+            },
+          }}
+        />
+      );
+    }
+
+    // ... Add similar conditional rendering for other oscillator types ...
+    if (
+      synthState?.oscillator?.type === "fatsawtooth" ||
+      synthState?.oscillator?.type === "fatsine" ||
+      synthState?.oscillator?.type === "fattriangle" ||
+      synthState?.oscillator?.type === "fatsquare"
+    ) {
+      return (
+        <>
+          <Fader
+            id="count"
+            label="Count"
+            value={parseFloat(synthState?.oscillator.count.toString())}
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "horizontal",
+              defaultValue: 1,
+              min: 1,
+              max: 8,
+              step: 1,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  oscillator: {
+                    count: newValue,
+                  } as Tone.OmniOscillatorOptions,
+                });
+              },
+            }}
+          />
+
+          <Fader
+            id="spread"
+            label="Spread"
+            value={parseFloat(synthState?.oscillator.spread.toString())}
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "horizontal",
+              min: 0,
+              max: 100,
+              step: 1,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  oscillator: {
+                    spread: newValue,
+                  } as Tone.OmniOscillatorOptions,
+                });
+              },
+            }}
+          />
+        </>
+      );
+    }
+
+    if (
+      synthState?.oscillator?.type === "fmsine" ||
+      synthState?.oscillator?.type === "fmsawtooth" ||
+      synthState?.oscillator?.type === "fmtriangle" ||
+      synthState?.oscillator?.type === "fmsquare"
+    ) {
+      return (
+        <>
+          <Fader
+            id="modulation-index"
+            label="Mod"
+            value={parseFloat(
+              synthState?.oscillator.modulationIndex.toString()
+            )}
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "horizontal",
+              min: 0,
+              max: 100,
+              step: 1,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  oscillator: {
+                    modulationIndex: newValue,
+                  } as Tone.OmniOscillatorOptions,
+                });
+              },
+            }}
+          />
+
+          <Fader
+            id="harmonicity"
+            label="Ratio"
+            value={parseFloat(synthState?.oscillator.harmonicity.toString())}
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "horizontal",
+              min: 0,
+              max: 100,
+              step: 1,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  oscillator: {
+                    harmonicity: newValue,
+                  } as Tone.OmniOscillatorOptions,
+                });
+              },
+            }}
+          />
+        </>
+      );
+    }
+
+    if (
+      synthState?.oscillator?.type === "amsine" ||
+      synthState?.oscillator?.type === "amsawtooth" ||
+      synthState?.oscillator?.type === "amtriangle" ||
+      synthState?.oscillator?.type === "amsquare"
+    ) {
+      return (
+        <>
+          <Fader
+            id="harmonicity"
+            label="Ratio"
+            value={parseFloat(synthState?.oscillator.harmonicity.toString())}
+            sliderProps={{
+              valueLabelDisplay: "auto",
+              orientation: "horizontal",
+              min: 0,
+              max: 100,
+              step: 1,
+              onChange: (event, newValue) => {
+                updateSynthSettings({
+                  oscillator: {
+                    harmonicity: newValue,
+                  } as Tone.OmniOscillatorOptions,
+                });
+              },
+            }}
+          />
+        </>
+      );
+    }
+
+    return null;
+  }, [updateSynthSettings, synthState]);
+
   return (
     <BaseModule name={name}>
       <form className="column">
@@ -304,157 +482,7 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
             ))}
           </StyledSelect>
 
-          {synthState?.oscillator?.type === "pwm" && (
-            <Fader
-              id="pulse-width"
-              label="PWM"
-              value={parseFloat(
-                synthState?.oscillator.modulationFrequency.toString()
-              )}
-              sliderProps={{
-                valueLabelDisplay: "auto",
-                orientation: "horizontal",
-                min: 0,
-                max: 1,
-                step: 0.01,
-                onChange: (event, newValue) => {
-                  updateSynthSettings({
-                    oscillator: {
-                      modulationFrequency: newValue,
-                    } as Tone.PWMOscillatorOptions,
-                  });
-                },
-              }}
-            />
-          )}
-
-          {synthState?.oscillator?.type === "fatsawtooth" ||
-          synthState?.oscillator?.type === "fatsine" ||
-          synthState?.oscillator?.type === "fattriangle" ||
-          synthState?.oscillator?.type === "fatsquare" ? (
-            <>
-              <Fader
-                id="count"
-                label="Count"
-                value={parseFloat(synthState?.oscillator.count.toString())}
-                sliderProps={{
-                  valueLabelDisplay: "auto",
-                  orientation: "horizontal",
-                  defaultValue: 1,
-                  min: 1,
-                  max: 8,
-                  step: 1,
-                  onChange: (event, newValue) => {
-                    updateSynthSettings({
-                      oscillator: {
-                        count: newValue,
-                      } as Tone.OmniOscillatorOptions,
-                    });
-                  },
-                }}
-              />
-
-              <Fader
-                id="spread"
-                label="Spread"
-                value={parseFloat(synthState?.oscillator.spread.toString())}
-                sliderProps={{
-                  valueLabelDisplay: "auto",
-                  orientation: "horizontal",
-                  min: 0,
-                  max: 100,
-                  step: 1,
-                  onChange: (event, newValue) => {
-                    updateSynthSettings({
-                      oscillator: {
-                        spread: newValue,
-                      } as Tone.OmniOscillatorOptions,
-                    });
-                  },
-                }}
-              />
-            </>
-          ) : null}
-
-          {synthState?.oscillator?.type === "fmsine" ||
-          synthState?.oscillator?.type === "fmsawtooth" ||
-          synthState?.oscillator?.type === "fmtriangle" ||
-          synthState?.oscillator?.type === "fmsquare" ? (
-            <>
-              <Fader
-                id="modulation-index"
-                label="Mod"
-                value={parseFloat(
-                  synthState?.oscillator.modulationIndex.toString()
-                )}
-                sliderProps={{
-                  valueLabelDisplay: "auto",
-                  orientation: "horizontal",
-                  min: 0,
-                  max: 100,
-                  step: 1,
-                  onChange: (event, newValue) => {
-                    updateSynthSettings({
-                      oscillator: {
-                        modulationIndex: newValue,
-                      } as Tone.OmniOscillatorOptions,
-                    });
-                  },
-                }}
-              />
-
-              <Fader
-                id="harmonicity"
-                label="Ratio"
-                value={parseFloat(
-                  synthState?.oscillator.harmonicity.toString()
-                )}
-                sliderProps={{
-                  valueLabelDisplay: "auto",
-                  orientation: "horizontal",
-                  min: 0,
-                  max: 100,
-                  step: 1,
-                  onChange: (event, newValue) => {
-                    updateSynthSettings({
-                      oscillator: {
-                        harmonicity: newValue,
-                      } as Tone.OmniOscillatorOptions,
-                    });
-                  },
-                }}
-              />
-            </>
-          ) : null}
-
-          {synthState?.oscillator?.type === "amsine" ||
-          synthState?.oscillator?.type === "amsawtooth" ||
-          synthState?.oscillator?.type === "amtriangle" ||
-          synthState?.oscillator?.type === "amsquare" ? (
-            <>
-              <Fader
-                id="harmonicity"
-                label="Ratio"
-                value={parseFloat(
-                  synthState?.oscillator.harmonicity.toString()
-                )}
-                sliderProps={{
-                  valueLabelDisplay: "auto",
-                  orientation: "horizontal",
-                  min: 0,
-                  max: 100,
-                  step: 1,
-                  onChange: (event, newValue) => {
-                    updateSynthSettings({
-                      oscillator: {
-                        harmonicity: newValue,
-                      } as Tone.OmniOscillatorOptions,
-                    });
-                  },
-                }}
-              />
-            </>
-          ) : null}
+          {renderOscillatorControls()}
         </div>
       </form>
       <form>
@@ -468,9 +496,9 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
               valueLabelDisplay: "auto",
               valueLabelFormat: (value: number) => `${value / 100} st`,
               orientation: "vertical",
-              min: -1200,
-              max: 1200,
-              step: 100,
+              min: MIN_DETUNE,
+              max: MAX_DETUNE,
+              step: DETUNE_STEP,
               track: false,
               onChange: (event, newValue) => {
                 if (typeof newValue === "number") {
@@ -490,9 +518,9 @@ const OscillatorModule: React.FC<OscillatorModuleOptions> = ({
               valueLabelDisplay: "auto",
               valueLabelFormat: (value: number) => `${value.toFixed()} ct`,
               orientation: "vertical",
-              min: -100,
-              max: 100,
-              step: 1,
+              min: MIN_FINE_DETUNE,
+              max: MAX_FINE_DETUNE,
+              step: FINE_DETUNE_STEP,
               track: false,
               onChange: (event, newValue) => {
                 if (typeof newValue === "number") {

@@ -99,8 +99,6 @@ const Synthesizer: React.FC = () => {
     [setActiveNotes, synth]
   );
 
-  const theme = useTheme();
-
   return (
     <SynthProvider>
       <StyledSynthesizer

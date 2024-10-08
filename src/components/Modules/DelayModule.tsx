@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { PingPongDelayOptions } from "tone";
+import React from "react";
 import BaseModule from "./BaseModule";
 import Fader from "../Input/Fader";
 import { useSynth } from "@/contexts/SynthContext";
@@ -12,10 +11,6 @@ interface DelayModuleProps {
 
 const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
   const { effects } = useSynth();
-
-  const updateEffectSettings = (options: Partial<PingPongDelayOptions>) => {
-    effects.delay.set(options);
-  };
 
   return (
     <BaseModule name={name}>
