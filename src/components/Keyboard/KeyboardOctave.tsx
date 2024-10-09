@@ -56,14 +56,14 @@ const KeyboardOctave: React.FC<KeyboardOctaveOptions> = ({
 }) => {
   const handleKeyDown = React.useCallback(
     (note: Tone.Unit.Frequency) => {
-      onNoteOn && onNoteOn([note], 0.5, "4n");
+      onNoteOn && onNoteOn([note], 0.5);
     },
     [onNoteOn]
   );
 
   const handleKeyUp = React.useCallback(
     (note: Tone.Unit.Frequency) => {
-      onNoteOff && onNoteOff([note], 0.5, "4n");
+      onNoteOff && onNoteOff([note], 0.5);
     },
     [onNoteOff]
   );
