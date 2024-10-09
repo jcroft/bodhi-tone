@@ -35,6 +35,7 @@ interface MIDIInputSelectProps {
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
+
 const MenuProps = {
   PaperProps: {
     style: {
@@ -61,7 +62,7 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
   ]);
 
   // Handle enabling of MIDI
-  const onMidiEnabled = () => {
+  const onMidiEnabled = React.useCallback(() => {
     console.log("MIDI enabled");
     const MIDIInputOptions = WebMidi.inputs.map((input) => ({
       label: input.name,
@@ -69,12 +70,12 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
     }));
     MIDIInputOptions.unshift({ label: "None", value: "none" });
     setMidiInputOptions(MIDIInputOptions);
-  };
+  }, []);
 
   const browserSupportsMIDI = WebMidi.supported;
 
   // Enable the webMIDI APIs upon load
-  React.useEffect(() => {
+  const enableWebMidi = React.useCallback(() => {
     if (browserSupportsMIDI) {
       WebMidi.enable().then(onMidiEnabled).catch(console.error);
     } else {
@@ -84,7 +85,11 @@ const MIDIInputSelect: React.FC<MIDIInputSelectProps> = ({
     return () => {
       WebMidi.disable();
     };
-  }, []);
+  }, [browserSupportsMIDI, onMidiEnabled]);
+
+  React.useEffect(() => {
+    enableWebMidi();
+  }, [enableWebMidi]);
 
   // Add listeners for incoming MIDI messages
   React.useEffect(() => {

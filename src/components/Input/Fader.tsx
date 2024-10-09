@@ -4,11 +4,19 @@ import { InputLabel, styled, useTheme } from "@mui/material";
 import React, { useEffect } from "react";
 import { useModule } from "@/contexts/ModuleContext";
 
+/**
+ * Props for the Fader component.
+ * @interface FaderProps
+ * @property {string} id - Unique identifier for the fader.
+ * @property {string} label - Label text for the fader.
+ * @property {number} [value] - Optional current value of the fader.
+ * @property {Partial<SliderProps>} sliderProps - Props to be passed to the underlying Slider component.
+ */
 interface FaderProps {
   id: string;
   label: string;
   value?: number;
-  sliderProps: SliderProps;
+  sliderProps: Partial<SliderProps>;
 }
 
 const StyledFaderContainer = styled("div")<{
@@ -80,7 +88,6 @@ const Fader: React.FC<FaderProps> = ({
     value || sliderProps?.defaultValue || 0
   );
 
-  const theme = useTheme();
   const moduleContext = useModule();
 
   useEffect(() => {
@@ -98,27 +105,31 @@ const Fader: React.FC<FaderProps> = ({
         {...sliderProps}
         value={sliderValue}
         color="primary"
-        onChange={(event, newValue) => {
+        onChange={(event: Event, newValue: number | number[]) => {
           if (sliderProps.onChange) {
             sliderProps.onChange(event, newValue, 0);
           }
           setSliderValue(newValue);
         }}
-        sx={{
-          color: moduleContext.color,
-          "& .MuiSlider-track": {},
-          "& .MuiSlider-thumb": {
-            backgroundColor: moduleContext.color,
-            border: `1.5px solid white`,
-          },
-          "& .MuiSlider-rail": {
-            backgroundColor: moduleContext.color,
-          },
-          "& .MuiSlider-valueLabel": {
-            backgroundColor: moduleContext.color,
-            color: "#fff",
-          },
-        }}
+        sx={
+          moduleContext
+            ? {
+                color: moduleContext.color,
+                "& .MuiSlider-track": {},
+                "& .MuiSlider-thumb": {
+                  backgroundColor: moduleContext.color,
+                  border: `1.5px solid white`,
+                },
+                "& .MuiSlider-rail": {
+                  backgroundColor: moduleContext.color,
+                },
+                "& .MuiSlider-valueLabel": {
+                  backgroundColor: moduleContext.color,
+                  color: "#fff",
+                },
+              }
+            : {}
+        }
       />
     </StyledFaderContainer>
   );

@@ -41,7 +41,11 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
 export const DEFAULT_EFFECTS_OPTIONS: Partial<{
   chorus: Partial<Tone.ChorusOptions>;
   delay: Partial<Tone.PingPongDelayOptions>;
-  reverb: Partial<Tone.JCReverbOptions>;
+  reverb: Partial<{
+    wet: number;
+    decay: number;
+    preDelay: number;
+  }>;
 }> = {
   chorus: {
     frequency: 0.5,
@@ -54,6 +58,8 @@ export const DEFAULT_EFFECTS_OPTIONS: Partial<{
   },
   reverb: {
     wet: 0.5,
+    decay: 35,
+    preDelay: 0.1,
   },
 };
 

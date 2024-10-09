@@ -2,7 +2,7 @@
 
 import AmpEnvelopeModule from "@/components/Modules/AmpEnvelopeModule";
 import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
-import OscillatorModule from "@/components/Modules/OscillatorModule";
+import OscillatorModule from "@/components/Modules/Oscillator/OscillatorModule";
 import React from "react";
 import * as Tone from "tone";
 import { styled, useTheme } from "@mui/material/styles";
