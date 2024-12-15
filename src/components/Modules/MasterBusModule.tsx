@@ -24,15 +24,45 @@ interface MasterBusModuleProps {
 const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }) => {
   const { effects } = useSynth();
   
-  // Use refs to store audio nodes
+  // Use refs to store audio nodes and parameter state
   const compressorRef = useRef<Tone.Compressor | null>(null);
   const limiterRef = useRef<Tone.Limiter | null>(null);
+  const parameterStateRef = useRef<{[key: string]: number}>({});
 
-  // Debounce parameter updates to reduce audio glitches
-  const debouncedUpdate = useCallback(
-    debounce((paramName: string, value: number) => {
-      if (!compressorRef.current || !limiterRef.current) return;
+  // Smooth parameter changes with exponential ramping
+  const smoothParameter = useCallback((paramName: string, value: number, rampTime = 0.05) => {
+    if (!compressorRef.current || !limiterRef.current) return;
 
+    // Store the target value
+    parameterStateRef.current[paramName] = value;
+
+    try {
+      switch (paramName) {
+        case 'threshold':
+          compressorRef.current.threshold.rampTo(value, rampTime);
+          break;
+        case 'ratio':
+          compressorRef.current.ratio.rampTo(value, rampTime);
+          break;
+        case 'attack':
+          compressorRef.current.attack.rampTo(value, rampTime);
+          break;
+        case 'release':
+          compressorRef.current.release.rampTo(value, rampTime);
+          break;
+        case 'knee':
+          compressorRef.current.knee.rampTo(value, rampTime);
+          break;
+        case 'limiterThreshold':
+          limiterRef.current.threshold.rampTo(value, rampTime);
+          break;
+        case 'masterVolume':
+          Tone.Destination.volume.rampTo(value, rampTime);
+          break;
+      }
+    } catch (error) {
+      console.warn(`Failed to smooth parameter ${paramName}:`, error);
+      // Fallback to instant value change if ramping fails
       switch (paramName) {
         case 'threshold':
           compressorRef.current.threshold.value = value;
@@ -56,8 +86,17 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
           Tone.Destination.volume.value = value;
           break;
       }
-    }, 50),
-    []
+    }
+  }, []);
+
+  // Optimize parameter updates with RAF and debounce
+  const debouncedUpdate = useCallback(
+    debounce((paramName: string, value: number) => {
+      requestAnimationFrame(() => {
+        smoothParameter(paramName, value);
+      });
+    }, 16), // ~60fps
+    [smoothParameter]
   );
 
   // Memoize fader creation
@@ -75,8 +114,9 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
         key={`master-${id}`}
         id={`master-${id}`}
         label={label}
-        value={value}
+        value={parameterStateRef.current[id] ?? value}
         sliderProps={{
+          valueLabelDisplay: "auto",
           orientation: "vertical",
           min,
           max,
@@ -92,7 +132,7 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
     [debouncedUpdate]
   );
 
-  // Initialize nodes only once
+  // Initialize nodes and restore parameters
   useEffect(() => {
     if (!compressorRef.current) {
       compressorRef.current = effects.masterBus.compressor;
@@ -100,8 +140,14 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
     if (!limiterRef.current) {
       limiterRef.current = effects.masterBus.limiter;
     }
-  }, [effects.masterBus]);
 
+    // Restore any existing parameter values
+    Object.entries(parameterStateRef.current).forEach(([param, value]) => {
+      smoothParameter(param, value, 0); // Apply immediately
+    });
+  }, [effects.masterBus, smoothParameter]);
+
+  // Initialize default control values
   const [controls] = useState(() => ({
     threshold: -24,
     ratio: 4,
@@ -112,34 +158,89 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
     masterVolume: 0
   }));
 
+  const masterVolumeFader = createFader(
+    "masterVolume",
+    "Volume",
+    controls.masterVolume,
+    -60,
+    6,
+    0.1,
+    value => debouncedUpdate('masterVolume', value)
+  );
+
+  const compressorFaders = [
+    createFader(
+      "threshold",
+      "Thresh",
+      controls.threshold,
+      -60,
+      0,
+      0.5,
+      value => debouncedUpdate('threshold', value)
+    ),
+    createFader(
+      "ratio",
+      "Ratio",
+      controls.ratio,
+      1,
+      20,
+      0.5,
+      value => debouncedUpdate('ratio', value)
+    ),
+    createFader(
+      "attack",
+      "Atk",
+      controls.attack * 1000,
+      0.1,
+      100,
+      0.1,
+      value => debouncedUpdate('attack', value / 1000)
+    ),
+    createFader(
+      "release",
+      "Rel",
+      controls.release * 1000,
+      10,
+      1000,
+      10,
+      value => debouncedUpdate('release', value / 1000)
+    ),
+    createFader(
+      "knee",
+      "Knee",
+      controls.knee,
+      0,
+      40,
+      1,
+      value => debouncedUpdate('knee', value)
+    )
+  ];
+
+  const limiterFader = createFader(
+    "limiterThreshold",
+    "Thresh",
+    controls.limiterThreshold,
+    -20,
+    0,
+    0.1,
+    value => debouncedUpdate('limiterThreshold', value)
+  );
+
   return (
     <BaseModule name={name} color="#ff5252">
-      <StyledControlGroup>
-        {createFader("masterVolume", "Volume", controls.masterVolume, -60, 6, 0.1, 
-          value => debouncedUpdate('masterVolume', value))}
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Typography variant="subtitle2">Compressor</Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}>
-            {createFader("threshold", "Thresh", controls.threshold, -60, 0, 0.5,
-              value => debouncedUpdate('threshold', value))}
-            {createFader("ratio", "Ratio", controls.ratio, 1, 20, 0.5,
-              value => debouncedUpdate('ratio', value))}
-            {createFader("attack", "Atk", controls.attack * 1000, 0.1, 100, 0.1,
-              value => debouncedUpdate('attack', value / 1000))}
-            {createFader("release", "Rel", controls.release * 1000, 10, 1000, 10,
-              value => debouncedUpdate('release', value / 1000))}
-            {createFader("knee", "Knee", controls.knee, 0, 40, 1,
-              value => debouncedUpdate('knee', value))}
-          </Box>
-        </Box>
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Typography variant="subtitle2">Limiter</Typography>
-          {createFader("limiterThreshold", "Thresh", controls.limiterThreshold, -20, 0, 0.1,
-            value => debouncedUpdate('limiterThreshold', value))}
-        </Box>
-      </StyledControlGroup>
+      <form>
+        <div className="control-group transparent">
+          {masterVolumeFader}
+        </div>
+        <div className="control-group">
+          <h3>Compressor</h3>
+          {compressorFaders}
+        </div>
+        <div className="control-group">
+          <h3>Limiter</h3>
+          {limiterFader}
+        </div>
+      </form>
     </BaseModule>
   );
 };
