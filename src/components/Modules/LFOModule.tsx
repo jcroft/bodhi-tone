@@ -129,7 +129,7 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
         }
 
         // Get the current filter frequency
-        const baseFreq = effects.filter.frequency.value || 2000;
+        const baseFreq = Number(effects.filter.frequency.value) || 2000;
         
         // Scale amount exponentially but less extreme
         const scaledAmount = Math.pow(2, amount * 4) - 1; // Reduced from 8 to 4 for more musical range
@@ -189,7 +189,7 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
   React.useEffect(() => {
     const handleFrequencyChange = (event: CustomEvent<{ frequency: number }>) => {
       if (destination === "filter" && modulePower && synthPower && amount > 0) {
-        const baseFreq = event.detail.frequency;
+        const baseFreq = Number(event.detail.frequency);
         const scaledAmount = Math.pow(2, amount * 4) - 1;
         const modAmount = baseFreq * scaledAmount;
         
