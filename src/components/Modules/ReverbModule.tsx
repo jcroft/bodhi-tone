@@ -15,7 +15,7 @@ const REVERB_FADER_CONFIGS = [
   { id: "wet", label: "Wet" },
   { id: "decay", label: "Decay", min: 0.1, max: 200, step: 0.1 },
   { id: "preDelay", label: "Pre", min: 0, max: 2, step: 0.01 },
-] as const;
+];
 
 const ReverbModule: React.FC<ReverbModuleProps> = ({ name = "Reverb" }) => {
   const { effects } = useSynth();
