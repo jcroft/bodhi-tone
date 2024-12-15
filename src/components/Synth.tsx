@@ -58,8 +58,8 @@ const StyledMenuBar = styled("div")`
 `;
 
 const Synthesizer: React.FC = () => {
-  const { power, setPower, synth, effects, activeNotes, setActiveNotes } =
-    useSynth();
+  const { power, setPower, synth, effects, noteTracker } = useSynth();
+  const [visualNotes, setVisualNotes] = React.useState<Tone.Unit.Frequency[]>([]);
 
   // Initialize synth parameters only once
   const isInitialized = React.useRef(false);
@@ -87,6 +87,12 @@ const Synthesizer: React.FC = () => {
     }
   }, [synth, effects]);
 
+  // Subscribe to note tracker changes for visual updates
+  React.useEffect(() => {
+    const unsubscribe = noteTracker.subscribe(setVisualNotes);
+    return () => unsubscribe();
+  }, [noteTracker]);
+
   // Memoize note handlers to prevent unnecessary recreations
   const onNoteOn = React.useCallback(
     (
@@ -98,35 +104,29 @@ const Synthesizer: React.FC = () => {
 
       const now = Tone.now();
       if (duration) {
-        setActiveNotes((prevList) => [...prevList, ...notes]);
+        noteTracker.addNotes(notes);
         synth.triggerAttackRelease(notes, duration, now, velocity);
         
-        // Use RAF for better performance with animations
+        // Schedule note removal after duration
         const releaseTime = Tone.Time(duration).toMilliseconds();
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            setActiveNotes((prevList) =>
-              prevList.filter((note) => !notes.includes(note))
-            );
-          }, releaseTime);
-        });
+        setTimeout(() => {
+          noteTracker.removeNotes(notes);
+        }, releaseTime);
       } else {
-        setActiveNotes((prevList) => [...prevList, ...notes]);
+        noteTracker.addNotes(notes);
         synth.triggerAttack(notes, now, velocity);
       }
     },
-    [setActiveNotes, synth, power]
+    [noteTracker, synth, power]
   );
 
   const onNoteOff = React.useCallback(
     (notes: Tone.Unit.Frequency[]) => {
       if (!synth || !power) return;
-      setActiveNotes((prevNotes) =>
-        prevNotes.filter((note) => !notes.includes(note))
-      );
+      noteTracker.removeNotes(notes);
       synth.triggerRelease(notes, Tone.now());
     },
-    [setActiveNotes, synth, power]
+    [noteTracker, synth, power]
   );
 
   return (
@@ -174,7 +174,7 @@ const Synthesizer: React.FC = () => {
           name="keyboard"
           onNoteOn={onNoteOn}
           onNoteOff={onNoteOff}
-          activeNotes={activeNotes}
+          activeNotes={visualNotes}
         />
       </StyledSynthesizer>
     </SynthProvider>

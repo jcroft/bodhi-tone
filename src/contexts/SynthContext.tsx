@@ -121,6 +121,58 @@ reverb.connect(compressor);
 compressor.connect(limiter);
 limiter.toDestination();
 
+// Create a class to handle note tracking at the audio engine level
+class NoteTracker {
+  private activeNotes: Set<Tone.Unit.Frequency>;
+  private subscribers: Set<(notes: Tone.Unit.Frequency[]) => void>;
+
+  constructor() {
+    this.activeNotes = new Set();
+    this.subscribers = new Set();
+  }
+
+  subscribe(callback: (notes: Tone.Unit.Frequency[]) => void) {
+    this.subscribers.add(callback);
+    return () => this.subscribers.delete(callback);
+  }
+
+  getActiveNotes() {
+    return Array.from(this.activeNotes);
+  }
+
+  private notify() {
+    const notes = this.getActiveNotes();
+    this.subscribers.forEach(callback => callback(notes));
+  }
+
+  addNote(note: Tone.Unit.Frequency) {
+    this.activeNotes.add(note);
+    this.notify();
+  }
+
+  addNotes(notes: Tone.Unit.Frequency[]) {
+    notes.forEach(note => this.activeNotes.add(note));
+    this.notify();
+  }
+
+  removeNote(note: Tone.Unit.Frequency) {
+    this.activeNotes.delete(note);
+    this.notify();
+  }
+
+  removeNotes(notes: Tone.Unit.Frequency[]) {
+    notes.forEach(note => this.activeNotes.delete(note));
+    this.notify();
+  }
+
+  clear() {
+    this.activeNotes.clear();
+    this.notify();
+  }
+}
+
+const noteTracker = new NoteTracker();
+
 export type SynthContextType = {
   power: boolean;
   setPower: React.Dispatch<React.SetStateAction<boolean>>;
@@ -135,8 +187,7 @@ export type SynthContextType = {
       limiter: Tone.Limiter;
     };
   };
-  activeNotes: (string | number)[];
-  setActiveNotes: React.Dispatch<React.SetStateAction<(string | number)[]>>;
+  noteTracker: NoteTracker;
 };
 
 export const SynthContext = React.createContext<SynthContextType | undefined>({
@@ -153,26 +204,13 @@ export const SynthContext = React.createContext<SynthContextType | undefined>({
       limiter,
     },
   },
-  activeNotes: [],
-  setActiveNotes: () => {},
+  noteTracker,
 });
 
 export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [synthOptions, setSynthOptions] = React.useState(DEFAULT_SYNTH_OPTIONS);
-  const [activeNotes, setActiveNotes] = React.useState<(string | number)[]>([]);
   const [power, setPower] = React.useState(false);
-
-  const [effects, setEffects] = React.useState<SynthContextType["effects"]>({
-    chorus,
-    delay,
-    reverb,
-    masterBus: {
-      compressor,
-      limiter,
-    },
-  });
 
   // Handle power state
   useEffect(() => {
@@ -181,6 +219,8 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
       Tone.start();
       synth.volume.value = 0;
     } else {
+      // Clear all active notes when powered off
+      noteTracker.clear();
       // Mute when powered off
       synth.volume.value = -Infinity;
     }
@@ -192,10 +232,17 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
         power,
         setPower,
         synth,
-        synthOptions,
-        effects,
-        activeNotes,
-        setActiveNotes,
+        synthOptions: DEFAULT_SYNTH_OPTIONS,
+        effects: {
+          chorus,
+          delay,
+          reverb,
+          masterBus: {
+            compressor,
+            limiter,
+          },
+        },
+        noteTracker
       }}
     >
       {children}
