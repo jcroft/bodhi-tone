@@ -166,18 +166,30 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
         lfo.min = -scaledAmount;
         lfo.max = scaledAmount;
 
-        // Get voices safely
-        const voices = (synth as any)._voices || [];
-        
-        // Connect to each voice's detune parameter
-        voices.forEach((voice: Tone.MonoSynth, i: number) => {
-          lfo.connect(voice.detune);
-          console.log(`Connected LFO to voice ${i} detune`);
-        });
+        // Connect to each voice's frequency
+        if (synth) {
+          // Access the internal voices array of PolySynth
+          const voices = (synth as any)._voices || [];
+          voices.forEach((voice: any, index: number) => {
+            if (voice && voice.oscillator) {
+              try {
+                // Connect to the frequency parameter instead of detune
+                lfo.connect(voice.oscillator.frequency);
+                console.log(`Connected LFO to voice ${index} frequency`);
+              } catch (error) {
+                console.error(`Failed to connect LFO to voice ${index}:`, error);
+              }
+            }
+          });
+          
+          console.log(`Connected LFO to ${voices.length} voices`);
+        }
 
         console.log(`LFO connected to pitch modulation:`, {
           range: `${lfo.min.toFixed(1)} to ${lfo.max.toFixed(1)} cents`,
-          voiceCount: voices.length
+          type: lfo.type,
+          frequency: lfo.frequency.value,
+          voices: (synth as any)._voices?.length || 0
         });
       }
     } else {
