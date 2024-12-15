@@ -15,10 +15,14 @@ const ModuleContext = createContext<ModuleContextType | undefined>(
   defaultModuleContext
 );
 
-export const ModuleProvider: React.FC<{ children: ReactNode }> = ({
+export const ModuleProvider: React.FC<{ children: ReactNode; color?: string }> = ({
   children,
+  color = defaultModuleContext.color,
 }) => {
-  const [module, setModule] = useState<ModuleContextType>(defaultModuleContext);
+  const [module, setModule] = useState<ModuleContextType>({
+    ...defaultModuleContext,
+    color,
+  });
 
   return (
     <ModuleContext.Provider value={module}>{children}</ModuleContext.Provider>
