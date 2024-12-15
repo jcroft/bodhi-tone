@@ -3,6 +3,7 @@
 import AmpEnvelopeModule from "@/components/Modules/AmpEnvelopeModule";
 import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
 import OscillatorModule from "@/components/Modules/Oscillator/OscillatorModule";
+import MasterBusModule from "@/components/Modules/MasterBusModule";
 import React from "react";
 import * as Tone from "tone";
 import { styled, useTheme } from "@mui/material/styles";
@@ -61,15 +62,8 @@ const Synthesizer: React.FC = () => {
   const { power, setPower, synth, effects, activeNotes, setActiveNotes } =
     useSynth();
 
-  React.useEffect(() => {
-    if (synth && effects.chorus && effects.delay && effects.reverb) {
-      synth.chain(effects.chorus, effects.delay, effects.reverb);
-      synth.toDestination();
-    }
-  }, [synth, effects]);
-
+  // Initialize synth parameters only once
   const isInitialized = React.useRef(false);
-
   React.useEffect(() => {
     if (
       !isInitialized.current &&
@@ -79,6 +73,7 @@ const Synthesizer: React.FC = () => {
       effects.reverb &&
       DEFAULT_EFFECTS_OPTIONS
     ) {
+      // Set initial parameters without reconnecting
       synth.set(DEFAULT_SYNTH_OPTIONS);
       effects.chorus.set(
         DEFAULT_EFFECTS_OPTIONS.chorus as RecursivePartial<Tone.ChorusOptions>
@@ -93,41 +88,46 @@ const Synthesizer: React.FC = () => {
     }
   }, [synth, effects]);
 
-  // Handle incoming MIDI noteOn messages
+  // Memoize note handlers to prevent unnecessary recreations
   const onNoteOn = React.useCallback(
     (
       notes: Tone.Unit.Frequency[],
       velocity?: number,
       duration?: Tone.Unit.Time
     ) => {
-      if (!synth) return;
+      if (!synth || !power) return;
 
+      const now = Tone.now();
       if (duration) {
         setActiveNotes((prevList) => [...prevList, ...notes]);
-        synth.triggerAttackRelease(notes, duration, Tone.now(), velocity);
-        setTimeout(() => {
-          setActiveNotes((prevList) =>
-            prevList.filter((note) => !notes.includes(note))
-          );
-        }, Tone.Time(duration).toMilliseconds());
+        synth.triggerAttackRelease(notes, duration, now, velocity);
+        
+        // Use RAF for better performance with animations
+        const releaseTime = Tone.Time(duration).toMilliseconds();
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            setActiveNotes((prevList) =>
+              prevList.filter((note) => !notes.includes(note))
+            );
+          }, releaseTime);
+        });
       } else {
         setActiveNotes((prevList) => [...prevList, ...notes]);
-        synth.triggerAttack(notes, Tone.now(), velocity);
+        synth.triggerAttack(notes, now, velocity);
       }
     },
-    [setActiveNotes, synth]
+    [setActiveNotes, synth, power]
   );
 
-  // Handle incoming MIDI noteOff messages
   const onNoteOff = React.useCallback(
     (notes: Tone.Unit.Frequency[]) => {
-      if (!synth) return;
+      if (!synth || !power) return;
       setActiveNotes((prevNotes) =>
         prevNotes.filter((note) => !notes.includes(note))
       );
       synth.triggerRelease(notes, Tone.now());
     },
-    [setActiveNotes, synth]
+    [setActiveNotes, synth, power]
   );
 
   return (
@@ -168,6 +168,7 @@ const Synthesizer: React.FC = () => {
             <ChorusModule name="Chorus" />
             <DelayModule name="Delay" />
             <ReverbModule name="Reverb" />
+            <MasterBusModule name="Master" />
           </StyledModuleContainer>
         </StyledSynthBody>
 

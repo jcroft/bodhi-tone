@@ -46,6 +46,10 @@ export const DEFAULT_EFFECTS_OPTIONS: Partial<{
     decay: number;
     preDelay: number;
   }>;
+  masterBus: Partial<{
+    compressor: Partial<Tone.CompressorOptions>;
+    limiter: Partial<Tone.LimiterOptions>;
+  }>;
 }> = {
   chorus: {
     frequency: 0.5,
@@ -61,13 +65,61 @@ export const DEFAULT_EFFECTS_OPTIONS: Partial<{
     decay: 35,
     preDelay: 0.1,
   },
+  masterBus: {
+    compressor: {
+      threshold: -24,
+      ratio: 4,
+      attack: 0.003,
+      release: 0.25,
+      knee: 30,
+    },
+    limiter: {
+      threshold: -1.0,
+    },
+  },
 };
 
 const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
 
-const chorus = new Tone.Chorus(4, 2.5, 0.5).toDestination();
-const delay = new Tone.PingPongDelay("4n", 0.1).toDestination();
-const reverb = new Tone.Reverb(0.5).toDestination();
+// Initialize effects with default settings
+const chorus = new Tone.Chorus({
+  frequency: 4,
+  delayTime: 2.5,
+  depth: 0.5,
+  wet: 0.5
+}).start(); // Start the chorus modulation
+
+const delay = new Tone.PingPongDelay({
+  delayTime: "4n",
+  feedback: 0.1,
+  wet: 0.5
+});
+
+const reverb = new Tone.Reverb({
+  decay: 0.5,
+  wet: 0.5,
+  preDelay: 0.1
+});
+
+const compressor = new Tone.Compressor({
+  threshold: -24,
+  ratio: 4,
+  attack: 0.003,
+  release: 0.25,
+  knee: 30
+});
+
+const limiter = new Tone.Limiter({
+  threshold: -1.0
+});
+
+// Create the processing chain
+synth.connect(chorus);
+chorus.connect(delay);
+delay.connect(reverb);
+reverb.connect(compressor);
+compressor.connect(limiter);
+limiter.toDestination();
 
 export type SynthContextType = {
   power: boolean;
@@ -78,6 +130,10 @@ export type SynthContextType = {
     chorus: Tone.Chorus;
     delay: Tone.PingPongDelay;
     reverb: Tone.Reverb;
+    masterBus: {
+      compressor: Tone.Compressor;
+      limiter: Tone.Limiter;
+    };
   };
   activeNotes: (string | number)[];
   setActiveNotes: React.Dispatch<React.SetStateAction<(string | number)[]>>;
@@ -92,6 +148,10 @@ export const SynthContext = React.createContext<SynthContextType | undefined>({
     chorus,
     delay,
     reverb,
+    masterBus: {
+      compressor,
+      limiter,
+    },
   },
   activeNotes: [],
   setActiveNotes: () => {},
@@ -104,15 +164,26 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [activeNotes, setActiveNotes] = React.useState<(string | number)[]>([]);
   const [power, setPower] = React.useState(false);
 
-  const effects = {
+  const [effects, setEffects] = React.useState<SynthContextType["effects"]>({
     chorus,
     delay,
     reverb,
-  };
+    masterBus: {
+      compressor,
+      limiter,
+    },
+  });
 
-  // When the power is off, mute the volume
+  // Handle power state
   useEffect(() => {
-    synth.volume.value = power ? -18 : -Infinity;
+    if (power) {
+      // Start audio context when powered on
+      Tone.start();
+      synth.volume.value = -18;
+    } else {
+      // Mute when powered off
+      synth.volume.value = -Infinity;
+    }
   }, [power]);
 
   return (
