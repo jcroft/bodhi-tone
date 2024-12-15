@@ -13,6 +13,7 @@ import PowerButton from "./PowerButton";
 import ReverbModule from "./Modules/ReverbModule";
 import DelayModule from "./Modules/DelayModule";
 import ChorusModule from "./Modules/ChorusModule";
+import LFOModule from "./Modules/LFOModule";
 import {
   DEFAULT_EFFECTS_OPTIONS,
   DEFAULT_SYNTH_OPTIONS,
@@ -87,6 +88,23 @@ const Synthesizer: React.FC = () => {
     }
   }, [synth, effects]);
 
+  // Handle power state and audio context
+  React.useEffect(() => {
+    const handlePowerChange = async () => {
+      try {
+        if (power) {
+          await Tone.start();
+          console.log("Audio context started");
+        }
+      } catch (error) {
+        console.error("Failed to start audio context:", error);
+        setPower(false);
+      }
+    };
+
+    handlePowerChange();
+  }, [power, setPower]);
+
   // Subscribe to note tracker changes for visual updates
   React.useEffect(() => {
     const unsubscribe = noteTracker.subscribe(setVisualNotes);
@@ -130,55 +148,54 @@ const Synthesizer: React.FC = () => {
   );
 
   return (
-    <SynthProvider>
-      <StyledSynthesizer
-        sx={{
-          justifyContent: { xxs: "flex-sart", sm: "center" },
-        }}
-      >
-        <StyledMenuBar>
-          <PowerButton
-            isOn={power}
-            onClick={() => setPower(!power)}
-            aria-label={power ? "Turn off synthesizer" : "Turn on synthesizer"}
-            variant="main"
-          />
-          <MIDIInputSelect
-            label="MIDI Input"
-            onNoteOn={onNoteOn}
-            onNoteOff={onNoteOff}
-          />
-        </StyledMenuBar>
-        <StyledSynthBody
-          sx={{
-            opacity: power ? 1 : OPACITY_POWERED_OFF,
-            transition: `opacity ${TRANSITION_DURATION} ease-in-out`,
-          }}
-        >
-          <StyledModuleContainer
-            sx={{
-              flexDirection: { xs: "column", sm: "row" },
-            }}
-          >
-            <OscillatorModule name="Oscillator" />
-            <FilterModule name="Filter" />
-            <AmpEnvelopeModule name="Amp" />
-
-            <ChorusModule name="Chorus" />
-            <DelayModule name="Delay" />
-            <ReverbModule name="Reverb" />
-            <MasterBusModule name="Master" />
-          </StyledModuleContainer>
-        </StyledSynthBody>
-
-        <Keyboard
-          name="keyboard"
+    <StyledSynthesizer
+      sx={{
+        justifyContent: { xxs: "flex-sart", sm: "center" },
+      }}
+    >
+      <StyledMenuBar>
+        <PowerButton
+          isOn={power}
+          onClick={() => setPower(!power)}
+          aria-label={power ? "Turn off synthesizer" : "Turn on synthesizer"}
+          variant="main"
+        />
+        <MIDIInputSelect
+          label="MIDI Input"
           onNoteOn={onNoteOn}
           onNoteOff={onNoteOff}
-          activeNotes={visualNotes}
         />
-      </StyledSynthesizer>
-    </SynthProvider>
+      </StyledMenuBar>
+      <StyledSynthBody
+        sx={{
+          opacity: power ? 1 : OPACITY_POWERED_OFF,
+          transition: `opacity ${TRANSITION_DURATION} ease-in-out`,
+        }}
+      >
+        <StyledModuleContainer
+          sx={{
+            flexDirection: { xs: "column", sm: "row" },
+          }}
+        >
+          <OscillatorModule name="Oscillator" />
+          <FilterModule name="Filter" />
+          <AmpEnvelopeModule name="Amp" />
+          <LFOModule name="LFO" />
+
+          <ChorusModule name="Chorus" />
+          <DelayModule name="Delay" />
+          <ReverbModule name="Reverb" />
+          <MasterBusModule name="Master" />
+        </StyledModuleContainer>
+      </StyledSynthBody>
+
+      <Keyboard
+        name="keyboard"
+        onNoteOn={onNoteOn}
+        onNoteOff={onNoteOff}
+        activeNotes={visualNotes}
+      />
+    </StyledSynthesizer>
   );
 };
 

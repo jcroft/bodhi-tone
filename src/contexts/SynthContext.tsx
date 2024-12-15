@@ -3,6 +3,84 @@
 import React, { use, useContext, useEffect, useMemo } from "react";
 import * as Tone from "tone";
 
+// Create a class to handle note tracking at the audio engine level
+class NoteTracker {
+  private activeNotes: Map<Tone.Unit.Frequency, { timestamp: number; velocity?: number }>;
+  private subscribers: Set<(notes: Tone.Unit.Frequency[]) => void>;
+  private maxVoices: number;
+
+  constructor(maxVoices: number = 16) {
+    this.activeNotes = new Map();
+    this.subscribers = new Set();
+    this.maxVoices = maxVoices;
+  }
+
+  subscribe(callback: (notes: Tone.Unit.Frequency[]) => void) {
+    this.subscribers.add(callback);
+    return () => this.subscribers.delete(callback);
+  }
+
+  getActiveNotes() {
+    return Array.from(this.activeNotes.keys());
+  }
+
+  private notify() {
+    const notes = this.getActiveNotes();
+    this.subscribers.forEach(callback => callback(notes));
+  }
+
+  private stealVoice(): Tone.Unit.Frequency | null {
+    if (this.activeNotes.size < this.maxVoices) return null;
+
+    // Find the oldest note
+    let oldestNote: Tone.Unit.Frequency | null = null;
+    let oldestTime = Infinity;
+
+    this.activeNotes.forEach((data, note) => {
+      if (data.timestamp < oldestTime) {
+        oldestTime = data.timestamp;
+        oldestNote = note;
+      }
+    });
+
+    return oldestNote;
+  }
+
+  addNote(note: Tone.Unit.Frequency, velocity?: number) {
+    // If we're at max voices, steal one
+    if (this.activeNotes.size >= this.maxVoices) {
+      const noteToSteal = this.stealVoice();
+      if (noteToSteal) {
+        this.removeNote(noteToSteal);
+      }
+    }
+
+    this.activeNotes.set(note, { 
+      timestamp: performance.now(),
+      velocity 
+    });
+    this.notify();
+  }
+
+  addNotes(notes: Tone.Unit.Frequency[], velocity?: number) {
+    notes.forEach(note => this.addNote(note, velocity));
+  }
+
+  removeNote(note: Tone.Unit.Frequency) {
+    this.activeNotes.delete(note);
+    this.notify();
+  }
+
+  removeNotes(notes: Tone.Unit.Frequency[]) {
+    notes.forEach(note => this.removeNote(note));
+  }
+
+  clear() {
+    this.activeNotes.clear();
+    this.notify();
+  }
+}
+
 export const DEFAULT_SYNTH_OPTIONS: Partial<
   Tone.PolySynthOptions<Tone.MonoSynth>
 > = {
@@ -96,7 +174,7 @@ const chorus = new Tone.Chorus({
   wet: DEFAULT_EFFECTS_OPTIONS.chorus?.wet ?? 0.5,
   feedback: DEFAULT_EFFECTS_OPTIONS.chorus?.feedback ?? 0.5,
   spread: DEFAULT_EFFECTS_OPTIONS.chorus?.spread ?? 90
-}); // Don't start here, we'll start in the provider
+});
 
 const delay = new Tone.PingPongDelay({
   delayTime: "4n",
@@ -123,6 +201,7 @@ const limiter = new Tone.Limiter({
 });
 
 // Create the processing chain
+synth.disconnect(); // Disconnect any existing connections
 synth.connect(filter);
 filter.connect(chorus);
 chorus.connect(delay);
@@ -131,124 +210,10 @@ reverb.connect(compressor);
 compressor.connect(limiter);
 limiter.toDestination();
 
-// Create a class to handle note tracking at the audio engine level
-class NoteTracker {
-  private activeNotes: Map<Tone.Unit.Frequency, { timestamp: number; velocity?: number }>;
-  private subscribers: Set<(notes: Tone.Unit.Frequency[]) => void>;
-  private maxVoices: number;
-
-  constructor(maxVoices: number = 16) {
-    this.activeNotes = new Map();
-    this.subscribers = new Set();
-    this.maxVoices = maxVoices;
-  }
-
-  subscribe(callback: (notes: Tone.Unit.Frequency[]) => void) {
-    this.subscribers.add(callback);
-    return () => this.subscribers.delete(callback);
-  }
-
-  getActiveNotes() {
-    return Array.from(this.activeNotes.keys());
-  }
-
-  private notify() {
-    const notes = this.getActiveNotes();
-    this.subscribers.forEach(callback => callback(notes));
-  }
-
-  private stealVoice(): Tone.Unit.Frequency | null {
-    if (this.activeNotes.size < this.maxVoices) return null;
-
-    // Find the oldest note
-    let oldestNote: Tone.Unit.Frequency | null = null;
-    let oldestTime = Infinity;
-
-    this.activeNotes.forEach((data, note) => {
-      if (data.timestamp < oldestTime) {
-        oldestTime = data.timestamp;
-        oldestNote = note;
-      }
-    });
-
-    return oldestNote;
-  }
-
-  addNote(note: Tone.Unit.Frequency, velocity?: number) {
-    // If we're at max voices, steal one
-    if (this.activeNotes.size >= this.maxVoices) {
-      const noteToSteal = this.stealVoice();
-      if (noteToSteal) {
-        this.removeNote(noteToSteal);
-      }
-    }
-
-    this.activeNotes.set(note, { 
-      timestamp: performance.now(),
-      velocity 
-    });
-    this.notify();
-  }
-
-  addNotes(notes: Tone.Unit.Frequency[], velocity?: number) {
-    // Calculate how many voices we need to steal
-    const notesToSteal = Math.max(0, 
-      (this.activeNotes.size + notes.length) - this.maxVoices
-    );
-
-    // Steal the required number of voices
-    if (notesToSteal > 0) {
-      const oldestNotes = Array.from(this.activeNotes.entries())
-        .sort(([, a], [, b]) => a.timestamp - b.timestamp)
-        .slice(0, notesToSteal)
-        .map(([note]) => note);
-
-      oldestNotes.forEach(note => this.removeNote(note));
-    }
-
-    // Add new notes
-    notes.forEach(note => {
-      this.activeNotes.set(note, { 
-        timestamp: performance.now(),
-        velocity 
-      });
-    });
-    this.notify();
-  }
-
-  removeNote(note: Tone.Unit.Frequency) {
-    this.activeNotes.delete(note);
-    this.notify();
-  }
-
-  removeNotes(notes: Tone.Unit.Frequency[]) {
-    notes.forEach(note => this.activeNotes.delete(note));
-    this.notify();
-  }
-
-  clear() {
-    this.activeNotes.clear();
-    this.notify();
-  }
-
-  getVelocity(note: Tone.Unit.Frequency): number | undefined {
-    return this.activeNotes.get(note)?.velocity;
-  }
-
-  setMaxVoices(voices: number) {
-    this.maxVoices = voices;
-    // If we now have too many voices, steal the oldest ones
-    if (this.activeNotes.size > voices) {
-      const notesToSteal = this.activeNotes.size - voices;
-      const oldestNotes = Array.from(this.activeNotes.entries())
-        .sort(([, a], [, b]) => a.timestamp - b.timestamp)
-        .slice(0, notesToSteal)
-        .map(([note]) => note);
-
-      oldestNotes.forEach(note => this.removeNote(note));
-    }
-  }
-}
+// Function to start all effects
+const startEffects = () => {
+  chorus.start();
+};
 
 const noteTracker = new NoteTracker(DEFAULT_SYNTH_OPTIONS.maxPolyphony);
 
@@ -267,13 +232,15 @@ export type SynthContextType = {
       limiter: Tone.Limiter;
     };
   };
+  startEffects: () => void;
   noteTracker: NoteTracker;
+  audioReady: boolean;
 };
 
 export const SynthContext = React.createContext<SynthContextType | undefined>({
   power: false,
   setPower: () => {},
-  synth: synth,
+  synth,
   synthOptions: DEFAULT_SYNTH_OPTIONS,
   effects: {
     filter,
@@ -285,66 +252,102 @@ export const SynthContext = React.createContext<SynthContextType | undefined>({
       limiter,
     },
   },
+  startEffects,
   noteTracker,
+  audioReady: false,
 });
 
 export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [power, setPower] = React.useState(false);
+  const [audioReady, setAudioReady] = React.useState(false);
+  const audioInitialized = React.useRef(false);
 
-  // Start chorus when component mounts and audio context is ready
+  // Start effects when power is turned on
   React.useEffect(() => {
-    const startChorus = async () => {
-      try {
-        await Tone.start();
-        if (!chorus.started) {
-          chorus.start();
+    const initAudio = async () => {
+      if (power) {
+        try {
+          // Start audio context
+          await Tone.start();
+          
+          // Only reset and reconnect if not initialized
+          if (!audioInitialized.current) {
+            console.log("Initializing audio chain...");
+            
+            // Reset and reconnect the audio chain
+            synth.disconnect();
+            filter.disconnect();
+            chorus.disconnect();
+            delay.disconnect();
+            reverb.disconnect();
+            compressor.disconnect();
+            limiter.disconnect();
+
+            // Reconnect everything
+            synth.connect(filter);
+            filter.connect(chorus);
+            chorus.connect(delay);
+            delay.connect(reverb);
+            reverb.connect(compressor);
+            compressor.connect(limiter);
+            limiter.toDestination();
+
+            // Start effects
+            startEffects();
+            
+            audioInitialized.current = true;
+          }
+          
+          // Set volume to normal and mark as ready
+          synth.volume.value = 0;
+          setAudioReady(true);
+          console.log("Audio context and effects started");
+        } catch (error) {
+          console.error("Failed to start audio:", error);
+          setPower(false);
+          setAudioReady(false);
+          audioInitialized.current = false;
         }
-      } catch (error) {
-        console.warn('Failed to start chorus:', error);
+      } else {
+        // Clear all active notes when powered off
+        noteTracker.clear();
+        // Mute when powered off
+        synth.volume.value = -Infinity;
+        setAudioReady(false);
+        
+        // Don't reset initialization - we want to keep the audio chain intact
+        console.log("Audio powered off");
       }
     };
 
-    if (power) {
-      startChorus();
-    }
+    // Check audio context state
+    console.log("Audio context state:", Tone.context.state);
+    console.log("Power state:", power);
+    
+    initAudio();
   }, [power]);
 
-  const value = React.useMemo(
-    () => ({
-      power,
-      setPower,
-      synth,
-      synthOptions: DEFAULT_SYNTH_OPTIONS,
-      effects: {
-        filter,
-        chorus,
-        delay,
-        reverb,
-        masterBus: {
-          compressor,
-          limiter,
-        },
+  const value = React.useMemo(() => ({
+    power,
+    setPower,
+    synth,
+    synthOptions: DEFAULT_SYNTH_OPTIONS,
+    effects: {
+      filter,
+      chorus,
+      delay,
+      reverb,
+      masterBus: {
+        compressor,
+        limiter,
       },
-      noteTracker,
-    }),
-    [power]
-  );
-
-  // Handle power state
-  useEffect(() => {
-    if (power) {
-      // Start audio context when powered on
-      Tone.start();
-      synth.volume.value = 0;
-    } else {
-      // Clear all active notes when powered off
-      noteTracker.clear();
-      // Mute when powered off
-      synth.volume.value = -Infinity;
-    }
-  }, [power]);
+    },
+    startEffects,
+    noteTracker,
+    audioReady,
+  }), [power, audioReady]);
 
   return (
     <SynthContext.Provider value={value}>{children}</SynthContext.Provider>
