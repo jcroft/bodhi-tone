@@ -18,6 +18,11 @@ const LFO_DESTINATIONS = [
   { value: "pitch", label: "Osc Pitch" }
 ] as const;
 
+// Custom type for PolySynth with voice attack handler
+type CustomPolySynth = Tone.PolySynth<Tone.MonoSynth> & {
+  onVoiceAttack?: (voice: Tone.MonoSynth) => void;
+};
+
 const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
   const { synth, effects, power: synthPower, audioReady } = useSynth();
   const [modulePower, setModulePower] = React.useState(true);
@@ -166,31 +171,30 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
         lfo.min = -scaledAmount;
         lfo.max = scaledAmount;
 
-        // Connect to each voice's frequency
-        if (synth) {
-          // Access the internal voices array of PolySynth
+        // Connect to the frequency of each oscillator in the synth
+        if (synth instanceof Tone.PolySynth) {
+          // Get all current voices
           const voices = (synth as any)._voices || [];
-          voices.forEach((voice: any, index: number) => {
-            if (voice && voice.oscillator) {
-              try {
-                // Connect to the detune parameter for pitch modulation in cents
-                lfo.connect(voice.oscillator.detune);
-                console.log(`Connected LFO to voice ${index} detune`);
-              } catch (error) {
-                console.error(`Failed to connect LFO to voice ${index}:`, error);
-              }
+          
+          // Connect to each voice's oscillator detune
+          voices.forEach((voice: any) => {
+            if (voice?.oscillator?.detune) {
+              lfo.connect(voice.oscillator.detune);
+              console.log("Connected LFO to voice detune:", {
+                voiceId: voice.id,
+                detuneValue: voice.oscillator.detune.value
+              });
             }
           });
-          
-          console.log(`Connected LFO to ${voices.length} voices`);
-        }
 
-        console.log(`LFO connected to pitch modulation:`, {
-          range: `${lfo.min.toFixed(1)} to ${lfo.max.toFixed(1)} cents`,
-          type: lfo.type,
-          frequency: lfo.frequency.value,
-          voices: (synth as any)._voices?.length || 0
-        });
+          // Set up a voice attack handler to connect new voices as they're created
+          (synth as CustomPolySynth).onVoiceAttack = (voice: Tone.MonoSynth) => {
+            if (voice?.oscillator?.detune) {
+              lfo.connect(voice.oscillator.detune);
+              console.log("Connected LFO to new voice detune");
+            }
+          };
+        }
       }
     } else {
       console.log("LFO not connected:", { modulePower, synthPower });

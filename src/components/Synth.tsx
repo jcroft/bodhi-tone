@@ -108,7 +108,9 @@ const Synthesizer: React.FC = () => {
   // Subscribe to note tracker changes for visual updates
   React.useEffect(() => {
     const unsubscribe = noteTracker.subscribe(setVisualNotes);
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [noteTracker]);
 
   // Memoize note handlers to prevent unnecessary recreations
