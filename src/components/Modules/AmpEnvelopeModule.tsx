@@ -9,10 +9,11 @@
 
 import React from "react";
 import BaseModule from "./BaseModule";
-import * as Tone from "tone";
+import { Time } from "tone"; // Import Time from tone
 import Fader from "../Input/Fader";
 import { useSynth } from "@/contexts/SynthContext";
 import PowerButton from "../PowerButton";
+import * as Tone from "tone";
 
 /**
  * Module Props Interface
@@ -70,10 +71,10 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
       // Store current settings before turning off
       const currentEnvelope = synth.get().envelope;
       previousSettings.current = {
-        attack: currentEnvelope.attack,
-        decay: currentEnvelope.decay,
-        sustain: currentEnvelope.sustain,
-        release: currentEnvelope.release
+        attack: parseFloat(currentEnvelope.attack.toString()),
+        decay: parseFloat(currentEnvelope.decay.toString()),
+        sustain: parseFloat(currentEnvelope.sustain.toString()),
+        release: parseFloat(currentEnvelope.release.toString())
       };
       
       // Set envelope to instant response (no envelope)
@@ -95,14 +96,28 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   const updateSynthSettings = React.useCallback(
     (options: Partial<Tone.MonoSynthOptions>) => {
       if (!synth || !power) return;
-      synth.set(options);
       
-      // Store the new envelope settings
+      // Convert envelope time values to numbers
       if (options.envelope) {
+        const numericEnvelope = {
+          attack: options.envelope.attack !== undefined ? Time(options.envelope.attack).toSeconds() : 0.01,
+          decay: options.envelope.decay !== undefined ? Time(options.envelope.decay).toSeconds() : 0.1,
+          release: options.envelope.release !== undefined ? Time(options.envelope.release).toSeconds() : 0.1,
+          sustain: options.envelope.sustain,
+          attackCurve: options.envelope.attackCurve,
+          releaseCurve: options.envelope.releaseCurve,
+          decayCurve: options.envelope.decayCurve
+        };
+        
+        synth.set({ envelope: numericEnvelope });
+        
+        // Store the new envelope settings
         previousSettings.current = {
           ...previousSettings.current,
-          ...options.envelope
+          ...numericEnvelope
         };
+      } else {
+        synth.set(options);
       }
     },
     [synth, power]

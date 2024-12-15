@@ -98,6 +98,7 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
       return;
     }
 
+    // Create LFO if it doesn't exist
     if (!lfoRef.current) {
       console.log("Creating new LFO");
       const lfo = new Tone.LFO({
@@ -116,6 +117,12 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
       console.log("LFO started, state:", lfo.state);
     }
 
+    // Restore voice attack handler if it exists
+    if (synth instanceof Tone.PolySynth && (synth as any)._lfoVoiceHandler) {
+      (synth as CustomPolySynth).onVoiceAttack = (synth as any)._lfoVoiceHandler;
+      console.log("Restored LFO voice attack handler");
+    }
+
     return () => {
       if (lfoRef.current) {
         console.log("Cleaning up LFO, final state:", lfoRef.current.state);
@@ -126,7 +133,7 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
         console.log("Final cleanup of LFO");
       }
     };
-  }, [synth, effects.filter, audioReady]);
+  }, [synth, effects.filter, audioReady, lfoType, rate]);
 
   /**
    * Parameter Update Handler
@@ -204,28 +211,48 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
   const handlePitchModulation = (lfo: Tone.LFO) => {
     if (!synth || amount === 0) return;
 
-    const scaledAmount = amount * 1200;
+    const scaledAmount = amount * 1200;  // Scale to cents for pitch modulation
     lfo.min = -scaledAmount;
     lfo.max = scaledAmount;
 
     if (synth instanceof Tone.PolySynth) {
+      // Connect to all existing voices
       const voices = (synth as any)._voices || [];
       voices.forEach((voice: any) => {
         if (voice?.oscillator?.detune) {
           lfo.connect(voice.oscillator.detune);
           console.log("Connected LFO to voice detune:", {
             voiceId: voice.id,
-            detuneValue: voice.oscillator.detune.value
+            detuneValue: voice.oscillator.detune.value,
+            lfoState: lfo.state
           });
         }
       });
 
-      (synth as CustomPolySynth).onVoiceAttack = (voice: Tone.MonoSynth) => {
+      // Set up handler for new voices and store it on synth instance
+      const voiceAttackHandler = (voice: Tone.MonoSynth) => {
         if (voice?.oscillator?.detune) {
+          // Ensure LFO is running before connecting
+          if (lfo.state !== "started") {
+            lfo.start();
+          }
           lfo.connect(voice.oscillator.detune);
-          console.log("Connected LFO to new voice detune");
+          console.log("Connected LFO to new voice detune:", {
+            detuneValue: voice.oscillator.detune.value,
+            lfoState: lfo.state
+          });
         }
       };
+
+      // Store handler reference and attach to synth
+      (synth as any)._lfoVoiceHandler = voiceAttackHandler;
+      (synth as CustomPolySynth).onVoiceAttack = voiceAttackHandler;
+
+      console.log("Set up pitch modulation:", {
+        scaledAmount,
+        voiceCount: voices.length,
+        lfoState: lfo.state
+      });
     }
   };
 

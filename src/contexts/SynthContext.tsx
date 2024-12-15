@@ -6,7 +6,7 @@
 
 "use client";
 
-import React, { use, useContext, useEffect, useMemo } from "react";
+import React, { use, useContext, useEffect, useMemo, useCallback } from "react";
 import * as Tone from "tone";
 
 /**
@@ -295,6 +295,22 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [audioReady, setAudioReady] = React.useState(false);
   const audioInitialized = React.useRef(false);
 
+  // Define startEffects function
+  const startEffects = React.useCallback(() => {
+    // Only Chorus needs to be started
+    chorus.start();
+    
+    // Generate reverb impulse response
+    reverb.generate();
+    
+    // Set initial effect parameters
+    chorus.wet.value = 0.5;
+    delay.wet.value = 0.2;
+    reverb.wet.value = 0.3;
+    
+    console.log("Effects started and initialized");
+  }, [chorus, delay, reverb]);
+
   // Start effects when power is turned on
   React.useEffect(() => {
     const initAudio = async () => {
@@ -378,7 +394,7 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
     startEffects,
     noteTracker,
     audioReady,
-  }), [power, audioReady]);
+  }), [power, audioReady, startEffects]);
 
   return (
     <SynthContext.Provider value={value}>{children}</SynthContext.Provider>
