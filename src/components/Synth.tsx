@@ -1,7 +1,7 @@
 "use client";
 
 import AmpEnvelopeModule from "@/components/Modules/AmpEnvelopeModule";
-import FilterWithEnvelopeModule from "@/components/Modules/FilterEnvelope";
+import FilterModule from "@/components/Modules/FilterModule";
 import OscillatorModule from "@/components/Modules/Oscillator/OscillatorModule";
 import MasterBusModule from "@/components/Modules/MasterBusModule";
 import React from "react";
@@ -161,7 +161,7 @@ const Synthesizer: React.FC = () => {
             }}
           >
             <OscillatorModule name="Oscillator" />
-            <FilterWithEnvelopeModule name="Filter" />
+            <FilterModule name="Filter" />
             <AmpEnvelopeModule name="Amp" />
 
             <ChorusModule name="Chorus" />

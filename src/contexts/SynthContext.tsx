@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useContext, useEffect } from "react";
+import React, { use, useContext, useEffect, useMemo } from "react";
 import * as Tone from "tone";
 
 export const DEFAULT_SYNTH_OPTIONS: Partial<
@@ -82,12 +82,21 @@ export const DEFAULT_EFFECTS_OPTIONS: Partial<{
 const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
 
 // Initialize effects with default settings
+const filter = new Tone.Filter({
+  type: "lowpass",
+  frequency: 2000,
+  rolloff: -12,
+  Q: 1,
+});
+
 const chorus = new Tone.Chorus({
-  frequency: 4,
-  delayTime: 2.5,
-  depth: 0.5,
-  wet: 0.5
-}).start(); // Start the chorus modulation
+  frequency: DEFAULT_EFFECTS_OPTIONS.chorus?.frequency ?? 0.5,
+  delayTime: DEFAULT_EFFECTS_OPTIONS.chorus?.delayTime ?? 2.5,
+  depth: DEFAULT_EFFECTS_OPTIONS.chorus?.depth ?? 0.5,
+  wet: DEFAULT_EFFECTS_OPTIONS.chorus?.wet ?? 0.5,
+  feedback: DEFAULT_EFFECTS_OPTIONS.chorus?.feedback ?? 0.5,
+  spread: DEFAULT_EFFECTS_OPTIONS.chorus?.spread ?? 90
+}); // Don't start here, we'll start in the provider
 
 const delay = new Tone.PingPongDelay({
   delayTime: "4n",
@@ -114,7 +123,8 @@ const limiter = new Tone.Limiter({
 });
 
 // Create the processing chain
-synth.connect(chorus);
+synth.connect(filter);
+filter.connect(chorus);
 chorus.connect(delay);
 delay.connect(reverb);
 reverb.connect(compressor);
@@ -248,6 +258,7 @@ export type SynthContextType = {
   synth: Tone.PolySynth<Tone.MonoSynth>;
   synthOptions: Partial<Tone.MonoSynthOptions>;
   effects: {
+    filter: Tone.Filter;
     chorus: Tone.Chorus;
     delay: Tone.PingPongDelay;
     reverb: Tone.Reverb;
@@ -265,6 +276,7 @@ export const SynthContext = React.createContext<SynthContextType | undefined>({
   synth: synth,
   synthOptions: DEFAULT_SYNTH_OPTIONS,
   effects: {
+    filter,
     chorus,
     delay,
     reverb,
@@ -281,6 +293,45 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [power, setPower] = React.useState(false);
 
+  // Start chorus when component mounts and audio context is ready
+  React.useEffect(() => {
+    const startChorus = async () => {
+      try {
+        await Tone.start();
+        if (!chorus.started) {
+          chorus.start();
+        }
+      } catch (error) {
+        console.warn('Failed to start chorus:', error);
+      }
+    };
+
+    if (power) {
+      startChorus();
+    }
+  }, [power]);
+
+  const value = React.useMemo(
+    () => ({
+      power,
+      setPower,
+      synth,
+      synthOptions: DEFAULT_SYNTH_OPTIONS,
+      effects: {
+        filter,
+        chorus,
+        delay,
+        reverb,
+        masterBus: {
+          compressor,
+          limiter,
+        },
+      },
+      noteTracker,
+    }),
+    [power]
+  );
+
   // Handle power state
   useEffect(() => {
     if (power) {
@@ -296,26 +347,7 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [power]);
 
   return (
-    <SynthContext.Provider
-      value={{
-        power,
-        setPower,
-        synth,
-        synthOptions: DEFAULT_SYNTH_OPTIONS,
-        effects: {
-          chorus,
-          delay,
-          reverb,
-          masterBus: {
-            compressor,
-            limiter,
-          },
-        },
-        noteTracker
-      }}
-    >
-      {children}
-    </SynthContext.Provider>
+    <SynthContext.Provider value={value}>{children}</SynthContext.Provider>
   );
 };
 

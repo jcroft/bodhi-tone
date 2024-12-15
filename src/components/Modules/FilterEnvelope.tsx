@@ -22,12 +22,17 @@ type FilterWithEnvelopeModuleOptions = {
 const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
   name = "Envelope",
 }) => {
-  const { synth } = useSynth();
+  const { synth, synthOptions } = useSynth();
   const synthState = synth?.get() as Tone.MonoSynthOptions;
 
   const updateSynthSettings = React.useCallback(
     (options: RecursivePartial<Tone.MonoSynthOptions>) => {
-      synth?.set(options);
+      if (!synth?.voices) return;
+      
+      // Update the synth settings for all voices
+      synth.voices.forEach(voice => {
+        voice.set(options);
+      });
     },
     [synth]
   );
@@ -43,30 +48,36 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
         | string
         | ((value: number, index: number) => React.ReactNode)
         | undefined
-    ) => (
-      <Fader
-        key={param}
-        id={param}
-        label={label}
-        value={parseFloat(synthState?.filterEnvelope?.[param]?.toString())}
-        sliderProps={{
-          valueLabelDisplay: "auto",
-          valueLabelFormat: valueLabelFormat,
-          orientation: "vertical",
-          min: min,
-          max: max,
-          step: step,
-          onChange: (event, newValue) => {
-            updateSynthSettings({
-              filterEnvelope: {
-                [param]: newValue as number,
-              } as Partial<Tone.FrequencyEnvelopeOptions>,
-            });
-          },
-        }}
-      />
-    ),
-    [synthState?.filterEnvelope, updateSynthSettings]
+    ) => {
+      // Get the initial value from synthOptions if synthState is not available
+      const initialValue = synthState?.filterEnvelope?.[param] ?? 
+                         synthOptions.options?.filterEnvelope?.[param] ?? 0;
+
+      return (
+        <Fader
+          key={param}
+          id={param}
+          label={label}
+          value={parseFloat(initialValue.toString())}
+          sliderProps={{
+            valueLabelDisplay: "auto",
+            valueLabelFormat: valueLabelFormat,
+            orientation: "vertical",
+            min: min,
+            max: max,
+            step: step,
+            onChange: (event, newValue) => {
+              updateSynthSettings({
+                filterEnvelope: {
+                  [param]: newValue as number,
+                } as Partial<Tone.FrequencyEnvelopeOptions>,
+              });
+            },
+          }}
+        />
+      );
+    },
+    [synthState?.filterEnvelope, synthOptions.options?.filterEnvelope, updateSynthSettings]
   );
 
   const createFilterFader = React.useCallback(
@@ -80,30 +91,36 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
         | string
         | ((value: number, index: number) => React.ReactNode)
         | undefined
-    ) => (
-      <Fader
-        key={param}
-        id={param}
-        label={label}
-        value={parseFloat(synthState?.filter?.[param]?.toString() ?? "0")}
-        sliderProps={{
-          valueLabelDisplay: "auto",
-          valueLabelFormat: valueLabelFormat,
-          orientation: "vertical",
-          min: min,
-          max: max,
-          step: step,
-          onChange: (event, newValue) => {
-            updateSynthSettings({
-              filter: {
-                [param]: newValue as number,
-              } as Tone.FilterOptions,
-            });
-          },
-        }}
-      />
-    ),
-    [synthState, updateSynthSettings]
+    ) => {
+      // Get the initial value from synthOptions if synthState is not available
+      const initialValue = synthState?.filter?.[param] ?? 
+                         synthOptions.options?.filter?.[param] ?? 0;
+
+      return (
+        <Fader
+          key={param}
+          id={param}
+          label={label}
+          value={parseFloat(initialValue.toString())}
+          sliderProps={{
+            valueLabelDisplay: "auto",
+            valueLabelFormat: valueLabelFormat,
+            orientation: "vertical",
+            min: min,
+            max: max,
+            step: step,
+            onChange: (event, newValue) => {
+              updateSynthSettings({
+                filter: {
+                  [param]: newValue as number,
+                } as Tone.FilterOptions,
+              });
+            },
+          }}
+        />
+      );
+    },
+    [synthState?.filter, synthOptions.options?.filter, updateSynthSettings]
   );
 
   const frequencyFader = React.useMemo(
@@ -152,7 +169,6 @@ const FilterWithEnvelopeModule: React.FC<FilterWithEnvelopeModuleOptions> = ({
     <BaseModule name={name}>
       <form>
         <div className="control-group transparent">{mainFaders}</div>
-
         <div className="control-group">
           <h3>Envelope</h3>
           {envelopeFaders}
