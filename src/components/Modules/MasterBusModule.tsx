@@ -10,16 +10,6 @@ import EffectFader from "./EffectFader";
 import { useEffectModule } from "@/hooks/useEffectModule";
 import PowerButton from "../PowerButton";
 
-const StyledControlGroup = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  gap: theme.spacing(1),
-  padding: theme.spacing(1),
-  "& .MuiSlider-root": {
-    color: theme.palette.primary.main,
-  },
-}));
-
 interface MasterBusModuleProps {
   name?: string;
 }
@@ -134,28 +124,25 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
     >
       <form>
 
-        <StyledControlGroup className="transparent">
+
           <div className="control-group">
           <h3>Compressor</h3>
             {compressorFaders.map(fader => (
               <EffectFader key={fader.id} {...fader} />
             ))}
           </div>
-        </StyledControlGroup>
 
-        <StyledControlGroup className="transparent">
         <div className="control-group">
           <h3>Limiter</h3>
             {limiterFaders.map(fader => (
               <EffectFader key={fader.id} {...fader} />
             ))}
           </div>
-        </StyledControlGroup>
-        <StyledControlGroup className="transparent">
+    
 
 <EffectFader {...volumeFader} />
 
-</StyledControlGroup>
+
       </form>
     </BaseModule>
   );
