@@ -149,22 +149,35 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
           modAmount: modAmount.toFixed(1),
           range: `${lfo.min.toFixed(1)}Hz to ${lfo.max.toFixed(1)}Hz`
         });
-      } else {
-        // For pitch modulation
-        const scaledAmount = amount * 1200;
+      } else if (destination === "pitch") {
+        // Always disconnect first
+        lfo.disconnect();
+
+        // If amount is 0 or power is off, don't connect
+        if (amount === 0 || !modulePower || !synthPower || !synth) {
+          console.log("LFO disconnected from pitch (amount = 0 or power off)");
+          return;
+        }
+
+        // Scale amount to semitones (1200 cents = 1 octave)
+        const scaledAmount = amount * 1200; // Full amount = 1 octave
+
+        // Set LFO to output bipolar values in cents
         lfo.min = -scaledAmount;
         lfo.max = scaledAmount;
 
-        // Debug synth state
-        console.log("Synth state before connection:", {
-          detune: synth.detune.value,
-          voices: synth.voices.length
+        // Get voices safely
+        const voices = (synth as any)._voices || [];
+        
+        // Connect to each voice's detune parameter
+        voices.forEach((voice: Tone.MonoSynth, i: number) => {
+          lfo.connect(voice.detune);
+          console.log(`Connected LFO to voice ${i} detune`);
         });
 
-        lfo.connect(synth.detune);
-        console.log(`LFO connected to pitch: range ${-scaledAmount.toFixed(1)}c - ${scaledAmount.toFixed(1)}c`, {
-          currentDetune: synth.detune.value,
-          lfoState: lfo.state
+        console.log(`LFO connected to pitch modulation:`, {
+          range: `${lfo.min.toFixed(1)} to ${lfo.max.toFixed(1)} cents`,
+          voiceCount: voices.length
         });
       }
     } else {
