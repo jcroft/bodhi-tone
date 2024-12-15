@@ -1,8 +1,24 @@
+/**
+ * BaseModule.tsx
+ * A foundational component that provides consistent styling and structure for all synthesizer modules.
+ * This component implements the common layout, styling, and behavior shared across all module types
+ * (oscillator, filter, envelope, effects, etc.).
+ */
+
 "use client";
 import React from "react";
 import { useTheme, styled } from "@mui/material";
 import { ModuleProvider, defaultModuleContext } from "@/contexts/ModuleContext";
 
+/**
+ * BaseModule Props Interface
+ * @property {string} name - Display name of the module
+ * @property {string} classNames - Optional additional CSS classes
+ * @property {string} color - Header background color
+ * @property {React.ReactNode} children - Module content
+ * @property {React.ReactNode} headerContent - Optional additional header content (e.g., power button)
+ * @property {boolean} power - Power state of the module
+ */
 type BaseModuleOptions = {
   name: string;
   classNames?: string;
@@ -12,6 +28,12 @@ type BaseModuleOptions = {
   power?: boolean;
 };
 
+/**
+ * Styled Components
+ * Define the consistent visual structure for all synth modules
+ */
+
+// Main module container with power state styling
 const StyledBaseModule = styled("div")<{ power?: boolean }>(({ theme, power = true }) => ({
   padding: theme.spacing(0),
   display: "flex",
@@ -23,6 +45,7 @@ const StyledBaseModule = styled("div")<{ power?: boolean }>(({ theme, power = tr
   transition: 'opacity 0.2s ease-in-out',
 }));
 
+// Module header with title and optional controls
 const StyledModuleHeader = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
@@ -50,6 +73,7 @@ const StyledModuleHeader = styled("div")(({ theme }) => ({
   },
 }));
 
+// Module body containing controls and displays
 const StyledModuleBody = styled("div")(({ theme }) => ({
   padding: "0.5rem",
   gap: "0.5rem",
@@ -59,12 +83,14 @@ const StyledModuleBody = styled("div")(({ theme }) => ({
   borderBottomLeftRadius: "0.35rem",
   borderBottomRightRadius: "0.35rem",
 
+  // Form styling for control groups
   "& form": {
     display: "flex",
     flexDirection: "row",
     gap: "0.75rem",
     fontSize: "0.75rem",
 
+    // Label styling
     "& label": {
       fontSize: "0.65rem",
       color: "#fff",
@@ -72,6 +98,7 @@ const StyledModuleBody = styled("div")(({ theme }) => ({
       textAlign: "left",
     },
 
+    // Value display styling
     "& .value": {
       position: "absolute",
       left: 0,
@@ -83,6 +110,7 @@ const StyledModuleBody = styled("div")(({ theme }) => ({
       transition: "opacity 0.3s ease-in-out",
     },
 
+    // Control group container styling
     "& .control-group": {
       display: "flex",
       flexDirection: "row",
@@ -97,12 +125,14 @@ const StyledModuleBody = styled("div")(({ theme }) => ({
       border: "1.5px solid #606060",
       boxShadow: "inset 0 0 0.25rem rgba(0, 0, 0, 0.35)",
 
+      // Transparent variant for special cases
       "&.transparent": {
         backgroundColor: "transparent",
         border: "none",
         boxShadow: "none",
       },
 
+      // Section header styling
       "& h3": {
         margin: 0,
         position: "absolute",
@@ -124,6 +154,7 @@ const StyledModuleBody = styled("div")(({ theme }) => ({
     },
   },
 
+  // Column layout variant
   "& form.column": {
     flexDirection: "column",
 
@@ -135,6 +166,15 @@ const StyledModuleBody = styled("div")(({ theme }) => ({
   },
 }));
 
+/**
+ * BaseModule Component
+ * Provides the foundation for all synthesizer modules with consistent styling and structure.
+ * Features:
+ * - Customizable header with title and optional controls
+ * - Consistent styling for control groups and forms
+ * - Power state visual feedback
+ * - Accessibility attributes for navigation
+ */
 const BaseModule: React.FC<BaseModuleOptions> = ({
   name = "Base Module",
   color = defaultModuleContext.color,

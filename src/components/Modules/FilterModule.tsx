@@ -1,3 +1,10 @@
+/**
+ * FilterModule.tsx
+ * Audio filter module providing frequency, resonance, and gain control.
+ * Supports multiple filter types (lowpass, highpass, etc.) and slopes,
+ * with power control for bypassing the filter when needed.
+ */
+
 "use client";
 
 import React from "react";
@@ -8,10 +15,22 @@ import { useSynth } from "@/contexts/SynthContext";
 import PowerButton from "../PowerButton";
 import Select from "../Input/Select";
 
+/**
+ * Module Props Interface
+ * @property {string} name - Display name of the module
+ */
 type FilterModuleOptions = {
   name?: string;
 };
 
+/**
+ * Available filter types from Tone.js
+ * Each type shapes the frequency response differently:
+ * - lowpass: Allows frequencies below cutoff to pass
+ * - highpass: Allows frequencies above cutoff to pass
+ * - bandpass: Allows a band of frequencies to pass
+ * - etc.
+ */
 const FILTER_TYPES = [
   "lowpass",
   "highpass",
@@ -23,8 +42,23 @@ const FILTER_TYPES = [
   "peaking"
 ] as const;
 
+/**
+ * Available filter slopes (dB/octave)
+ * Higher values create steeper cutoffs
+ */
 const FILTER_SLOPES = [-12, -24, -48, -96] as const;
 
+/**
+ * FilterModule Component
+ * Controls the audio filter parameters of the synthesizer.
+ * Features:
+ * - Filter type selection
+ * - Cutoff frequency control (logarithmic)
+ * - Resonance (Q) control
+ * - Gain control for supported filter types
+ * - Filter slope selection
+ * - Power button to bypass filter
+ */
 const FilterModule: React.FC<FilterModuleOptions> = ({
   name = "Filter",
 }) => {
@@ -34,7 +68,10 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
   const [filterType, setFilterType] = React.useState<typeof FILTER_TYPES[number]>("lowpass");
   const [filterSlope, setFilterSlope] = React.useState<typeof FILTER_SLOPES[number]>(-12);
 
-  // Store the previous filter settings when turning off
+  /**
+   * Store filter settings when bypassed
+   * Used to restore settings when re-enabling the filter
+   */
   const previousSettings = React.useRef({
     frequency: 2000,
     Q: 1,
@@ -43,11 +80,19 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
     slope: -12 as typeof FILTER_SLOPES[number]
   });
 
-  // Convert between linear slider value and logarithmic frequency
+  /**
+   * Frequency conversion utilities
+   * Convert between linear slider values and logarithmic frequency
+   * for more natural frequency control
+   */
   const freqToSlider = (freq: number) => Math.log2(freq / 20) * 100;
   const sliderToFreq = (value: number) => 20 * Math.pow(2, value / 100);
 
-  // Update filter when power changes
+  /**
+   * Power state effect handler
+   * - When powered off: stores current settings and sets filter to bypass mode
+   * - When powered on: restores previous filter settings
+   */
   React.useEffect(() => {
     if (!filter) return;
 
@@ -83,7 +128,11 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
     }
   }, [filter, power, filterType, filterSlope]);
 
-  // Update stored settings when user changes them
+  /**
+   * Updates filter settings and stores new values
+   * Only updates if the module is powered on
+   * Dispatches custom event for filter frequency changes
+   */
   const updateFilterAndStore = React.useCallback((settings: Partial<Tone.FilterOptions>) => {
     if (!filter || !power) return;
 
@@ -113,6 +162,10 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
     }
   }, [filter, power]);
 
+  /**
+   * Memoized filter parameter controls
+   * Each control updates both the active filter and stored settings
+   */
   const frequencyFader = React.useMemo(
     () => (
       <Fader
@@ -195,13 +248,14 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
     >
       <form>
         <div className="control-group" style={{ flexDirection: 'column', gap: '0.5rem' }}>
+          {/* Filter type and slope selectors */}
           <Select
             label="Type"
             value={previousSettings.current.type}
-            onChange={(e) => {
-              const newType = e.target.value as typeof FILTER_TYPES[number];
-              setFilterType(newType);
-              updateFilterAndStore({ type: newType });
+            onChange={(event) => {
+              const type = event.target.value as typeof FILTER_TYPES[number];
+              setFilterType(type);
+              updateFilterAndStore({ type });
             }}
             options={FILTER_TYPES.map((type) => ({
               value: type,
@@ -211,21 +265,22 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
           <Select
             label="Slope"
             value={previousSettings.current.slope.toString()}
-            onChange={(e) => {
-              const newSlope = parseInt(e.target.value) as typeof FILTER_SLOPES[number];
-              setFilterSlope(newSlope);
-              updateFilterAndStore({ rolloff: newSlope });
+            onChange={(event) => {
+              const slope = parseInt(event.target.value) as typeof FILTER_SLOPES[number];
+              setFilterSlope(slope);
+              updateFilterAndStore({ rolloff: slope });
             }}
             options={FILTER_SLOPES.map((slope) => ({
               value: slope.toString(),
               label: `${slope} dB/oct`,
             }))}
           />
-        </div>
-        <div className="control-group">
-          {frequencyFader}
-          {resonanceFader}
-          {gainFader}
+          {/* Filter parameter faders */}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {frequencyFader}
+            {resonanceFader}
+            {gainFader}
+          </div>
         </div>
       </form>
     </BaseModule>

@@ -1,12 +1,37 @@
+/**
+ * AdditionalOscillatorFaders.tsx
+ * Provides additional parameter controls specific to each oscillator type.
+ * Different oscillator types (FM, AM, Fat, Pulse) have their own unique parameters
+ * that affect the timbre and character of the sound.
+ */
+
 import React from "react";
 import Fader from "../../Input/Fader";
 import { AdditionalOscillatorFadersProps } from "./oscillatorTypes";
 
+/**
+ * AdditionalOscillatorFaders Component
+ * Renders different sets of faders based on the selected oscillator type:
+ * - FM: Modulation Index and Harmonicity
+ * - AM: Harmonicity
+ * - Fat: Spread and Count (for detuned unison)
+ * - Pulse: Width (pulse width modulation)
+ */
 const AdditionalOscillatorFaders: React.FC<AdditionalOscillatorFadersProps> = ({
   synthState,
   updateSynthSettings,
   oscillatorType,
 }) => {
+  /**
+   * Helper function to create a standardized fader control
+   * @param id - Unique identifier for the fader
+   * @param label - Display label
+   * @param min - Minimum value
+   * @param max - Maximum value
+   * @param step - Step size between values
+   * @param value - Current value
+   * @param onChange - Value change handler
+   */
   const createFader = (
     id: string,
     label: string,
@@ -37,6 +62,11 @@ const AdditionalOscillatorFaders: React.FC<AdditionalOscillatorFadersProps> = ({
     />
   );
 
+  /**
+   * FM Oscillator Controls
+   * - Modulation Index: Depth of frequency modulation
+   * - Harmonicity: Ratio between carrier and modulator frequencies
+   */
   const getFMFaders = () => [
     createFader(
       "modulationIndex",
@@ -60,6 +90,10 @@ const AdditionalOscillatorFaders: React.FC<AdditionalOscillatorFadersProps> = ({
     ),
   ];
 
+  /**
+   * AM Oscillator Controls
+   * - Harmonicity: Ratio between carrier and modulator frequencies
+   */
   const getAMFaders = () => [
     createFader(
       "harmonicity",
@@ -73,6 +107,11 @@ const AdditionalOscillatorFaders: React.FC<AdditionalOscillatorFadersProps> = ({
     ),
   ];
 
+  /**
+   * Fat Oscillator Controls
+   * - Spread: Detune spread between unison voices
+   * - Count: Number of detuned voices
+   */
   const getFatFaders = () => [
     createFader(
       "spread",
@@ -94,6 +133,10 @@ const AdditionalOscillatorFaders: React.FC<AdditionalOscillatorFadersProps> = ({
     ),
   ];
 
+  /**
+   * Pulse Oscillator Controls
+   * - Width: Pulse width (duty cycle) of the waveform
+   */
   const getPulseFaders = () => [
     createFader(
       "width",
@@ -106,6 +149,9 @@ const AdditionalOscillatorFaders: React.FC<AdditionalOscillatorFadersProps> = ({
     ),
   ];
 
+  /**
+   * Returns the appropriate set of faders based on oscillator type
+   */
   const getAdditionalFaders = () => {
     if (oscillatorType.startsWith("fm")) return getFMFaders();
     if (oscillatorType.startsWith("am")) return getAMFaders();

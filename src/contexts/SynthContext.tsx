@@ -1,9 +1,18 @@
+/**
+ * SynthContext.tsx
+ * This file implements a React Context for managing a polyphonic synthesizer with effects chain.
+ * It provides a centralized way to manage audio state and synthesis across the application.
+ */
+
 "use client";
 
 import React, { use, useContext, useEffect, useMemo } from "react";
 import * as Tone from "tone";
 
-// Create a class to handle note tracking at the audio engine level
+/**
+ * NoteTracker class manages the active notes in the synthesizer
+ * It handles voice allocation, note stealing, and notifies subscribers of changes
+ */
 class NoteTracker {
   private activeNotes: Map<Tone.Unit.Frequency, { timestamp: number; velocity?: number }>;
   private subscribers: Set<(notes: Tone.Unit.Frequency[]) => void>;
@@ -81,6 +90,10 @@ class NoteTracker {
   }
 }
 
+/**
+ * Default synthesizer settings for the polyphonic synthesizer
+ * Configures a fat sawtooth oscillator with envelope, filter, and modulation settings
+ */
 export const DEFAULT_SYNTH_OPTIONS: Partial<
   Tone.PolySynthOptions<Tone.MonoSynth>
 > = {
@@ -116,6 +129,14 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
   } as Tone.MonoSynthOptions,
 };
 
+/**
+ * Default effects chain configuration
+ * Includes settings for:
+ * - Chorus: For width and movement
+ * - Delay: For echo effects
+ * - Reverb: For space and ambience
+ * - Master bus: Compressor and limiter for dynamic control
+ */
 export const DEFAULT_EFFECTS_OPTIONS: Partial<{
   chorus: Partial<Tone.ChorusOptions>;
   delay: Partial<Tone.PingPongDelayOptions>;
@@ -136,10 +157,10 @@ export const DEFAULT_EFFECTS_OPTIONS: Partial<{
   delay: {
     delayTime: 0.25,
     feedback: 0.5,
-    wet: 0.5,
+    wet: 0.25,
   },
   reverb: {
-    wet: 0.5,
+    wet: 0.25,
     decay: 35,
     preDelay: 0.1,
   },
@@ -157,9 +178,15 @@ export const DEFAULT_EFFECTS_OPTIONS: Partial<{
   },
 };
 
+// Initialize the main polyphonic synthesizer with default settings
 const synth = new Tone.PolySynth<Tone.MonoSynth>(DEFAULT_SYNTH_OPTIONS);
 
-// Initialize effects with default settings
+/**
+ * Audio Effects Chain Setup
+ * The signal flow is: Synth -> Filter -> Chorus -> Delay -> Reverb -> Compressor -> Limiter -> Output
+ */
+
+// Low-pass filter for tone shaping
 const filter = new Tone.Filter({
   type: "lowpass",
   frequency: 2000,
@@ -167,6 +194,7 @@ const filter = new Tone.Filter({
   Q: 1,
 });
 
+// Chorus for stereo width and movement
 const chorus = new Tone.Chorus({
   frequency: DEFAULT_EFFECTS_OPTIONS.chorus?.frequency ?? 0.5,
   delayTime: DEFAULT_EFFECTS_OPTIONS.chorus?.delayTime ?? 2.5,
@@ -176,18 +204,21 @@ const chorus = new Tone.Chorus({
   spread: DEFAULT_EFFECTS_OPTIONS.chorus?.spread ?? 90
 });
 
+// Ping-pong delay for spatial echo effects
 const delay = new Tone.PingPongDelay({
   delayTime: "4n",
   feedback: 0.1,
   wet: 0.5
 });
 
+// Reverb for adding space and depth
 const reverb = new Tone.Reverb({
   decay: 0.5,
   wet: 0.5,
   preDelay: 0.1
 });
 
+// Compressor for dynamic range control
 const compressor = new Tone.Compressor({
   threshold: -24,
   ratio: 4,
@@ -196,27 +227,18 @@ const compressor = new Tone.Compressor({
   knee: 30
 });
 
+// Limiter for preventing clipping
 const limiter = new Tone.Limiter({
   threshold: -1.0
 });
 
-// Create the processing chain
-synth.disconnect(); // Disconnect any existing connections
-synth.connect(filter);
-filter.connect(chorus);
-chorus.connect(delay);
-delay.connect(reverb);
-reverb.connect(compressor);
-compressor.connect(limiter);
-limiter.toDestination();
-
-// Function to start all effects
-const startEffects = () => {
-  chorus.start();
-};
-
+// Initialize note tracking system
 const noteTracker = new NoteTracker(DEFAULT_SYNTH_OPTIONS.maxPolyphony);
 
+/**
+ * Type definition for the Synth Context
+ * Defines all the properties and methods that will be available through the context
+ */
 export type SynthContextType = {
   power: boolean;
   setPower: React.Dispatch<React.SetStateAction<boolean>>;
@@ -237,6 +259,10 @@ export type SynthContextType = {
   audioReady: boolean;
 };
 
+/**
+ * Create the React Context with initial undefined value
+ * This context provides access to all synth controls and state throughout the app
+ */
 export const SynthContext = React.createContext<SynthContextType | undefined>({
   power: false,
   setPower: () => {},
@@ -252,11 +278,16 @@ export const SynthContext = React.createContext<SynthContextType | undefined>({
       limiter,
     },
   },
-  startEffects,
+  startEffects: () => {},
   noteTracker,
   audioReady: false,
 });
 
+/**
+ * SynthProvider component
+ * Manages the lifecycle of the synthesizer and effects chain
+ * Provides the synth context to child components
+ */
 export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -354,6 +385,10 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+/**
+ * Custom hook for accessing the synth context
+ * Throws an error if used outside of SynthProvider
+ */
 export const useSynth = (): SynthContextType => {
   const context = useContext(SynthContext);
   if (context === undefined) {

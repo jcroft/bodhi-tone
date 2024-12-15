@@ -1,3 +1,10 @@
+/**
+ * AmpEnvelopeModule.tsx
+ * Amplitude envelope module for shaping the volume contour of each note.
+ * Implements the classic ADSR (Attack, Decay, Sustain, Release) envelope
+ * with power control for bypassing the envelope when needed.
+ */
+
 "use client";
 
 import React from "react";
@@ -7,12 +14,27 @@ import Fader from "../Input/Fader";
 import { useSynth } from "@/contexts/SynthContext";
 import PowerButton from "../PowerButton";
 
+/**
+ * Module Props Interface
+ * @property {string} name - Display name of the module
+ */
 type AmpEnvelopeModuleOptions = {
   name?: string;
 };
 
+/**
+ * Valid envelope parameters for type safety
+ */
 type EnvelopeParam = "attack" | "decay" | "sustain" | "release";
 
+/**
+ * AmpEnvelopeModule Component
+ * Controls the amplitude envelope (ADSR) of the synthesizer.
+ * Features:
+ * - Four vertical faders for ADSR control
+ * - Power button to bypass envelope (instant attack/release)
+ * - State persistence when toggling power
+ */
 const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   name = "Envelope",
 }) => {
@@ -20,7 +42,10 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   const synthState = synth?.get() as Tone.MonoSynthOptions;
   const [power, setPower] = React.useState(true);
 
-  // Store the previous envelope settings when turning off
+  /**
+   * Store envelope settings when bypassed
+   * Used to restore settings when re-enabling the envelope
+   */
   const previousSettings = React.useRef({
     attack: 0.01,
     decay: 0.1,
@@ -28,7 +53,11 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
     release: 0.5
   });
 
-  // Update envelope when power changes
+  /**
+   * Power state effect handler
+   * - When powered off: stores current settings and sets instant response
+   * - When powered on: restores previous envelope settings
+   */
   React.useEffect(() => {
     if (!synth) return;
 
@@ -59,7 +88,10 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
     }
   }, [synth, power]);
 
-  // Update stored settings when user changes them
+  /**
+   * Updates synth settings and stores new values
+   * Only updates if the module is powered on
+   */
   const updateSynthSettings = React.useCallback(
     (options: Partial<Tone.MonoSynthOptions>) => {
       if (!synth || !power) return;
@@ -76,6 +108,14 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
     [synth, power]
   );
 
+  /**
+   * Creates a standardized fader for envelope parameters
+   * @param param - The envelope parameter to control (ADSR)
+   * @param label - Display label for the fader
+   * @param min - Minimum value
+   * @param max - Maximum value
+   * @param step - Step size between values
+   */
   const createFader = React.useCallback(
     (
       param: EnvelopeParam,
@@ -109,6 +149,10 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
     [synthState?.envelope, updateSynthSettings]
   );
 
+  /**
+   * Memoized array of ADSR faders
+   * Prevents unnecessary recreation of fader components
+   */
   const faders = React.useMemo(
     () =>
       [

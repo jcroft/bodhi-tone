@@ -1,3 +1,10 @@
+/**
+ * Synth.tsx
+ * Main synthesizer component that integrates all audio modules and controls.
+ * Provides the visual interface and handles audio initialization, note triggering,
+ * and MIDI input management.
+ */
+
 "use client";
 
 import AmpEnvelopeModule from "@/components/Modules/AmpEnvelopeModule";
@@ -22,9 +29,14 @@ import {
 } from "@/contexts/SynthContext";
 import { RecursivePartial } from "tone/build/esm/core/util/Interface";
 
+// UI Constants
 const OPACITY_POWERED_OFF = 0.25;
 const TRANSITION_DURATION = "0.3s";
 
+/**
+ * Styled Components
+ * Define the layout and appearance of the synthesizer interface
+ */
 const StyledSynthesizer = styled("div")`
   display: flex;
   flex-direction: column;
@@ -58,11 +70,19 @@ const StyledMenuBar = styled("div")`
   }
 `;
 
+/**
+ * Main Synthesizer Component
+ * Integrates all synth modules and manages audio state
+ */
 const Synthesizer: React.FC = () => {
+  // Get synth context and initialize state
   const { power, setPower, synth, effects, noteTracker } = useSynth();
   const [visualNotes, setVisualNotes] = React.useState<Tone.Unit.Frequency[]>([]);
 
-  // Initialize synth parameters only once
+  /**
+   * Initialize synth parameters
+   * Sets up default values for synth and effects when component mounts
+   */
   const isInitialized = React.useRef(false);
   React.useEffect(() => {
     if (
@@ -88,7 +108,10 @@ const Synthesizer: React.FC = () => {
     }
   }, [synth, effects]);
 
-  // Handle power state and audio context
+  /**
+   * Power state management
+   * Handles audio context initialization when synth is powered on
+   */
   React.useEffect(() => {
     const handlePowerChange = async () => {
       try {
@@ -105,7 +128,10 @@ const Synthesizer: React.FC = () => {
     handlePowerChange();
   }, [power, setPower]);
 
-  // Subscribe to note tracker changes for visual updates
+  /**
+   * Note tracker subscription
+   * Updates visual feedback when notes change
+   */
   React.useEffect(() => {
     const unsubscribe = noteTracker.subscribe(setVisualNotes);
     return () => {
@@ -113,7 +139,10 @@ const Synthesizer: React.FC = () => {
     };
   }, [noteTracker]);
 
-  // Memoize note handlers to prevent unnecessary recreations
+  /**
+   * Note handling functions
+   * Manages note triggering and release for both keyboard and MIDI input
+   */
   const onNoteOn = React.useCallback(
     (
       notes: Tone.Unit.Frequency[],
@@ -155,6 +184,7 @@ const Synthesizer: React.FC = () => {
         justifyContent: { xxs: "flex-sart", sm: "center" },
       }}
     >
+      {/* Control Bar - Power and MIDI Input */}
       <StyledMenuBar>
         <PowerButton
           isOn={power}
@@ -168,22 +198,27 @@ const Synthesizer: React.FC = () => {
           onNoteOff={onNoteOff}
         />
       </StyledMenuBar>
+
+      {/* Main Synth Interface */}
       <StyledSynthBody
         sx={{
           opacity: power ? 1 : OPACITY_POWERED_OFF,
           transition: `opacity ${TRANSITION_DURATION} ease-in-out`,
         }}
       >
+        {/* Module Grid - Sound Generation and Effects */}
         <StyledModuleContainer
           sx={{
             flexDirection: { xs: "column", sm: "row" },
           }}
         >
+          {/* Sound Generation Modules */}
           <OscillatorModule name="Oscillator" />
           <FilterModule name="Filter" />
           <AmpEnvelopeModule name="Amp" />
           <LFOModule name="LFO" />
 
+          {/* Effects Chain Modules */}
           <ChorusModule name="Chorus" />
           <DelayModule name="Delay" />
           <ReverbModule name="Reverb" />
@@ -191,6 +226,7 @@ const Synthesizer: React.FC = () => {
         </StyledModuleContainer>
       </StyledSynthBody>
 
+      {/* Virtual Keyboard */}
       <Keyboard
         name="keyboard"
         onNoteOn={onNoteOn}

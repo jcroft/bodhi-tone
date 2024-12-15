@@ -1,3 +1,9 @@
+/**
+ * BasicOscillatorFaders.tsx
+ * Provides the basic tuning controls for the oscillator.
+ * Includes octave, coarse (semitones), and fine (cents) tuning controls.
+ */
+
 import React from "react";
 import Fader from "../../Input/Fader";
 import { BasicOscillatorFadersProps } from "./oscillatorTypes";
@@ -13,10 +19,27 @@ import {
   DETUNE_STEP,
 } from "./oscillatorConstants";
 
+/**
+ * BasicOscillatorFaders Component
+ * Renders three vertical faders for pitch control:
+ * - Octave: Coarse pitch adjustment in 12-semitone steps
+ * - Coarse: Semitone adjustment within an octave
+ * - Fine: Cents adjustment for precise tuning
+ */
 const BasicOscillatorFaders: React.FC<BasicOscillatorFadersProps> = ({
   synthState,
   updateSynthSettings,
 }) => {
+  /**
+   * Helper function to create a standardized fader control
+   * @param id - Unique identifier for the fader
+   * @param label - Display label
+   * @param min - Minimum value
+   * @param max - Maximum value
+   * @param step - Step size between values
+   * @param value - Current value
+   * @param onChange - Value change handler
+   */
   const createFader = (
     id: string,
     label: string,
@@ -49,6 +72,7 @@ const BasicOscillatorFaders: React.FC<BasicOscillatorFadersProps> = ({
 
   return (
     <>
+      {/* Octave control: Adjusts pitch in 12-semitone steps */}
       {createFader(
         "octave",
         "Octave",
@@ -58,6 +82,7 @@ const BasicOscillatorFaders: React.FC<BasicOscillatorFadersProps> = ({
         parseFloat(synthState?.detune.toString()) / 1200,
         (newValue) => updateSynthSettings({ detune: newValue * 1200 })
       )}
+      {/* Coarse tuning: Adjusts pitch in semitone steps */}
       {createFader(
         "semitones",
         "Coarse",
@@ -71,6 +96,7 @@ const BasicOscillatorFaders: React.FC<BasicOscillatorFadersProps> = ({
               Math.floor(synthState?.detune / 1200) * 1200 + newValue * 100,
           })
       )}
+      {/* Fine tuning: Adjusts pitch in cents */}
       {createFader(
         "detune",
         "Fine",

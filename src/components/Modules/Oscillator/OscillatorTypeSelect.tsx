@@ -1,3 +1,9 @@
+/**
+ * OscillatorTypeSelect.tsx
+ * A dropdown component for selecting different oscillator waveforms and types.
+ * Includes visual representation of each waveform type through icons.
+ */
+
 "use client";
 
 import React from "react";
@@ -7,6 +13,14 @@ import { OscillatorTypeSelectProps, OscillatorType } from "./oscillatorTypes";
 import { getOscillatorTypeLabel, getOscillatorIcon } from "./oscillatorUtils";
 import { OSCILLATOR_TYPES } from "./oscillatorConstants";
 
+/**
+ * OscillatorTypeSelect Component
+ * Provides a dropdown menu for selecting different oscillator types.
+ * Each option includes:
+ * - A visual icon representing the waveform
+ * - A human-readable label
+ * - The corresponding Tone.js oscillator type value
+ */
 const OscillatorTypeSelect: React.FC<OscillatorTypeSelectProps> = ({
   synthState,
   updateSynthSettings,
