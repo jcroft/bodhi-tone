@@ -173,9 +173,9 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
           voices.forEach((voice: any, index: number) => {
             if (voice && voice.oscillator) {
               try {
-                // Connect to the frequency parameter instead of detune
-                lfo.connect(voice.oscillator.frequency);
-                console.log(`Connected LFO to voice ${index} frequency`);
+                // Connect to the detune parameter for pitch modulation in cents
+                lfo.connect(voice.oscillator.detune);
+                console.log(`Connected LFO to voice ${index} detune`);
               } catch (error) {
                 console.error(`Failed to connect LFO to voice ${index}:`, error);
               }
@@ -255,7 +255,7 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
           <Select
             label="Destination"
             value={destination}
-            onChange={(e) => setDestination(e.target.value)}
+            onChange={(e) => setDestination(e.target.value as string)}
             options={LFO_DESTINATIONS}
           />
         </div>

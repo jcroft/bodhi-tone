@@ -13,16 +13,16 @@ import {
 } from "@mui/material";
 
 type Option = {
-  value: string;
-  label: string;
-  icon?: React.ReactNode;
+  readonly value: string;
+  readonly label: string;
+  readonly icon?: React.ReactNode;
 };
 
 type SelectProps = {
   label: string;
   value: string;
-  onChange: (event: SelectChangeEvent<string>) => void;
-  options: Option[];
+  onChange: (event: SelectChangeEvent<unknown>, child: React.ReactNode) => void;
+  options: ReadonlyArray<Option>;
 };
 
 const StyledSelectWrapper = styled(FormControl)`
