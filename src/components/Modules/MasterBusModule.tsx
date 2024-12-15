@@ -55,27 +55,16 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
     "limiter"
   );
   const [isPowered, setIsPowered] = React.useState(true);
-  const [previousCompressorSettings] = React.useState({
-    threshold: -24,
+  const [previousCompressorSettings, setPreviousCompressorSettings] = React.useState({
+    threshold: -12,
     ratio: 4,
     attack: 0.003,
     release: 0.25,
-    knee: 30,
+    knee: 30
   });
-  const [previousLimiterSettings] = React.useState({
-    threshold: -1.0,
+  const [previousLimiterSettings, setPreviousLimiterSettings] = React.useState({
+    threshold: -6
   });
-
-  // Special handling for master volume
-  const handleVolumeChange = React.useCallback((value: number) => {
-    Tone.Destination.volume.rampTo(value, 0.05);
-  }, []);
-
-  const volumeFader = React.useMemo(() => ({
-    ...MASTER_VOLUME_CONFIG,
-    value: Tone.Destination.volume.value,
-    onChange: handleVolumeChange
-  }), [handleVolumeChange]);
 
   const compressorFaders = React.useMemo(
     () => createCompressorFaders(COMPRESSOR_FADER_CONFIGS),
@@ -102,6 +91,33 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
     setIsPowered(newPowerState);
   }, [effects.masterBus, previousCompressorSettings, previousLimiterSettings]);
 
+  // Special handling for master volume
+  const handleVolumeChange = React.useCallback((value: number) => {
+    Tone.Destination.volume.rampTo(value, 0.05);
+  }, []);
+
+  const volumeFader = React.useMemo(() => ({
+    ...MASTER_VOLUME_CONFIG,
+    value: Tone.Destination.volume.value,
+    onChange: handleVolumeChange
+  }), [handleVolumeChange]);
+
+  React.useEffect(() => {
+    if (!isPowered) {
+      // Store current settings
+      setPreviousCompressorSettings({
+        threshold: effects.masterBus.compressor.threshold.value,
+        ratio: effects.masterBus.compressor.ratio.value,
+        attack: effects.masterBus.compressor.attack.value,
+        release: effects.masterBus.compressor.release.value,
+        knee: effects.masterBus.compressor.knee.value
+      });
+      setPreviousLimiterSettings({
+        threshold: effects.masterBus.limiter.threshold.value
+      });
+    }
+  }, [isPowered, effects.masterBus]);
+
   return (
     <BaseModule 
       name={name}
@@ -110,26 +126,36 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
           <PowerButton 
             isOn={isPowered} 
             onClick={handlePowerChange}
+            variant="module"
           />
         </div>
       }
+      power={isPowered}
     >
       <form>
-        <StyledControlGroup>
-          <EffectFader {...volumeFader} />
+
+        <StyledControlGroup className="transparent">
+          <div className="control-group">
+          <h3>Compressor</h3>
+            {compressorFaders.map(fader => (
+              <EffectFader key={fader.id} {...fader} />
+            ))}
+          </div>
         </StyledControlGroup>
 
-        <StyledControlGroup>
-          {compressorFaders.map(fader => (
-            <EffectFader key={fader.id} {...fader} />
-          ))}
+        <StyledControlGroup className="transparent">
+        <div className="control-group">
+          <h3>Limiter</h3>
+            {limiterFaders.map(fader => (
+              <EffectFader key={fader.id} {...fader} />
+            ))}
+          </div>
         </StyledControlGroup>
+        <StyledControlGroup className="transparent">
 
-        <StyledControlGroup>
-          {limiterFaders.map(fader => (
-            <EffectFader key={fader.id} {...fader} />
-          ))}
-        </StyledControlGroup>
+<EffectFader {...volumeFader} />
+
+</StyledControlGroup>
       </form>
     </BaseModule>
   );

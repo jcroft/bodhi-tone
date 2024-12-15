@@ -45,9 +45,11 @@ const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
           <PowerButton 
             isOn={isPowered} 
             onClick={() => setIsPowered(!isPowered)}
+            variant="module"
           />
         </div>
       }
+      power={isPowered}
     >
       <form>
         <div className="control-group transparent">

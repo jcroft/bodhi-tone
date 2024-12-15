@@ -48,10 +48,11 @@ const ChorusModule: React.FC<ChorusModuleProps> = ({ name = "Chorus" }) => {
           <PowerButton 
             isOn={isPowered} 
             onClick={() => setIsPowered(!isPowered)}
-            style={{ padding: 0, minWidth: '24px', width: '24px', height: '24px' }}
+            variant="module"
           />
         </div>
       }
+      power={isPowered}
     >
       <form>
         <div className="control-group transparent">

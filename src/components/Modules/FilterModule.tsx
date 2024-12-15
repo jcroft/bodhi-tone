@@ -184,6 +184,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
           variant="module"
         />
       }
+      power={power}
     >
       <form>
         <div className="control-group" style={{ flexDirection: 'column', gap: '0.5rem' }}>

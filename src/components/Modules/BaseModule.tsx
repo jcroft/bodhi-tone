@@ -9,15 +9,18 @@ type BaseModuleOptions = {
   color?: string;
   children?: React.ReactNode;
   headerContent?: React.ReactNode;
+  power?: boolean;
 };
 
-const StyledBaseModule = styled("div")(({ theme }) => ({
+const StyledBaseModule = styled("div")<{ power?: boolean }>(({ theme, power = true }) => ({
   padding: theme.spacing(0),
   display: "flex",
   flexDirection: "column",
   borderBottomLeftRadius: theme.spacing(0.35),
   borderBottomRightRadius: theme.spacing(0.35),
   boxShadow: theme.shadows[1],
+  opacity: power ? 1 : 0.5,
+  transition: 'opacity 0.2s ease-in-out',
 }));
 
 const StyledModuleHeader = styled("div")(({ theme }) => ({
@@ -138,12 +141,13 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
   classNames,
   children,
   headerContent,
+  power = true,
 }) => {
   const theme = useTheme();
 
   return (
-    <ModuleProvider>
-      <StyledBaseModule>
+    <ModuleProvider color={color}>
+      <StyledBaseModule className={classNames} power={power}>
         <StyledModuleHeader
           role="banner"
           aria-label={`${name} module header`}
@@ -154,9 +158,7 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
           <h2>{name}</h2>
           {headerContent}
         </StyledModuleHeader>
-        <StyledModuleBody role="region" aria-label={`${name} module content`}>
-          {children}
-        </StyledModuleBody>
+        <StyledModuleBody role="region" aria-label={`${name} module content`}>{children}</StyledModuleBody>
       </StyledBaseModule>
     </ModuleProvider>
   );

@@ -132,6 +132,7 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
           variant="module"
         />
       }
+      power={power}
     >
       <form>
         <div className="control-group">

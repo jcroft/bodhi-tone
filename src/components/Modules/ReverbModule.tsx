@@ -45,9 +45,11 @@ const ReverbModule: React.FC<ReverbModuleProps> = ({ name = "Reverb" }) => {
           <PowerButton 
             isOn={isPowered} 
             onClick={() => setIsPowered(!isPowered)}
+            variant="module"
           />
         </div>
       }
+      power={isPowered}
     >
       <form>
         <div className="control-group transparent">
