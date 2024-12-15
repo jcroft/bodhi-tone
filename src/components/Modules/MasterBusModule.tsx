@@ -8,6 +8,7 @@ import { styled } from "@mui/material/styles";
 import { useSynth } from "@/contexts/SynthContext";
 import EffectFader from "./EffectFader";
 import { useEffectModule } from "@/hooks/useEffectModule";
+import PowerButton from "../PowerButton";
 
 const StyledControlGroup = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -53,6 +54,17 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
     effects.masterBus.limiter,
     "limiter"
   );
+  const [isPowered, setIsPowered] = React.useState(true);
+  const [previousCompressorSettings] = React.useState({
+    threshold: -24,
+    ratio: 4,
+    attack: 0.003,
+    release: 0.25,
+    knee: 30,
+  });
+  const [previousLimiterSettings] = React.useState({
+    threshold: -1.0,
+  });
 
   // Special handling for master volume
   const handleVolumeChange = React.useCallback((value: number) => {
@@ -75,8 +87,33 @@ const MasterBusModule: React.FC<MasterBusModuleProps> = ({ name = "Master Bus" }
     [createLimiterFaders]
   );
 
+  // Store current settings when power state changes
+  const handlePowerChange = React.useCallback((newPowerState: boolean) => {
+    if (!newPowerState) {
+      // Bypass both effects by setting extreme values
+      effects.masterBus.compressor.threshold.value = 0;
+      effects.masterBus.compressor.ratio.value = 1;
+      effects.masterBus.limiter.threshold.value = 0;
+    } else {
+      // Restore previous settings
+      effects.masterBus.compressor.set(previousCompressorSettings);
+      effects.masterBus.limiter.set(previousLimiterSettings);
+    }
+    setIsPowered(newPowerState);
+  }, [effects.masterBus, previousCompressorSettings, previousLimiterSettings]);
+
   return (
-    <BaseModule name={name}>
+    <BaseModule 
+      name={name}
+      headerContent={
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <PowerButton 
+            isOn={isPowered} 
+            onClick={handlePowerChange}
+          />
+        </div>
+      }
+    >
       <form>
         <StyledControlGroup>
           <EffectFader {...volumeFader} />

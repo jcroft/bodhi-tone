@@ -141,6 +141,7 @@ const Synthesizer: React.FC = () => {
             isOn={power}
             onClick={() => setPower(!power)}
             aria-label={power ? "Turn off synthesizer" : "Turn on synthesizer"}
+            variant="main"
           />
           <MIDIInputSelect
             label="MIDI Input"
