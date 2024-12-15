@@ -34,14 +34,64 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
   const [filterType, setFilterType] = React.useState<typeof FILTER_TYPES[number]>("lowpass");
   const [filterSlope, setFilterSlope] = React.useState<typeof FILTER_SLOPES[number]>(-12);
 
+  // Store the previous filter settings when turning off
+  const previousSettings = React.useRef({
+    frequency: 2000,
+    Q: 1,
+    gain: 0,
+    type: "lowpass" as typeof FILTER_TYPES[number]
+  });
+
   // Convert between linear slider value and logarithmic frequency
   const freqToSlider = (freq: number) => Math.log2(freq / 20) * 100;
   const sliderToFreq = (value: number) => 20 * Math.pow(2, value / 100);
 
-  // Update filter wet value when power changes
+  // Update filter when power changes
   React.useEffect(() => {
-    if (filter) {
-      filter.set({ wet: power ? 1 : 0 });
+    if (!filter) return;
+
+    if (power) {
+      // Restore previous settings
+      filter.set({
+        frequency: previousSettings.current.frequency,
+        Q: previousSettings.current.Q,
+        gain: previousSettings.current.gain,
+        type: previousSettings.current.type
+      });
+    } else {
+      // Store current settings
+      previousSettings.current = {
+        frequency: filter.frequency.value,
+        Q: filter.Q.value,
+        gain: filter.gain.value,
+        type: filterType
+      };
+      
+      // Set filter to be completely open
+      filter.set({
+        type: "allpass",
+        frequency: 20000,
+        Q: 0.1,
+        gain: 0
+      });
+    }
+  }, [filter, power, filterType]);
+
+  // Update stored settings when user changes them
+  const updateFilterAndStore = React.useCallback((settings: Partial<Tone.FilterOptions>) => {
+    if (!filter || !power) return;
+    filter.set(settings);
+    if (settings.type) {
+      previousSettings.current.type = settings.type as typeof FILTER_TYPES[number];
+    }
+    if (settings.frequency !== undefined) {
+      previousSettings.current.frequency = settings.frequency;
+    }
+    if (settings.Q !== undefined) {
+      previousSettings.current.Q = settings.Q;
+    }
+    if (settings.gain !== undefined) {
+      previousSettings.current.gain = settings.gain;
     }
   }, [filter, power]);
 
@@ -51,22 +101,22 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         key="frequency"
         id="frequency"
         label="Freq"
-        value={freqToSlider(filter?.frequency.value ?? 2000)}
+        value={freqToSlider(power ? filter?.frequency.value ?? 2000 : previousSettings.current.frequency)}
         sliderProps={{
           valueLabelDisplay: "auto",
           valueLabelFormat: (value: number) => `${Math.round(sliderToFreq(value))} Hz`,
           orientation: "vertical",
-          min: 0, // log2(20/20) * 100 = 0
-          max: 1000, // log2(20000/20) * 100 ≈ 1000
+          min: 0,
+          max: 1000,
           step: 1,
           onChange: (_, value) => {
             const freq = sliderToFreq(value as number);
-            filter?.frequency.setValueAtTime(freq, Tone.now());
+            updateFilterAndStore({ frequency: freq });
           },
         }}
       />
     ),
-    [filter]
+    [filter, power, updateFilterAndStore]
   );
 
   const resonanceFader = React.useMemo(
@@ -75,7 +125,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         key="Q"
         id="Q"
         label="Reso"
-        value={filter?.Q.value ?? 1}
+        value={power ? filter?.Q.value ?? 1 : previousSettings.current.Q}
         sliderProps={{
           valueLabelDisplay: "auto",
           orientation: "vertical",
@@ -83,12 +133,12 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
           max: 20,
           step: 0.1,
           onChange: (_, value) => {
-            filter?.Q.setValueAtTime(value as number, Tone.now());
+            updateFilterAndStore({ Q: value as number });
           },
         }}
       />
     ),
-    [filter]
+    [filter, power, updateFilterAndStore]
   );
 
   const gainFader = React.useMemo(
@@ -97,7 +147,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         key="gain"
         id="gain"
         label="Gain"
-        value={filter?.gain.value ?? 0}
+        value={power ? filter?.gain.value ?? 0 : previousSettings.current.gain}
         sliderProps={{
           valueLabelDisplay: "auto",
           orientation: "vertical",
@@ -105,12 +155,12 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
           max: 40,
           step: 0.1,
           onChange: (_, value) => {
-            filter?.gain.setValueAtTime(value as number, Tone.now());
+            updateFilterAndStore({ gain: value as number });
           },
         }}
       />
     ),
-    [filter]
+    [filter, power, updateFilterAndStore]
   );
 
   return (
@@ -118,8 +168,8 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
       name={name}
       headerContent={
         <PowerButton
-          checked={power}
-          onChange={(checked) => setPower(checked)}
+          isOn={power}
+          onClick={(checked) => setPower(checked)}
           variant="module"
         />
       }
@@ -132,7 +182,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
             onChange={(e) => {
               const newType = e.target.value as typeof FILTER_TYPES[number];
               setFilterType(newType);
-              filter?.set({ type: newType });
+              updateFilterAndStore({ type: newType });
             }}
             options={FILTER_TYPES.map((type) => ({
               value: type,
