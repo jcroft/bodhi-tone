@@ -119,36 +119,35 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
     // Configure based on destination and power state
     if (modulePower && synthPower) {
       if (destination === "filter") {
-        // Use a fixed base frequency for the filter
-        const baseFreq = 2000;
-        const minFreq = 20;
-        const maxFreq = 20000;
-        
-        // Scale amount exponentially
-        const scaledAmount = Math.pow(2, amount * 8);
-        
-        // Calculate modulation range
-        const modulationRange = Math.min(
-          scaledAmount,
-          Math.min(maxFreq / baseFreq, baseFreq / minFreq)
-        );
-        
-        // Set modulation range
-        lfo.min = baseFreq / modulationRange;
-        lfo.max = baseFreq * modulationRange;
-        
-        // Debug filter state
-        console.log("Filter state before connection:", {
-          frequency: effects.filter.frequency.value,
-          type: effects.filter.type,
-          Q: effects.filter.Q.value
-        });
+        // Always disconnect first
+        lfo.disconnect();
 
+        // If amount is 0 or power is off, don't connect
+        if (amount === 0 || !modulePower || !synthPower) {
+          console.log("LFO disconnected (amount = 0 or power off)");
+          return;
+        }
+
+        // Get the current filter frequency
+        const baseFreq = effects.filter.frequency.value || 2000;
+        
+        // Scale amount exponentially but less extreme
+        const scaledAmount = Math.pow(2, amount * 4) - 1; // Reduced from 8 to 4 for more musical range
+        
+        // Calculate modulation range in octaves
+        const modAmount = baseFreq * scaledAmount;
+        
+        // Set LFO to modulate around the base frequency
+        lfo.min = Math.max(20, baseFreq - modAmount); // Clamp to minimum 20Hz
+        lfo.max = Math.min(20000, baseFreq + modAmount); // Clamp to maximum 20kHz
+        
         // Connect to filter frequency
         lfo.connect(effects.filter.frequency);
-        console.log(`LFO connected to filter: range ${lfo.min.toFixed(1)}Hz - ${lfo.max.toFixed(1)}Hz`, {
-          currentFilterFreq: effects.filter.frequency.value,
-          lfoState: lfo.state
+        
+        console.log(`LFO connected to filter:`, {
+          baseFreq: baseFreq.toFixed(1),
+          modAmount: modAmount.toFixed(1),
+          range: `${lfo.min.toFixed(1)}Hz to ${lfo.max.toFixed(1)}Hz`
         });
       } else {
         // For pitch modulation
@@ -172,6 +171,30 @@ const LFOModule: React.FC<LFOModuleProps> = ({ name = "LFO" }) => {
       console.log("LFO not connected:", { modulePower, synthPower });
     }
   }, [synth, effects.filter, modulePower, synthPower, lfoType, rate, destination, amount, audioReady]);
+
+  // Listen for filter frequency changes
+  React.useEffect(() => {
+    const handleFrequencyChange = (event: CustomEvent<{ frequency: number }>) => {
+      if (destination === "filter" && modulePower && synthPower && amount > 0) {
+        const baseFreq = event.detail.frequency;
+        const scaledAmount = Math.pow(2, amount * 4) - 1;
+        const modAmount = baseFreq * scaledAmount;
+        
+        lfoRef.current!.min = Math.max(20, baseFreq - modAmount);
+        lfoRef.current!.max = Math.min(20000, baseFreq + modAmount);
+        
+        console.log(`LFO range updated for new frequency:`, {
+          baseFreq: baseFreq.toFixed(1),
+          range: `${lfoRef.current!.min.toFixed(1)}Hz to ${lfoRef.current!.max.toFixed(1)}Hz`
+        });
+      }
+    };
+
+    window.addEventListener('filterFrequencyChange', handleFrequencyChange as EventListener);
+    return () => {
+      window.removeEventListener('filterFrequencyChange', handleFrequencyChange as EventListener);
+    };
+  }, [destination, modulePower, synthPower, amount, lfoRef]);
 
   const handleFrequencyChange = (value: number) => {
     setRate(value);

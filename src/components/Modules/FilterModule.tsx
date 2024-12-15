@@ -86,6 +86,8 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
   // Update stored settings when user changes them
   const updateFilterAndStore = React.useCallback((settings: Partial<Tone.FilterOptions>) => {
     if (!filter || !power) return;
+
+    // Update the filter
     filter.set(settings);
     
     // Store the updated settings
@@ -94,6 +96,11 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
     }
     if (settings.frequency !== undefined) {
       previousSettings.current.frequency = settings.frequency;
+      // Trigger a custom event when frequency changes
+      const event = new CustomEvent('filterFrequencyChange', { 
+        detail: { frequency: settings.frequency } 
+      });
+      window.dispatchEvent(event);
     }
     if (settings.Q !== undefined) {
       previousSettings.current.Q = settings.Q;
