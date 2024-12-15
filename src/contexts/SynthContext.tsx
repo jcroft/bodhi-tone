@@ -8,7 +8,7 @@ export const DEFAULT_SYNTH_OPTIONS: Partial<
 > = {
   maxPolyphony: 16,
   voice: Tone.MonoSynth,
-  volume: -18,
+  volume: 0,
   options: {
     portamento: 0,
     oscillator: {
@@ -179,7 +179,7 @@ export const SynthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (power) {
       // Start audio context when powered on
       Tone.start();
-      synth.volume.value = -18;
+      synth.volume.value = 0;
     } else {
       // Mute when powered off
       synth.volume.value = -Infinity;

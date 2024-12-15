@@ -13,7 +13,6 @@ import PowerButton from "./PowerButton";
 import ReverbModule from "./Modules/ReverbModule";
 import DelayModule from "./Modules/DelayModule";
 import ChorusModule from "./Modules/ChorusModule";
-import GlobalControlModule from "./Modules/GlobalControlModule";
 import {
   DEFAULT_EFFECTS_OPTIONS,
   DEFAULT_SYNTH_OPTIONS,
@@ -160,7 +159,6 @@ const Synthesizer: React.FC = () => {
               flexDirection: { xs: "column", sm: "row" },
             }}
           >
-            <GlobalControlModule name="Main" />
             <OscillatorModule name="Oscillator" />
             <FilterWithEnvelopeModule name="Filter" />
             <AmpEnvelopeModule name="Amp" />
