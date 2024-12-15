@@ -104,7 +104,7 @@ const Synthesizer: React.FC = () => {
 
       const now = Tone.now();
       if (duration) {
-        noteTracker.addNotes(notes);
+        noteTracker.addNotes(notes, velocity);
         synth.triggerAttackRelease(notes, duration, now, velocity);
         
         // Schedule note removal after duration
@@ -113,7 +113,7 @@ const Synthesizer: React.FC = () => {
           noteTracker.removeNotes(notes);
         }, releaseTime);
       } else {
-        noteTracker.addNotes(notes);
+        noteTracker.addNotes(notes, velocity);
         synth.triggerAttack(notes, now, velocity);
       }
     },

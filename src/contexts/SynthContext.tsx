@@ -123,12 +123,14 @@ limiter.toDestination();
 
 // Create a class to handle note tracking at the audio engine level
 class NoteTracker {
-  private activeNotes: Set<Tone.Unit.Frequency>;
+  private activeNotes: Map<Tone.Unit.Frequency, { timestamp: number; velocity?: number }>;
   private subscribers: Set<(notes: Tone.Unit.Frequency[]) => void>;
+  private maxVoices: number;
 
-  constructor() {
-    this.activeNotes = new Set();
+  constructor(maxVoices: number = 16) {
+    this.activeNotes = new Map();
     this.subscribers = new Set();
+    this.maxVoices = maxVoices;
   }
 
   subscribe(callback: (notes: Tone.Unit.Frequency[]) => void) {
@@ -137,7 +139,7 @@ class NoteTracker {
   }
 
   getActiveNotes() {
-    return Array.from(this.activeNotes);
+    return Array.from(this.activeNotes.keys());
   }
 
   private notify() {
@@ -145,13 +147,62 @@ class NoteTracker {
     this.subscribers.forEach(callback => callback(notes));
   }
 
-  addNote(note: Tone.Unit.Frequency) {
-    this.activeNotes.add(note);
+  private stealVoice(): Tone.Unit.Frequency | null {
+    if (this.activeNotes.size < this.maxVoices) return null;
+
+    // Find the oldest note
+    let oldestNote: Tone.Unit.Frequency | null = null;
+    let oldestTime = Infinity;
+
+    this.activeNotes.forEach((data, note) => {
+      if (data.timestamp < oldestTime) {
+        oldestTime = data.timestamp;
+        oldestNote = note;
+      }
+    });
+
+    return oldestNote;
+  }
+
+  addNote(note: Tone.Unit.Frequency, velocity?: number) {
+    // If we're at max voices, steal one
+    if (this.activeNotes.size >= this.maxVoices) {
+      const noteToSteal = this.stealVoice();
+      if (noteToSteal) {
+        this.removeNote(noteToSteal);
+      }
+    }
+
+    this.activeNotes.set(note, { 
+      timestamp: performance.now(),
+      velocity 
+    });
     this.notify();
   }
 
-  addNotes(notes: Tone.Unit.Frequency[]) {
-    notes.forEach(note => this.activeNotes.add(note));
+  addNotes(notes: Tone.Unit.Frequency[], velocity?: number) {
+    // Calculate how many voices we need to steal
+    const notesToSteal = Math.max(0, 
+      (this.activeNotes.size + notes.length) - this.maxVoices
+    );
+
+    // Steal the required number of voices
+    if (notesToSteal > 0) {
+      const oldestNotes = Array.from(this.activeNotes.entries())
+        .sort(([, a], [, b]) => a.timestamp - b.timestamp)
+        .slice(0, notesToSteal)
+        .map(([note]) => note);
+
+      oldestNotes.forEach(note => this.removeNote(note));
+    }
+
+    // Add new notes
+    notes.forEach(note => {
+      this.activeNotes.set(note, { 
+        timestamp: performance.now(),
+        velocity 
+      });
+    });
     this.notify();
   }
 
@@ -169,9 +220,27 @@ class NoteTracker {
     this.activeNotes.clear();
     this.notify();
   }
+
+  getVelocity(note: Tone.Unit.Frequency): number | undefined {
+    return this.activeNotes.get(note)?.velocity;
+  }
+
+  setMaxVoices(voices: number) {
+    this.maxVoices = voices;
+    // If we now have too many voices, steal the oldest ones
+    if (this.activeNotes.size > voices) {
+      const notesToSteal = this.activeNotes.size - voices;
+      const oldestNotes = Array.from(this.activeNotes.entries())
+        .sort(([, a], [, b]) => a.timestamp - b.timestamp)
+        .slice(0, notesToSteal)
+        .map(([note]) => note);
+
+      oldestNotes.forEach(note => this.removeNote(note));
+    }
+  }
 }
 
-const noteTracker = new NoteTracker();
+const noteTracker = new NoteTracker(DEFAULT_SYNTH_OPTIONS.maxPolyphony);
 
 export type SynthContextType = {
   power: boolean;
