@@ -2,70 +2,43 @@
 
 import React from "react";
 import BaseModule from "./BaseModule";
-import Fader from "../Input/Fader";
 import { useSynth } from "@/contexts/SynthContext";
+import EffectFader from "./EffectFader";
+import { useEffectModule } from "@/hooks/useEffectModule";
 
 interface ChorusModuleProps {
   name?: string;
 }
 
+const CHORUS_FADER_CONFIGS = [
+  { id: "wet", label: "Wet" },
+  { id: "feedback", label: "Fdbk" },
+  { id: "delayTime", label: "Time", min: 2, max: 20 },
+  { id: "frequency", label: "Freq", min: 0, max: 20000 },
+  { id: "depth", label: "Depth" },
+  { id: "spread", label: "Spread", min: 0, max: 180 },
+] as const;
+
 const ChorusModule: React.FC<ChorusModuleProps> = ({ name = "Chorus" }) => {
   const { effects } = useSynth();
+  const { createFaders } = useEffectModule(effects.chorus, name);
 
-  const createFader = React.useCallback(
-    (id: string, label: string, param: any, min = 0, max = 1, step = 0.01) => (
-      <Fader
-        key={`chorus-${id}`}
-        id={`chorus-${id}`}
-        label={label}
-        value={
-          id === "wet"
-            ? parseFloat(effects.chorus.wet.value.toString())
-            : parseFloat(param.toString())
-        }
-        sliderProps={{
-          valueLabelDisplay: "auto",
-          orientation: "vertical",
-          min,
-          max,
-          step,
-          onChange: (event, newValue) => {
-            if (id === "wet") {
-              effects.chorus.wet.value = newValue as number;
-            } else if (typeof newValue === "number") {
-              effects.chorus.set({
-                [id]: newValue,
-              });
-            }
-          },
-        }}
-      />
-    ),
-    [effects.chorus]
+  const [wetFader, ...settingsFaders] = React.useMemo(
+    () => createFaders(CHORUS_FADER_CONFIGS),
+    [createFaders]
   );
-
-  const chorusWetFader = createFader(
-    "wet",
-    "Wet",
-    effects.chorus.wet,
-    0,
-    1,
-    0.01
-  );
-
-  const chorusSettingsFaders = [
-    createFader("feedback", "Fdbk", effects.chorus.feedback, 0, 1, 0.01),
-    createFader("delayTime", "Time", effects.chorus.delayTime, 2, 20, 0.01),
-    createFader("frequency", "Freq", effects.chorus.frequency, 0, 20000, 0.01),
-    createFader("depth", "Depth", effects.chorus.depth, 0, 1, 0.01),
-    createFader("spread", "Spread", effects.chorus.spread, 0, 180, 0.01),
-  ];
 
   return (
     <BaseModule name={name}>
       <form>
-        <div className="control-group transparent">{chorusWetFader}</div>
-        <div className="control-group">{chorusSettingsFaders}</div>
+        <div className="control-group transparent">
+          <EffectFader {...wetFader} />
+        </div>
+        <div className="control-group">
+          {settingsFaders.map(fader => (
+            <EffectFader key={fader.id} {...fader} />
+          ))}
+        </div>
       </form>
     </BaseModule>
   );

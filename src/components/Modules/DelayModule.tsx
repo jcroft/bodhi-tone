@@ -2,61 +2,40 @@
 
 import React from "react";
 import BaseModule from "./BaseModule";
-import Fader from "../Input/Fader";
 import { useSynth } from "@/contexts/SynthContext";
+import EffectFader from "./EffectFader";
+import { useEffectModule } from "@/hooks/useEffectModule";
 
 interface DelayModuleProps {
-  name: string;
+  name?: string;
 }
+
+const DELAY_FADER_CONFIGS = [
+  { id: "wet", label: "Wet" },
+  { id: "feedback", label: "Fdbk" },
+  { id: "delayTime", label: "Time" },
+] as const;
 
 const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
   const { effects } = useSynth();
+  const { createFaders } = useEffectModule(effects.delay, name);
 
-  const createFader = React.useCallback(
-    (id: string, label: string, param: any, min = 0, max = 1, step = 0.01) => (
-      <Fader
-        key={`delay-${id}`}
-        id={`delay-${id}`}
-        label={label}
-        value={
-          id === "wet"
-            ? parseFloat(effects.delay.wet.value.toString())
-            : parseFloat(param.toString())
-        }
-        sliderProps={{
-          valueLabelDisplay: "auto",
-          orientation: "vertical",
-          min,
-          max,
-          step,
-          onChange: (event, newValue) => {
-            if (id === "wet") {
-              effects.delay.wet.value = newValue as number;
-            } else if (typeof newValue === "number") {
-              effects.delay.set({
-                [id]: newValue,
-              });
-            }
-          },
-        }}
-      />
-    ),
-    [effects.delay]
+  const [wetFader, ...settingsFaders] = React.useMemo(
+    () => createFaders(DELAY_FADER_CONFIGS),
+    [createFaders]
   );
-
-  const delayWetFader = createFader("wet", "Wet", effects.delay.wet);
-
-  const delaySettingsFaders = [
-    createFader("feedback", "Fdbk", effects.delay.feedback),
-    createFader("time", "Time", effects.delay.delayTime),
-  ];
 
   return (
     <BaseModule name={name}>
       <form>
-        <div className="control-group transparent">{delayWetFader}</div>
-
-        <div className="control-group">{delaySettingsFaders}</div>
+        <div className="control-group transparent">
+          <EffectFader {...wetFader} />
+        </div>
+        <div className="control-group">
+          {settingsFaders.map(fader => (
+            <EffectFader key={fader.id} {...fader} />
+          ))}
+        </div>
       </form>
     </BaseModule>
   );
