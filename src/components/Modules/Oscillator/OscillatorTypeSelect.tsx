@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
-import { MenuItem, ListItemIcon, Typography } from "@mui/material";
-import { StyledOscillatorIcon, StyledSelect } from "./oscillatorStyles";
+import Select from "../../Input/Select";
+import { StyledOscillatorIcon } from "./oscillatorStyles";
 import { OscillatorTypeSelectProps, OscillatorType } from "./oscillatorTypes";
 import { getOscillatorTypeLabel, getOscillatorIcon } from "./oscillatorUtils";
 import { OSCILLATOR_TYPES } from "./oscillatorConstants";
@@ -10,28 +12,25 @@ const OscillatorTypeSelect: React.FC<OscillatorTypeSelectProps> = ({
   updateSynthSettings,
 }) => {
   return (
-    <StyledSelect
+    <Select
+      label="Type"
       value={synthState?.oscillator?.type || "sine"}
       onChange={(event) => {
         updateSynthSettings({
           oscillator: { type: event.target.value as OscillatorType },
         });
       }}
-    >
-      {OSCILLATOR_TYPES.map((type) => (
-        <MenuItem key={type} value={type}>
-          <ListItemIcon>
-            <StyledOscillatorIcon
-              src={getOscillatorIcon(type as OscillatorType)}
-              alt={type}
-            />
-          </ListItemIcon>
-          <Typography variant="inherit">
-            {getOscillatorTypeLabel(type)}
-          </Typography>
-        </MenuItem>
-      ))}
-    </StyledSelect>
+      options={OSCILLATOR_TYPES.map((type) => ({
+        value: type,
+        label: getOscillatorTypeLabel(type),
+        icon: (
+          <StyledOscillatorIcon
+            src={getOscillatorIcon(type as OscillatorType)}
+            alt={type}
+          />
+        ),
+      }))}
+    />
   );
 };
 

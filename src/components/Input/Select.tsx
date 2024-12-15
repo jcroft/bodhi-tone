@@ -8,11 +8,14 @@ import {
   Select as MuiSelect,
   MenuItem,
   SelectChangeEvent,
+  ListItemIcon,
+  Typography,
 } from "@mui/material";
 
 type Option = {
   value: string;
   label: string;
+  icon?: React.ReactNode;
 };
 
 type SelectProps = {
@@ -53,10 +56,23 @@ const StyledSelectWrapper = styled(FormControl)`
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
       border-color: rgba(255, 255, 255, 0.7);
     }
+
+    .MuiSelect-select {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
   }
 
   .MuiSelect-icon {
     color: #fff;
+  }
+
+  .MuiMenuItem-root {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
   }
 `;
 
@@ -72,7 +88,14 @@ const Select: React.FC<SelectProps> = ({ label, value, onChange, options }) => {
       >
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>
-            {option.label}
+            {option.icon && (
+              <ListItemIcon sx={{ minWidth: 'auto' }}>
+                {option.icon}
+              </ListItemIcon>
+            )}
+            <Typography variant="inherit">
+              {option.label}
+            </Typography>
           </MenuItem>
         ))}
       </MuiSelect>
