@@ -8,6 +8,7 @@ type BaseModuleOptions = {
   classNames?: string;
   color?: string;
   children?: React.ReactNode;
+  headerContent?: React.ReactNode;
 };
 
 const StyledBaseModule = styled("div")(({ theme }) => ({
@@ -136,6 +137,7 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
   color = defaultModuleContext.color,
   classNames,
   children,
+  headerContent,
 }) => {
   const theme = useTheme();
 
@@ -150,6 +152,7 @@ const BaseModule: React.FC<BaseModuleOptions> = ({
           }}
         >
           <h2>{name}</h2>
+          {headerContent}
         </StyledModuleHeader>
         <StyledModuleBody role="region" aria-label={`${name} module content`}>
           {children}

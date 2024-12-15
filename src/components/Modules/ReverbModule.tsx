@@ -5,6 +5,7 @@ import BaseModule from "./BaseModule";
 import { useSynth } from "@/contexts/SynthContext";
 import EffectFader from "./EffectFader";
 import { useEffectModule } from "@/hooks/useEffectModule";
+import PowerButton from "../PowerButton"; // Fixed import path
 
 interface ReverbModuleProps {
   name?: string;
@@ -19,14 +20,35 @@ const REVERB_FADER_CONFIGS = [
 const ReverbModule: React.FC<ReverbModuleProps> = ({ name = "Reverb" }) => {
   const { effects } = useSynth();
   const { createFaders } = useEffectModule(effects.reverb, name);
+  const [isPowered, setIsPowered] = React.useState(true);
+  const [previousWet, setPreviousWet] = React.useState(0.5);
 
   const [wetFader, ...settingsFaders] = React.useMemo(
     () => createFaders(REVERB_FADER_CONFIGS),
     [createFaders]
   );
 
+  React.useEffect(() => {
+    if (!isPowered) {
+      setPreviousWet(effects.reverb.wet.value);
+      effects.reverb.wet.value = 0;
+    } else {
+      effects.reverb.wet.value = previousWet;
+    }
+  }, [isPowered, effects.reverb.wet, previousWet]);
+
   return (
-    <BaseModule name={name}>
+    <BaseModule 
+      name={name}
+      headerContent={
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <PowerButton 
+            isOn={isPowered} 
+            onClick={() => setIsPowered(!isPowered)}
+          />
+        </div>
+      }
+    >
       <form>
         <div className="control-group transparent">
           <EffectFader {...wetFader} />

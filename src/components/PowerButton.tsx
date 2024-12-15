@@ -7,19 +7,25 @@ import PowerIcon from "@mui/icons-material/PowerSettingsNew";
 interface PowerButtonProps {
   isOn: boolean;
   onClick: (power: boolean) => void;
+  style?: React.CSSProperties;
 }
 
-const PowerButton: React.FC<PowerButtonProps> = ({ isOn, onClick }) => {
+const PowerButton: React.FC<PowerButtonProps> = ({ isOn, onClick, style }) => {
   return (
     <Button
-      variant="contained"
-      color="primary"
+      variant="text"
+      color="inherit"
       className={isOn ? "on" : "off"}
       onClick={() => onClick(!isOn)}
-      startIcon={<PowerIcon />}
-      size="small"
+      style={{
+        minWidth: '24px',
+        width: '24px',
+        height: '24px',
+        padding: 0,
+        ...style
+      }}
     >
-      Power
+      <PowerIcon fontSize="small" />
     </Button>
   );
 };

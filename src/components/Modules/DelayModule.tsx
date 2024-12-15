@@ -5,6 +5,7 @@ import BaseModule from "./BaseModule";
 import { useSynth } from "@/contexts/SynthContext";
 import EffectFader from "./EffectFader";
 import { useEffectModule } from "@/hooks/useEffectModule";
+import PowerButton from "../PowerButton"; // Fixed import path
 
 interface DelayModuleProps {
   name?: string;
@@ -19,14 +20,35 @@ const DELAY_FADER_CONFIGS = [
 const DelayModule: React.FC<DelayModuleProps> = ({ name = "Delay" }) => {
   const { effects } = useSynth();
   const { createFaders } = useEffectModule(effects.delay, name);
+  const [isPowered, setIsPowered] = React.useState(true);
+  const [previousWet, setPreviousWet] = React.useState(0.5);
 
   const [wetFader, ...settingsFaders] = React.useMemo(
     () => createFaders(DELAY_FADER_CONFIGS),
     [createFaders]
   );
 
+  React.useEffect(() => {
+    if (!isPowered) {
+      setPreviousWet(effects.delay.wet.value);
+      effects.delay.wet.value = 0;
+    } else {
+      effects.delay.wet.value = previousWet;
+    }
+  }, [isPowered, effects.delay.wet, previousWet]);
+
   return (
-    <BaseModule name={name}>
+    <BaseModule 
+      name={name}
+      headerContent={
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <PowerButton 
+            isOn={isPowered} 
+            onClick={() => setIsPowered(!isPowered)}
+          />
+        </div>
+      }
+    >
       <form>
         <div className="control-group transparent">
           <EffectFader {...wetFader} />
