@@ -39,7 +39,8 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
     frequency: 2000,
     Q: 1,
     gain: 0,
-    type: "lowpass" as typeof FILTER_TYPES[number]
+    type: "lowpass" as typeof FILTER_TYPES[number],
+    slope: -12 as typeof FILTER_SLOPES[number]
   });
 
   // Convert between linear slider value and logarithmic frequency
@@ -56,15 +57,19 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         frequency: previousSettings.current.frequency,
         Q: previousSettings.current.Q,
         gain: previousSettings.current.gain,
-        type: previousSettings.current.type
+        type: previousSettings.current.type,
+        rolloff: previousSettings.current.slope
       });
+      setFilterType(previousSettings.current.type);
+      setFilterSlope(previousSettings.current.slope);
     } else {
       // Store current settings
       previousSettings.current = {
         frequency: filter.frequency.value,
         Q: filter.Q.value,
         gain: filter.gain.value,
-        type: filterType
+        type: filterType,
+        slope: filterSlope
       };
       
       // Set filter to be completely open
@@ -72,15 +77,18 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         type: "allpass",
         frequency: 20000,
         Q: 0.1,
-        gain: 0
+        gain: 0,
+        rolloff: -12
       });
     }
-  }, [filter, power, filterType]);
+  }, [filter, power, filterType, filterSlope]);
 
   // Update stored settings when user changes them
   const updateFilterAndStore = React.useCallback((settings: Partial<Tone.FilterOptions>) => {
     if (!filter || !power) return;
     filter.set(settings);
+    
+    // Store the updated settings
     if (settings.type) {
       previousSettings.current.type = settings.type as typeof FILTER_TYPES[number];
     }
@@ -93,6 +101,9 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
     if (settings.gain !== undefined) {
       previousSettings.current.gain = settings.gain;
     }
+    if (settings.rolloff !== undefined) {
+      previousSettings.current.slope = settings.rolloff as typeof FILTER_SLOPES[number];
+    }
   }, [filter, power]);
 
   const frequencyFader = React.useMemo(
@@ -101,7 +112,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         key="frequency"
         id="frequency"
         label="Freq"
-        value={freqToSlider(power ? filter?.frequency.value ?? 2000 : previousSettings.current.frequency)}
+        value={freqToSlider(previousSettings.current.frequency)}
         sliderProps={{
           valueLabelDisplay: "auto",
           valueLabelFormat: (value: number) => `${Math.round(sliderToFreq(value))} Hz`,
@@ -116,7 +127,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         }}
       />
     ),
-    [filter, power, updateFilterAndStore]
+    [updateFilterAndStore]
   );
 
   const resonanceFader = React.useMemo(
@@ -125,7 +136,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         key="Q"
         id="Q"
         label="Reso"
-        value={power ? filter?.Q.value ?? 1 : previousSettings.current.Q}
+        value={previousSettings.current.Q}
         sliderProps={{
           valueLabelDisplay: "auto",
           orientation: "vertical",
@@ -138,7 +149,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         }}
       />
     ),
-    [filter, power, updateFilterAndStore]
+    [updateFilterAndStore]
   );
 
   const gainFader = React.useMemo(
@@ -147,7 +158,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         key="gain"
         id="gain"
         label="Gain"
-        value={power ? filter?.gain.value ?? 0 : previousSettings.current.gain}
+        value={previousSettings.current.gain}
         sliderProps={{
           valueLabelDisplay: "auto",
           orientation: "vertical",
@@ -160,7 +171,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         }}
       />
     ),
-    [filter, power, updateFilterAndStore]
+    [updateFilterAndStore]
   );
 
   return (
@@ -178,7 +189,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
         <div className="control-group" style={{ flexDirection: 'column', gap: '0.5rem' }}>
           <Select
             label="Type"
-            value={filterType}
+            value={previousSettings.current.type}
             onChange={(e) => {
               const newType = e.target.value as typeof FILTER_TYPES[number];
               setFilterType(newType);
@@ -191,11 +202,11 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
           />
           <Select
             label="Slope"
-            value={filterSlope.toString()}
+            value={previousSettings.current.slope.toString()}
             onChange={(e) => {
               const newSlope = parseInt(e.target.value) as typeof FILTER_SLOPES[number];
               setFilterSlope(newSlope);
-              filter?.set({ rolloff: newSlope });
+              updateFilterAndStore({ rolloff: newSlope });
             }}
             options={FILTER_SLOPES.map((slope) => ({
               value: slope.toString(),
@@ -203,7 +214,7 @@ const FilterModule: React.FC<FilterModuleOptions> = ({
             }))}
           />
         </div>
-        <div className="control-group transparent">
+        <div className="control-group">
           {frequencyFader}
           {resonanceFader}
           {gainFader}

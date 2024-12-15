@@ -5,6 +5,7 @@ import BaseModule from "./BaseModule";
 import * as Tone from "tone";
 import Fader from "../Input/Fader";
 import { useSynth } from "@/contexts/SynthContext";
+import PowerButton from "../PowerButton";
 
 type AmpEnvelopeModuleOptions = {
   name?: string;
@@ -17,12 +18,62 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
 }) => {
   const { synth } = useSynth();
   const synthState = synth?.get() as Tone.MonoSynthOptions;
+  const [power, setPower] = React.useState(true);
 
+  // Store the previous envelope settings when turning off
+  const previousSettings = React.useRef({
+    attack: 0.01,
+    decay: 0.1,
+    sustain: 0.5,
+    release: 0.5
+  });
+
+  // Update envelope when power changes
+  React.useEffect(() => {
+    if (!synth) return;
+
+    if (power) {
+      // Restore previous settings
+      synth.set({
+        envelope: previousSettings.current
+      });
+    } else {
+      // Store current settings before turning off
+      const currentEnvelope = synth.get().envelope;
+      previousSettings.current = {
+        attack: currentEnvelope.attack,
+        decay: currentEnvelope.decay,
+        sustain: currentEnvelope.sustain,
+        release: currentEnvelope.release
+      };
+      
+      // Set envelope to instant response (no envelope)
+      synth.set({
+        envelope: {
+          attack: 0.001,
+          decay: 0.001,
+          sustain: 1,
+          release: 0.001
+        }
+      });
+    }
+  }, [synth, power]);
+
+  // Update stored settings when user changes them
   const updateSynthSettings = React.useCallback(
     (options: Partial<Tone.MonoSynthOptions>) => {
-      synth?.set(options);
+      if (!synth || !power) return;
+      synth.set(options);
+      
+      // Store the new envelope settings
+      if (options.envelope) {
+        previousSettings.current = {
+          ...previousSettings.current,
+          ...options.envelope
+        };
+      }
     },
-    [synth]
+    [synth, power]
   );
 
   const createFader = React.useCallback(
@@ -37,7 +88,7 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
         key={param}
         id={param}
         label={label}
-        value={parseFloat(synthState?.envelope[param].toString())}
+        value={previousSettings.current[param]}
         sliderProps={{
           valueLabelDisplay: "auto",
           orientation: "vertical",
@@ -72,7 +123,16 @@ const AmpEnvelopeModule: React.FC<AmpEnvelopeModuleOptions> = ({
   );
 
   return (
-    <BaseModule name={name}>
+    <BaseModule 
+      name={name}
+      headerContent={
+        <PowerButton
+          isOn={power}
+          onClick={(checked) => setPower(checked)}
+          variant="module"
+        />
+      }
+    >
       <form>
         <div className="control-group">
           <h3>Envelope</h3>
